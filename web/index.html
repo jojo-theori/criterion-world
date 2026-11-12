@@ -17,6 +17,10 @@
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <style>
+  /* 가변 글자 크기: 폰(390px)의 값과 1440px 의 값을 잇는 직선(clamp 로 위아래를 막는다). 구간마다 끊지 않는다 */
+  :root { --t1: clamp(10px, 9.6px + .095vw, 11.5px); --t2: clamp(11px, 10.6px + .095vw, 12.5px);
+    --t3: clamp(12px, 11.6px + .095vw, 13.5px); --t4: clamp(13px, 12.6px + .095vw, 14.5px);
+    --t5s: clamp(18px, 16.5px + .38vw, 23px); --t5: clamp(22px, 19px + .76vw, 32px); --t6: clamp(24px, 20.3px + .95vw, 36px); }
   :root { --fg: #ebebeb; --dim: #8a8a8a; --line: #2a2a2a; --out: cubic-bezier(.22,1,.36,1); }
   * { box-sizing: border-box; }
   html, body { margin: 0; height: 100%; background: #000; color: var(--fg);
@@ -25,10 +29,10 @@
 
   /* 두 화면이 함께 쓰는 머리줄: 축 + 원본/흔적 */
   header { position: fixed; top: 0; left: 0; right: 0; height: 56px; display: flex; align-items: center;
-    gap: 14px; padding: 0 32px; z-index: 30; }
+    gap: 14px; padding: 0 32px; z-index: 40; }   /* 크레딧(30)보다 위: 검색 결과·축 목록이 아래로 길게 내려와도 덮는다 */
   .group { position: relative; display: flex; gap: 2px; background: #111; border-radius: 999px; padding: 4px; }
-  .group button { position: relative; z-index: 1; border: 0; background: transparent; color: var(--dim); font-size: 13px;
-    padding: 7px 14px; border-radius: 999px; cursor: pointer; white-space: nowrap; transition: color .3s var(--out); }
+  .group button { position: relative; z-index: 1; border: 0; background: transparent; color: var(--dim); font-size: var(--t3);
+    height: 28px; padding: 0 14px; border-radius: 999px; cursor: pointer; white-space: nowrap; transition: color .3s var(--out); }
   .group button:not(:disabled):not(.on):hover { color: var(--fg); }
   .group button.on { color: #000; }
   .group button:disabled { opacity: .3; cursor: default; }
@@ -36,13 +40,13 @@
   .group .sep { width: 1px; margin: 6px 4px; background: #333; }
   .pill { position: absolute; top: 4px; bottom: 4px; left: 0; width: 0; border-radius: 999px; background: var(--fg);
     transition: transform .45s var(--out), width .45s var(--out); pointer-events: none; }
-  .count { font-size: 12px; color: var(--dim); margin-left: auto; transition: opacity .3s; }
+  .count { font-size: var(--t2); color: var(--dim); margin-left: auto; transition: opacity .3s; }
   /* 눈: 누르면 기계가 본 흔적이 보인다 */
   .eye { width: 36px; height: 36px; border: 0; border-radius: 50%; background: #111; color: var(--dim); padding: 0;
     cursor: pointer; display: grid; place-items: center; transition: background .35s var(--out), color .35s var(--out); }
   .eye:hover { color: var(--fg); }
   .eye:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
-  .eye svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; overflow: visible; }
+  .eye svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; overflow: visible; }
   .eye .pupil { fill: currentColor; stroke: none; transform-origin: 12px 12px; transition: transform .45s var(--out); }
   .eye .rays { opacity: 0; transform-origin: 12px 12px; transform: scale(.6); transition: opacity .35s var(--out), transform .5s var(--out); }
   .eye[aria-pressed="true"] { background: var(--fg); color: #000; }
@@ -52,7 +56,7 @@
   .search { position: relative; }
   /* 쓰지 않을 때는 돋보기만 있는 동그라미로 접힌다 */
   #q { width: 36px; height: 36px; border: 0; border-radius: 999px; background: #111; color: var(--fg); cursor: pointer;
-    font: inherit; font-size: 13px; padding: 0 0 0 36px; outline: none; transition: width .45s var(--out), background .2s, padding .45s var(--out); }
+    font: inherit; font-size: var(--t3); padding: 0 0 0 36px; outline: none; transition: width .45s var(--out), background .2s, padding .45s var(--out); }
   #q:hover { background: #1a1a1a; }
   #q::placeholder { color: transparent; transition: color .2s; }
   .search:focus-within #q::placeholder { color: #666; }
@@ -75,14 +79,15 @@
   #results li { display: flex; gap: 10px; align-items: center; padding: 6px; border-radius: 9px; cursor: pointer; }
   #results li.on { background: #1d1d1d; }
   #results img { width: 34px; height: 42px; object-fit: cover; flex: none; background: #222; }
-  #results .t { font-size: 13px; }
-  #results .s { font-size: 11px; color: var(--dim); }
+  #results .t { font-size: var(--t3); }
+  #results .s { font-size: var(--t1); color: var(--dim); }
   #results .none { height: 120px; display: flex; align-items: center; justify-content: center; text-align: center;
-    color: var(--dim); font-size: 13px; cursor: default; }
+    color: var(--dim); font-size: var(--t3); cursor: default; }
   .close { border: 0; background: #111; color: var(--fg); width: 36px; height: 36px; border-radius: 50%;
-    cursor: pointer; font-size: 18px; opacity: 0; pointer-events: none; transform: scale(.6);
+    cursor: pointer; display: grid; place-items: center; padding: 0; opacity: 0; pointer-events: none; transform: scale(.6);
     transition: opacity .3s var(--out), transform .4s var(--out), background .2s; }
   body.tri-open .close { opacity: 1; pointer-events: auto; transform: none; }
+  .close svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; }
   body.tri-open .close:hover { background: #222; transform: rotate(90deg); }
   body.tri-open .count { opacity: 0; }
 
@@ -90,12 +95,12 @@
   #stage { position: fixed; top: 64px; left: 32px; right: 32px; bottom: 112px; }
   #grid { position: absolute; inset: 0; width: 100%; height: 100%; cursor: default; }
   #grid.hover { cursor: pointer; }
-  .axis { position: absolute; font-size: 10px; color: var(--dim); white-space: nowrap; pointer-events: none;
+  .axis { position: absolute; font-size: var(--t1); color: var(--dim); white-space: nowrap; pointer-events: none;
     animation: fadeIn .6s var(--out) .45s both; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
   footer { position: fixed; left: 32px; bottom: 40px; right: 32px; pointer-events: none; }
-  .k { font-size: 13px; color: var(--dim); }
-  .v { font-size: 34px; margin-top: 2px; }
+  .k { font-size: var(--t3); color: var(--dim); }
+  .v { font-size: var(--t6); margin-top: 2px; }
 
   #lens { position: fixed; left: 0; top: 0; pointer-events: none; z-index: 9; opacity: 0;
     background-size: cover; background-position: center; outline: 1px solid var(--fg); box-shadow: 0 10px 30px rgba(0,0,0,.8);
@@ -103,10 +108,10 @@
   #lens.show { opacity: 1; }
   #lens.jump { transition: opacity .18s var(--out); }
   #tip { position: fixed; left: 0; top: 0; pointer-events: none; background: #111; border: 1px solid var(--line);
-    padding: 10px 12px; font-size: 12px; line-height: 1.5; max-width: 280px; z-index: 10;
+    padding: 10px 12px; font-size: var(--t2); line-height: 1.5; max-width: 280px; z-index: 10;
     opacity: 0; transform: translateY(6px); transition: opacity .18s var(--out), transform .18s var(--out); }
   #tip.show { opacity: 1; transform: none; }
-  #tip b { font-size: 14px; font-weight: 500; }
+  #tip b { font-size: var(--t4); font-weight: 500; }
 
   /* 화면 사이를 나는 이미지 한 장 */
   #flyer { position: fixed; left: 0; top: 0; z-index: 25; pointer-events: none; display: none;
@@ -136,28 +141,54 @@
   .box canvas { pointer-events: none; opacity: 0; transition: opacity .5s var(--out); }
   body.trace .box canvas { opacity: 1; }
   /* 3번째 칸: 지금 커버의 상세 정보 */
-  .info { grid-row: 2; grid-column: 3; display: flex; flex-direction: column; justify-content: flex-end; gap: 6px;
-    padding: 0 4px 2px; font-size: 14px; line-height: 1.45; color: var(--dim); }
-  .info .t { font-size: 30px; line-height: 1.12; color: var(--fg); margin-bottom: 10px; }
-  .info .n { font-size: 12px; margin-top: 10px; display: flex; gap: 14px; align-items: baseline; }
-  .info .o { margin-top: -8px; margin-bottom: 4px; font-style: italic; }
+  /* 정보 칸은 3열 전체(위 띠 ~ 아래 띠)를 차지하고, 위아래 padding 으로 평소엔 커버 높이만 쓴다.
+     넘치면 fillInfo 가 padding 을 넘치는 만큼만 위아래 반씩 줄여 가운데를 중심으로 늘어난다 */
+  .info { grid-row: 1 / 4; grid-column: 3; display: flex; flex-direction: column; gap: 6px; min-height: 0; overflow: hidden;
+    padding: 0 4px 2px; font-size: var(--t4); line-height: 1.45; color: var(--dim);
+    transition: padding-top .42s var(--out), padding-bottom .42s var(--out); }
+  .info > * { flex: none; }
+  /* 번호·제목·감독 줄은 커버 윗변에, 표와 링크(.body)는 아랫변에 붙인다. justify-content 로 나누면 넘친 높이를 잴 수 없다 */
+  .info .body { margin-top: auto; display: flex; flex-direction: column; gap: 6px; }
+  .info .no { font-size: var(--t3); margin-bottom: -2px; }
+  .info .t { font-size: var(--t5); line-height: 1.12; color: var(--fg); margin-bottom: 10px; }
+  .info.small .t { font-size: var(--t5s); }
+  .info.tight .kv span:last-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .info .n { font-size: var(--t2); margin-top: 10px; display: flex; gap: 14px; align-items: baseline; }
+  .info .o { margin-top: -2px; margin-bottom: 4px; font-style: italic; }   /* 제목과 한 묶음(.tt) */
   .info .sp { height: 10px; }
-  .info .kv { display: grid; grid-template-columns: 7.5em 1fr; column-gap: 10px; font-size: 13px; line-height: 1.4; }
+  .info .kv { display: grid; grid-template-columns: 7.5em 1fr; column-gap: 10px; font-size: var(--t3); line-height: 1.4; }
   .info .kv span:first-child { color: #555; }
   .info .kv span:last-child { color: #b5b5b5; }
   .info a { color: var(--dim); text-decoration: none; border-bottom: 1px solid #333; transition: color .2s, border-color .2s; }
   .info a:hover { color: var(--fg); border-color: var(--fg); }
-  /* 줄 이름: 1열 왼쪽 여백에 세로로. 가운데 줄은 위 끝, 위 줄은 아래 끝, 아래 줄은 위 끝에 붙인다 */
-  .rowname { grid-column: 1; position: relative; pointer-events: none; z-index: 2; }
-  .rowname span { position: absolute; right: 100%; margin-right: 9px; writing-mode: vertical-rl; transform: rotate(180deg);
-    font-size: 11px; letter-spacing: .02em; white-space: nowrap; color: #555; max-height: 100%; overflow: hidden; text-overflow: ellipsis; }
-  .rowname[data-row="mid"] span { bottom: auto; top: 0; color: var(--dim); }
-  .rowname[data-row="up"] span { bottom: 0; }
-  .rowname[data-row="down"] span { top: 0; }
+  /* spine 번호가 criterion.com 링크(새 탭). 화살표는 Lucide arrow-up-right(24 격자의 7–17, viewBox 5–19)를
+     글자의 절반 남짓 크기로, 대문자 높이(약 .72em)의 가운데에 맞춘다. 끝과 이음은 둥글게, 선은 약 1px */
+  .info a.no { align-self: flex-start; color: var(--dim); border: 0; text-decoration: underline dotted transparent;
+    text-decoration-thickness: 1px; text-underline-offset: .2em; transition: color .2s, text-decoration-color .2s; }
+  .info a.no:hover, .info a.no:focus-visible { color: var(--fg); text-decoration-color: currentColor; outline: none; }
+  .info a.no .out { opacity: .6; transition: opacity .2s; }
+  .info a.no:hover .out, .info a.no:focus-visible .out { opacity: 1; }
+  .info .no .out { width: .62em; height: .62em; margin-left: .3em; vertical-align: .05em; fill: none; stroke: currentColor;
+    stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
+  /* 더보기: 덜 중요한 줄은 접어 둔다 */
+  .info .extra { display: none; flex-direction: column; gap: 6px; overflow: hidden; }
+  .info .m { font-size: var(--t2); margin-top: 2px; }
+  .info.open .extra { display: flex; }
+  .info.compact, .info.compact .body, .info.compact .extra { gap: 3px; }   /* 넘칠 때 마지막으로 줄 간격을 좁힌다 */
+  .info.compact .kv { font-size: var(--t2); line-height: 1.35; }
+  .info .more { border: 0; background: none; padding: 0; font: inherit; color: var(--dim); cursor: pointer;
+    border-bottom: 1px solid #333; transition: color .2s, border-color .2s; }
+  .info .more:hover { color: var(--fg); border-color: var(--fg); }
+  .info .more:focus-visible { outline: 1px solid var(--fg); outline-offset: 3px; }
+  /* 줄 이름: 가운데 줄 것만, 1열 왼쪽 여백에 세로로. 가운데 커버 윗변에서 시작해 아래 띠 끝까지 쓸 수 있다 */
+  .rowname { grid-column: 1; grid-row: 2 / 4; position: relative; pointer-events: none; z-index: 2; }
+  .rowname span { position: absolute; right: 100%; top: 0; margin-right: 9px; writing-mode: vertical-rl; transform: rotate(180deg);
+    font-size: var(--t1); letter-spacing: .02em; white-space: nowrap; color: var(--dim);
+    max-height: 100%; overflow: hidden; text-overflow: ellipsis; }
   /* 오른쪽 아래 만든 이 */
   /* 만든 이: 왼쪽 아래 축 이름 밑에 한 줄 */
-  #credit2 { position: fixed; right: 32px; bottom: 16px; z-index: 30; font-size: 11px; line-height: 1.6; color: #4a4a4a; white-space: nowrap; text-align: right; }
-  #credit { position: fixed; left: 32px; bottom: 16px; z-index: 30; font-size: 11px; color: #4a4a4a; white-space: nowrap; }
+  #credit2 { position: fixed; right: 32px; bottom: 16px; z-index: 30; font-size: var(--t1); line-height: 1.6; color: #4a4a4a; white-space: nowrap; text-align: right; }
+  #credit { position: fixed; left: 32px; bottom: 16px; z-index: 30; font-size: var(--t1); color: #4a4a4a; white-space: nowrap; }
   #credit i, #credit2 i { font-style: normal; margin: 0 7px; color: #333; }
   #credit a, #credit2 a { color: #6a6a6a; text-decoration: none; transition: color .2s; }
   #credit a:hover, #credit2 a:hover { color: var(--fg); }
@@ -178,11 +209,11 @@
 
   /* 단축키 팝오버 */
   #kbd { position: fixed; left: 0; top: 0; z-index: 60; pointer-events: none; display: flex; align-items: center; gap: 6px;
-    padding: 5px 7px 5px 10px; background: #1a1a1a; border: 1px solid #2c2c2c; border-radius: 9px; font-size: 11px;
+    padding: 5px 7px 5px 10px; background: #1a1a1a; border: 1px solid #2c2c2c; border-radius: 9px; font-size: var(--t1);
     color: var(--dim); white-space: nowrap; opacity: 0; transform: translateY(3px); transition: opacity .15s var(--out), transform .2s var(--out); }
   #kbd.show { opacity: 1; transform: none; }
   #kbd span { margin-right: 2px; }
-  #kbd kbd { font: inherit; font-size: 11px; color: var(--fg); background: #2a2a2a; border-radius: 5px; padding: 1px 6px; min-width: 18px; text-align: center; }
+  #kbd kbd { font: inherit; font-size: var(--t1); color: var(--fg); background: #2a2a2a; border-radius: 5px; padding: 1px 6px; min-width: 18px; text-align: center; }
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { transition-duration: 0s !important; transition-delay: 0s !important;
       animation-duration: 0s !important; animation-delay: 0s !important; }
@@ -192,11 +223,102 @@
     justify-content: center; gap: 14px; transition: opacity .6s var(--out); }
   #boot.on { display: flex; }
   #boot.done { opacity: 0; pointer-events: none; }
-  #boot .name { font-size: 13px; color: var(--dim); letter-spacing: .02em; }
+  #boot .name { font-size: var(--t3); color: var(--dim); letter-spacing: .02em; }
   #boot .bar { width: 180px; height: 1px; background: #222; overflow: hidden; }
   #boot .bar i { display: block; height: 100%; background: var(--fg); transform: scaleX(0); transform-origin: 0 50%; transition: transform .2s linear; }
-  #boot .pct { display: flex; gap: 12px; font-size: 11px; color: #555; font-variant-numeric: tabular-nums; }
+  #boot .pct { display: flex; gap: 12px; font-size: var(--t1); color: #555; font-variant-numeric: tabular-nums; }
   #boot #bootPct { color: var(--fg); }
+
+  /* 축 드롭다운: 축 버튼 묶음이 머리줄에 다 들어가지 않으면(body.axcompact, fitAxes 가 잰다) 지금 축 버튼 하나 + 세로 목록 */
+  .axmenu { display: none; position: relative; flex: none; }
+  body.axcompact #axes { display: none; }
+  header.measure > * { flex-shrink: 0 !important; min-width: auto !important; }
+  header.measure #axes { overflow: visible; }
+  .count { white-space: nowrap; }
+  body.axcompact .axmenu { display: block; margin-right: auto; }   /* 검색·닫기는 오른쪽 끝에 */
+  .axbtn { height: 36px; display: inline-flex; align-items: center; gap: 8px; padding: 0 14px 0 16px; border: 0; border-radius: 999px;
+    background: #111; color: var(--fg); font: inherit; font-size: var(--t3); cursor: pointer; white-space: nowrap; }
+  .axbtn:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
+  .axbtn svg { width: 10px; height: 10px; fill: none; stroke: var(--dim); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round;
+    transition: transform .3s var(--out); }
+  .axmenu.open .axbtn svg { transform: rotate(180deg); }
+  /* 목록은 가로 세그먼트(.group)와 같은 결: #111 알약 바탕, 28px 알약 버튼, 고른 것은 흰 알약에 검은 글자, 묶음 사이는 1px 선 */
+  .axlist { position: absolute; left: 0; top: 44px; min-width: 100%; display: flex; flex-direction: column; gap: 2px; padding: 4px;
+    background: #111; border-radius: 18px; z-index: 40;
+    opacity: 0; transform: translateY(-6px); pointer-events: none; transition: opacity .2s var(--out), transform .25s var(--out); }
+  .axmenu.open .axlist { opacity: 1; transform: none; pointer-events: auto; }
+  .axlist .sep { height: 1px; margin: 4px 10px; background: #333; }
+  .axlist button { height: 28px; padding: 0 14px; border: 0; border-radius: 999px; background: transparent; text-align: left;
+    color: var(--dim); font: inherit; font-size: var(--t3); white-space: nowrap; cursor: pointer; transition: color .3s var(--out), background .3s var(--out); }
+  .axlist button:not(:disabled):not(.on):hover { color: var(--fg); background: #1f1f1f; }
+  .axlist button.on { color: #000; background: var(--fg); }
+  .axlist button:disabled { opacity: .3; cursor: default; }
+  .axlist button:focus-visible { outline: 1px solid var(--fg); outline-offset: -1px; }   /* 키보드일 때만, 크기는 그대로 */
+
+  .nogl { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; text-align: center;
+    padding: 0 16px; font-size: var(--t4); color: var(--dim); }
+  #grid:focus { outline: none; }
+  #tri:focus { outline: none; }
+
+  /* ---------- 좁은 화면(폰) ---------- */
+  #grid { touch-action: none; }
+  #panels { touch-action: none; }
+  .info { touch-action: pan-y; }
+  @media (max-width: 720px) {
+    header { height: 56px; padding: 0 16px; gap: 8px; }
+    /* 축 버튼은 가로로 밀어 본다. 오른쪽 끝을 흐려 더 있다는 것을 알린다 */
+    #axes { flex: 1 1 auto; min-width: 0; overflow-x: auto; scrollbar-width: none;
+      -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent);
+      mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent); }
+    #axes::-webkit-scrollbar { display: none; }
+    .eye, .close { flex: none; }
+    .count { display: none; }
+    /* 검색: 펼치면 머리줄을 덮는다. 접힌 채 검색어가 있으면 돋보기 동그라미를 밝게 */
+    /* 검색: 돋보기 동그라미의 오른쪽 끝을 고정한 채 왼쪽으로 늘어난다(세 폭 보기에선 닫기 버튼 앞까지).
+       자리를 옮기지 않고 폭만 바뀌어 끊기지 않는다 */
+    .search { --sr: 16px; position: absolute; top: 10px; right: var(--sr); width: 36px; height: 36px; z-index: 50;
+      transition: width .45s var(--out); }
+    body.tri-open .search { --sr: 60px; }
+    .search:focus-within { width: calc(100% - 16px - var(--sr)); }
+    .search #q, .search:focus-within #q { width: 100%; transition: background .2s, padding .45s var(--out); }
+    .search.has:not(:focus-within) #q { width: 36px; padding-right: 0; background: var(--fg); }
+    .search.has:not(:focus-within) .icon { stroke: #000; }
+    .search:not(:focus-within) .clear { opacity: 0; pointer-events: none; }
+    #results { width: 100%; }
+    body.tri-open .close { margin-left: 0; }
+
+    /* 크레딧: 가운데 정렬. 위는 Inspired by … 와 Not affiliated … 를 살짝 띄워 한 줄(폭이 모자라면 두 줄), 맨 아래는 이름 · 버전 */
+    #stage { top: 60px; left: 16px; right: 16px; bottom: calc(118px + env(safe-area-inset-bottom)); }
+    footer { left: 16px; right: 16px; bottom: calc(60px + env(safe-area-inset-bottom)); }
+    #credit, #credit2 { left: 16px; right: 16px; text-align: center; line-height: 1.5; white-space: normal; }
+    #credit { bottom: calc(8px + env(safe-area-inset-bottom)); }
+    #credit2 { bottom: calc(8px + 1.5em + env(safe-area-inset-bottom)); }
+    #credit2 > div { display: inline-block; margin: 0 6px; white-space: nowrap; }
+
+    /* 세 폭 보기: 이전 · 지금 · 다음을 한 줄에(양옆은 안쪽 가장자리만), 위·아래 띠, 그 밑에 정보 */
+    #panels { --gap: 12px; --edge: 44px; top: 60px; bottom: calc(118px + env(safe-area-inset-bottom));
+      grid-template-columns: var(--swl) var(--bw) var(--swr); justify-content: end;   /* 왼쪽만 줄 이름 여백, 오른쪽은 화면 끝까지 */
+      grid-template-rows: var(--edge) var(--bh) var(--edge) minmax(0, 1fr); align-content: start; }
+    .box.side[data-role="left"] { width: var(--swl); }
+    .box.side[data-role="right"] { width: var(--swr); }
+    .box.side img, .box.side canvas { inset: auto; top: 0; left: 0; width: var(--bw); height: var(--bh); }
+    .box.side[data-role="left"] img, .box.side[data-role="left"] canvas { left: auto; right: 0; }
+    .peek[data-col="1"] img, .peek[data-col="1"] canvas { left: auto; right: 0; }
+    /* 정보 영역은 검은 덮개 층: 아래 띠에서 날아오르는 커버가 그 뒤에서 나오고(flyWithin z 5 < 6),
+       넘치면 글자 크기를 바꾸지 않고 margin-top 을 음수로 해 위로 늘어나 아래 띠를 덮는다 */
+    .info { grid-row: 4; grid-column: 1 / -1; padding: 14px 16px 12px calc(16px + var(--gut, 26px)); background: #000;
+      margin-left: calc(-1 * var(--gut, 26px));   /* 왼쪽 여백까지 덮는다 */ position: relative; z-index: 6;
+      transition: margin-top .42s var(--out); }
+    .info .body { margin-top: 0; }
+    /* 폰: 원제는 제목 오른쪽에 기준선을 맞춰. 한 줄에 안 들어가면 아래로 */
+    .info .tt { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 10px; }
+    .info .t { margin-bottom: 0; }
+    .info .o { margin: 0; }
+    .rowname { grid-row: 2 / 5; z-index: 7; }   /* 폰: 정보 영역 옆 여백까지, 검은 정보 영역 위에 */
+    .rowname span { margin-right: 6px; }
+  }
+  /* 터치: 확대 미리보기를 누르면 연다 */
+  @media (hover: none) { #lens { pointer-events: auto; cursor: pointer; } }
 </style>
 </head>
 <body>
@@ -209,6 +331,10 @@
     </svg>
   </button>
   <div class="group" id="axes" role="group" aria-label="Axes"></div>
+  <div class="axmenu" id="axmenu">
+    <button class="axbtn" id="axbtn" aria-haspopup="true" aria-expanded="false" aria-controls="axlist"><span id="axcur"></span><svg viewBox="0 0 10 10" aria-hidden="true"><path d="M2 3.5 5 6.5 8 3.5"/></svg></button>
+    <div class="axlist" id="axlist" role="menu" aria-label="Axes"></div>
+  </div>
   <div class="count" id="count"></div>
   <div class="search" id="search">
     <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.2"/><path d="M15.2 15.2 20 20"/></svg>
@@ -216,11 +342,11 @@
     <button class="clear" id="qClear" aria-label="Clear search" data-key="esc" data-tip="Clear">×</button>
     <ol id="results" role="listbox"></ol>
   </div>
-  <button class="close" id="close" aria-label="Close" data-key="esc" data-tip="Close">×</button>
+  <button class="close" id="close" aria-label="Close" data-key="esc" data-tip="Close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7 7 17"/></svg></button>
 </header>
-<div id="stage"><canvas id="grid" aria-label="Cover grid"></canvas></div>
+<div id="stage"><canvas id="grid" tabindex="0" aria-label="Cover grid. Arrow keys move, Enter opens"></canvas></div>
 <footer>
-  <div class="k">Covers are sorted according to</div>
+  <div class="k">Arranged by</div>
   <div class="v" id="gridName"></div>
 </footer>
 <div id="credit">
@@ -234,10 +360,10 @@
 <div id="lens"></div>
 <div id="flyer"></div>
 
-<div id="tri" role="dialog" aria-label="Triptych">
+<div id="tri" role="dialog" aria-modal="true" aria-label="Triptych" tabindex="-1">
   <div id="panels"></div>
   <footer>
-    <div class="k">Neighboring covers are associated based on</div>
+    <div class="k">Grouped by</div>
     <div class="v" id="triName"></div>
   </footer>
 </div>
@@ -298,10 +424,15 @@ window.PRELOAD = {};
 <script type="text/plain" id="main">
 const M = window.META, C = window.COVERS, N = C.length;
 // 버전: 화면·동작이 바뀌면 올린다. 데이터 날짜는 build_web.py 가 META.built 에 적는다
-const VERSION = '0.2.0';
+const VERSION = '0.3.1';
 document.getElementById('ver').textContent = `v${VERSION}`;
 document.getElementById('ver').title = M.built ? `data ${M.built}` : '';
 const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+/* 화면 구간 세 개: S(폰) ≤ 720 · M 721–1024 · L ≥ 1025. S 는 CSS 의 max-width: 720px 와 같은 기준.
+   M 까지는 축을 드롭다운으로, L 은 가로 세그먼트(그래도 머리줄이 넘치면 드롭다운) */
+const BP_S = 720, BP_M = 1024;
+const narrow = () => innerWidth <= BP_S;
+const NOHOVER = matchMedia('(hover: none)');
 const OUT = 'cubic-bezier(.22,1,.36,1)';
 const GAP = 0.18, ASPECT = 1288 / 1600;
 
@@ -364,15 +495,47 @@ KEYS.forEach((k, n) => {
   axesEl.appendChild(b);
 });
 axesEl.addEventListener('click', e => { const b = e.target.closest('button'); if (b && !b.disabled) setAxis(b.dataset.axis); });
+
+/* 축 드롭다운(2단): Spine·Year 와 나머지를 가로 세그먼트와 같은 자리에서 1px 선으로 나눈다 */
+const axMenu = document.getElementById('axmenu'), axBtn = document.getElementById('axbtn'), axList = document.getElementById('axlist');
+[KEYS.slice(0, 2), KEYS.slice(2)].forEach((ks, n) => {
+  if (n) { const h = document.createElement('span'); h.className = 'sep'; axList.appendChild(h); }
+  ks.forEach(k => { const b = document.createElement('button'); b.dataset.axis = k; b.textContent = AXES[k].label; b.setAttribute('role', 'menuitemradio'); axList.appendChild(b); });
+});
+// 키보드로 열었을 때만 목록 안으로 포커스를 옮긴다(클릭·탭이면 선택 항목에 포커스 테두리가 생기지 않게)
+function axOpen(on, byKey = false) {
+  axMenu.classList.toggle('open', on); axBtn.setAttribute('aria-expanded', on);
+  if (on && byKey) (axList.querySelector('button.on') || axList.querySelector('button:not(:disabled)'))?.focus({ preventScroll: true });
+}
+axBtn.addEventListener('click', e => axOpen(!axMenu.classList.contains('open'), e.detail === 0));
+axList.addEventListener('click', e => { const b = e.target.closest('button'); if (b && !b.disabled) { axOpen(false); setAxis(b.dataset.axis); if (e.detail === 0) axBtn.focus({ preventScroll: true }); } });
+document.addEventListener('pointerdown', e => { if (axMenu.classList.contains('open') && !axMenu.contains(e.target)) axOpen(false); });
+// 축 버튼 묶음이 머리줄에 다 들어가는지 잰다(넘치면 드롭다운)
+function fitAxes() {
+  // 잴 때만 머리줄 요소들이 줄어들지 않게 두고, 머리줄 전체가 넘치는지 본다(넘치면 요소들이 찌그러지거나 화면 밖으로 밀린다)
+  const hd = document.querySelector('header');
+  document.body.classList.remove('axcompact'); hd.classList.add('measure');
+  const tight = innerWidth <= BP_M || hd.scrollWidth > hd.clientWidth + 1;
+  hd.classList.remove('measure');
+  document.body.classList.toggle('axcompact', tight);
+  if (!tight) { axOpen(false); movePill(axesEl, true); }
+}
 eyeEl.addEventListener('click', () => setTrace(!traceOn));
 document.getElementById('count').textContent = `${M.count} / ${M.films}`;   // 검색 중에는 setCount 가 바꾼다
 
 function syncAxisButtons() {
+  document.getElementById('axcur').textContent = AXES[axis].label;
+  axList.querySelectorAll('button').forEach(b => {
+    b.classList.toggle('on', b.dataset.axis === axis); b.setAttribute('aria-checked', b.dataset.axis === axis);
+    b.disabled = cur !== null && !has(cur, b.dataset.axis);
+  });
   axesEl.querySelectorAll('button').forEach(b => {
     b.classList.toggle('on', b.dataset.axis === axis);
     b.disabled = cur !== null && !has(cur, b.dataset.axis);
   });
   movePill(axesEl);
+  const on = axesEl.querySelector('button.on');
+  if (on && axesEl.scrollWidth > axesEl.clientWidth) on.scrollIntoView({ block: 'nearest', inline: 'center', behavior: RM ? 'auto' : 'smooth' });
 }
 function setAxis(k) {
   if (!AXES[k] || k === axis) return;
@@ -429,6 +592,13 @@ function loadAtlas(name) {
   });
 }
 
+if (!cv.getContext('webgl2', { antialias: false, premultipliedAlpha: true, alpha: true })) {
+  const m = document.createElement('div');
+  m.className = 'nogl';
+  m.textContent = 'This browser can’t run WebGL 2, which this viewer needs.';
+  stage.appendChild(m);
+  throw new Error('WebGL 2 unavailable');
+}
 const G = (() => {
   const gl = cv.getContext('webgl2', { antialias: false, premultipliedAlpha: true, alpha: true });
   const VS = `#version 300 es
@@ -553,24 +723,35 @@ const G = (() => {
     gl.uniform2f(U.uRes, Wc, Hc);
     cache = {};
   }
-  function fitH(cols, rows, H) {
-    const w = Math.min(Wc / (cols + (cols - 1) * GAP), H / (rows / ASPECT + (rows - 1) * GAP));
+  function fitH(cols, rows, H, W = Wc) {
+    const w = Math.min(W / (cols + (cols - 1) * GAP), H / (rows / ASPECT + (rows - 1) * GAP));
     return { w, h: w / ASPECT, g: w * GAP };
   }
   function fit(cols, rows) { return fitH(cols, rows, Hc - 18); }
   function layout(k) {
     if (cache[k]) return cache[k];
     const px = new Float32Array(N).fill(NaN), py = new Float32Array(N).fill(NaN), lab = [];
-    let f;
+    // 세로로 긴 화면(폰)에서는 가로로 긴 지도를 전치한다. 왼쪽 숫자 자리는 좁은 화면에서만 따로 남긴다(넓으면 여백에 들어간다)
+    const tall = Hc > Wc * 1.1, labW = narrow() ? 26 : 0;
+    let f, minX = 0;
     if (k === 'spine') {
       let best = null;
       for (let cols = 10; cols <= 200; cols++) {
-        const rows = Math.ceil(M.maxSpine / cols), ff = fit(cols, rows);
+        const rows = Math.ceil(M.maxSpine / cols), ff = fitH(cols, rows, Hc - 18, Wc - labW);
         if (!best || ff.w > best.f.w) best = { cols, rows, f: ff };
       }
       f = best.f;
       C.forEach((c, i) => { const n = c.spine - 1; px[i] = (n % best.cols) * (f.w + f.g); py[i] = Math.floor(n / best.cols) * (f.h + f.g); });
       for (let r = 0; r < best.rows; r += Math.max(1, Math.round(best.rows / 8))) lab.push([-6, r * (f.h + f.g) + f.h / 2, String(r * best.cols + 1), 'right']);
+      minX = labW;
+    } else if (k === 'year' && tall) {
+      // 해마다 한 줄, 같은 해는 오른쪽으로 쌓는다
+      const years = M.yearMax - M.yearMin + 1, stacks = {}, slot = new Int32Array(N);
+      [...C.keys()].sort((a, b) => C[a].spine - C[b].spine).forEach(i => { const yr = C[i].year; slot[i] = stacks[yr] = (stacks[yr] ?? -1) + 1; });
+      f = fitH(Math.max(12, ...Object.values(stacks).map(v => v + 1)), years, Hc - 18, Wc - labW);
+      C.forEach((c, i) => { px[i] = slot[i] * (f.w + f.g); py[i] = (c.year - M.yearMin) * (f.h + f.g); });
+      for (let yr = Math.ceil(M.yearMin / 10) * 10; yr <= M.yearMax; yr += 10) lab.push([-6, (yr - M.yearMin) * (f.h + f.g) + f.h / 2, String(yr), 'right']);
+      minX = labW;
     } else if (k === 'year') {
       const cols = M.yearMax - M.yearMin + 1, stacks = {}, slot = new Int32Array(N);
       [...C.keys()].sort((a, b) => C[a].spine - C[b].spine).forEach(i => { const yr = C[i].year; slot[i] = stacks[yr] = (stacks[yr] ?? -1) + 1; });
@@ -579,13 +760,13 @@ const G = (() => {
       C.forEach((c, i) => { px[i] = (c.year - M.yearMin) * (f.w + f.g); py[i] = H - f.h - slot[i] * (f.h + f.g); });
       for (let yr = Math.ceil(M.yearMin / 10) * 10; yr <= M.yearMax; yr += 10) lab.push([(yr - M.yearMin) * (f.w + f.g), H + 18, String(yr), 'left']);
     } else {
-      const [cols, rows] = M.grids[k];
-      f = fit(cols, rows);
-      C.forEach((c, i) => { if (c.g[k]) { px[i] = c.g[k][0] * (f.w + f.g); py[i] = c.g[k][1] * (f.h + f.g); } });
+      const [cols, rows] = M.grids[k], X = tall ? 1 : 0, Y = 1 - X;
+      f = tall ? fit(rows, cols) : fit(cols, rows);
+      C.forEach((c, i) => { if (c.g[k]) { px[i] = c.g[k][X] * (f.w + f.g); py[i] = c.g[k][Y] * (f.h + f.g); } });
     }
     let maxX = 0;
     for (let i = 0; i < N; i++) if (px[i] === px[i]) maxX = Math.max(maxX, px[i]);
-    const ox = Math.max(0, (Wc - (maxX + f.w)) / 2);
+    const ox = Math.max(minX, (Wc - (maxX + f.w)) / 2);
     for (let i = 0; i < N; i++) px[i] += ox;
     lab.forEach(l => { l[0] += ox; });
     return cache[k] = { px, py, tw: f.w, labels: lab };
@@ -690,6 +871,19 @@ const G = (() => {
     }
     return -1;
   }
+  // 손가락용: 정확히 닿지 않아도 r px 안에서 가장 가까운 타일
+  function near(mx, my, r) {
+    const now = performance.now();
+    let best = -1, bd = r;
+    for (let i = 0; i < N; i++) {
+      const s = stateAt(i, now, tmp);
+      if (s[3] < .5 || i === hidden) continue;
+      const h = s[2] / ASPECT, dx = Math.max(s[0] - mx, 0, mx - s[0] - s[2]), dy = Math.max(s[1] - my, 0, my - s[1] - h);
+      const d = Math.hypot(dx, dy);
+      if (d < bd || (d === 0 && bd === 0)) { bd = d; best = i; if (d === 0) break; }
+    }
+    return best;
+  }
   function rect(i, target = true) {
     const r = stage.getBoundingClientRect();
     const s = target ? to.subarray(i * 4, i * 4 + 4) : stateAt(i, performance.now(), new Float32Array(4));
@@ -703,7 +897,7 @@ const G = (() => {
     loadAtlas('cover').then(() => (window.requestIdleCallback || setTimeout)(next, { timeout: 3000 }));
   }
   return {
-    size, go, mix, hit, rect, kick, layout, dirty, prefetch,
+    size, go, mix, hit, near, rect, kick, layout, dirty, prefetch,
     visible: i => to[i * 4 + 3] > .5,
     setHover(i) { if (i !== hover) { hover = i; gl.uniform1i(U.uHover, i); kick(); } },
     setHidden(i) { hidden = i; gl.uniform1i(U.uHidden, i); kick(); },
@@ -726,11 +920,13 @@ let lensOn = null, lensBox = null;
 function sprite(el, name, i) {
   el.style.background = `url("atlas/${name}.${HTTP ? 'webp' : 'jpg'}") ${(i % A.cols) / (A.cols - 1) * 100}% ${Math.floor(i / A.cols) / (A.rows - 1) * 100}% / ${A.cols * 100}% ${A.rows * 100}%`;
 }
-function showLens(i) {
+function showLens(i, touch = false) {
   const c = C[i], r = G.rect(i, false);
-  const k = 2.4, w = r.width * k, h = r.height * k;
+  // 손가락으로는 타일이 작아 더 크게, 손가락에 가리지 않게 위에 띄운다(위에 자리가 없으면 아래)
+  const k = 2.4, w = touch ? Math.max(r.width * k, 132) : r.width * k, h = touch ? w / ASPECT : r.height * k;
   const x = Math.max(4, Math.min(innerWidth - w - 4, r.left + r.width / 2 - w / 2));
-  const y = Math.max(60, Math.min(innerHeight - h - 4, r.top + r.height / 2 - h / 2));
+  let y = Math.max(60, Math.min(innerHeight - h - 4, r.top + r.height / 2 - h / 2));
+  if (touch) y = r.top - h - 28 >= 60 ? r.top - h - 28 : Math.min(innerHeight - h - 4, r.bottom + 28);
   lens.classList.toggle('jump', lensOn === null);
   lens.style.width = w + 'px'; lens.style.height = h + 'px';
   lens.style.transform = `translate(${x}px, ${y}px)`;
@@ -740,26 +936,68 @@ function showLens(i) {
   lensOn = i; lensBox = { left: x, top: y, right: x + w, width: w, height: h };
 }
 function hideLens() { lens.classList.remove('show'); lensOn = null; G.setHover(-1); cv.classList.remove('hover'); }
+function showTip(i, touch = false) {
+  const c = C[i];
+  tip.innerHTML = `<b>${esc(c.title)}</b><br>#${c.spine} · ${c.year} · ${esc(c.directors)}`;
+  tip.classList.add('show');
+  const b = lensBox, tw = tip.offsetWidth || 280, th = tip.offsetHeight;
+  if (touch || narrow()) {   // 좁은 화면: 미리보기 옆에 자리가 없어 위나 아래에 붙인다
+    tip.style.left = Math.max(4, Math.min(innerWidth - tw - 4, b.left + b.width / 2 - tw / 2)) + 'px';
+    tip.style.top = (b.top - th - 8 >= 60 ? b.top - th - 8 : b.top + b.height + 8) + 'px';
+    return;
+  }
+  tip.style.left = (b.right + 10 + tw < innerWidth ? b.right + 10 : Math.max(4, b.left - 10 - tw)) + 'px';
+  tip.style.top = Math.min(b.top, innerHeight - th - 8) + 'px';
+}
+function openFromGrid(i) {
+  const from = lensOn === i && lensBox ? lensBox : G.rect(i, false);
+  tip.classList.remove('show'); hideLens();
+  openTri(i, true, from);
+}
+// 터치 직후 브라우저가 흉내 내는 마우스 이벤트는 무시한다
+let lastTouch = -1e9;
+const fromTouch = () => performance.now() - lastTouch < 800;
 cv.addEventListener('mousemove', e => {
+  if (fromTouch()) return;
   const r = stage.getBoundingClientRect(), i = G.hit(e.clientX - r.left, e.clientY - r.top);
   if (i < 0) { tip.classList.remove('show'); hideLens(); return; }
   G.setHover(i); cv.classList.add('hover');
   if (i !== lensOn) showLens(i);
-  const c = C[i];
-  tip.innerHTML = `<b>${esc(c.title)}</b><br>#${c.spine} · ${c.year} · ${esc(c.directors)}`;
-  tip.classList.add('show');
-  const b = lensBox, tw = tip.offsetWidth || 280;
-  tip.style.left = (b.right + 10 + tw < innerWidth ? b.right + 10 : Math.max(4, b.left - 10 - tw)) + 'px';
-  tip.style.top = Math.min(b.top, innerHeight - tip.offsetHeight - 8) + 'px';
+  showTip(i);
 });
-cv.addEventListener('mouseleave', () => { tip.classList.remove('show'); hideLens(); });
+cv.addEventListener('mouseleave', () => { if (!fromTouch()) { tip.classList.remove('show'); hideLens(); } });
 cv.addEventListener('click', e => {
+  if (fromTouch()) return;
   const r = stage.getBoundingClientRect(), i = G.hit(e.clientX - r.left, e.clientY - r.top);
-  if (i < 0) return;
-  const from = lensOn === i && lensBox ? lensBox : G.rect(i, false);
-  tip.classList.remove('show'); hideLens();
-  openTri(i, true, from);
+  if (i >= 0) openFromGrid(i);
 });
+/* 터치: 훑으면 미리보기가 따라오고, 미리보기 중인 커버를 한 번 더 누르거나 미리보기를 누르면 연다 */
+let downOn = null;
+function touchAt(e) {
+  const r = stage.getBoundingClientRect(), i = G.near(e.clientX - r.left, e.clientY - r.top, 18);
+  if (i < 0) { tip.classList.remove('show'); hideLens(); return -1; }
+  G.setHover(i);
+  if (i !== lensOn) showLens(i, true);
+  showTip(i, true);
+  return i;
+}
+cv.addEventListener('pointerdown', e => {
+  if (e.pointerType === 'mouse') return;
+  lastTouch = performance.now(); downOn = lensOn;
+  cv.setPointerCapture(e.pointerId);
+  touchAt(e);
+});
+cv.addEventListener('pointermove', e => {
+  if (e.pointerType === 'mouse' || !cv.hasPointerCapture(e.pointerId)) return;
+  lastTouch = performance.now(); touchAt(e);
+});
+cv.addEventListener('pointerup', e => {
+  if (e.pointerType === 'mouse') return;
+  lastTouch = performance.now();
+  const i = touchAt(e);
+  if (i >= 0 && i === downOn) openFromGrid(i);
+});
+lens.addEventListener('click', () => { if (lensOn !== null && cur === null) openFromGrid(lensOn); });
 
 /* ---------- 흔적: 세 폭 보기의 큰 캔버스 ---------- */
 window.TRACE = window.TRACE || {};
@@ -923,8 +1161,12 @@ function nbr(i, k, dr, dc) {
 function pair(i, k) { return [nbr(i, k, 0, -1), nbr(i, k, 0, 1)]; }
 function pair2(i, k) { return [nbr(i, k, 0, -2), nbr(i, k, 0, 2)]; }
 let exits = {};
+// 넓은 화면은 4열(이전 · 지금 · 정보 · 다음), 좁은 화면은 3열(이전 · 지금 · 다음)이고 정보는 아래 줄
+const gc = col => narrow() ? { 1: 1, 2: 2, 4: 3 }[col] : col;
+let focusBack = null;
 function openTri(i, push = true, from = null) {
   const opening = cur === null;
+  if (opening) { focusBack = document.activeElement; setTimeout(() => tri.focus({ preventScroll: true }), 0); }
   if (push && cur !== null && cur !== i) hist.push(cur);
   cur = i;
   if (!has(i, axis)) { axis = KEYS.find(k => has(i, k)); G.go(axis, false); swapText(document.getElementById('gridName'), AXES[axis].name); }
@@ -950,6 +1192,19 @@ function flyWithin(el, a) {
    띠 안 포스터도 같은 크기(--bw × --bh)로 잘린다 */
 function triSize() {
   const cs = getComputedStyle(panels), edge = parseFloat(cs.getPropertyValue('--edge')) || 54, gap = parseFloat(cs.getPropertyValue('--gap')) || 18;
+  if (narrow()) {
+    // 폭의 62%. 정보 칸에 적어도 190px 를 남긴다. 양옆(--sw)은 남는 폭을 반씩
+    const W = panels.clientWidth - 2 * NARROW_GUTTER, H = panels.clientHeight;
+    const bw = Math.max(80, Math.floor(Math.min(W * .62, (H - 2 * edge - 3 * gap - NARROW_INFO) * ASPECT)));
+    panels.style.setProperty('--bw', bw + 'px');
+    panels.style.setProperty('--bh', Math.round(bw / ASPECT) + 'px');
+    // 가운데 커버는 화면 가운데. 오른쪽 칸은 화면 끝까지, 왼쪽 칸은 줄 이름 여백만큼 좁다
+    const full = panels.clientWidth, swr = Math.max(0, Math.floor((full - bw) / 2 - gap)), swl = Math.max(0, swr - NARROW_GUTTER);
+    panels.style.setProperty('--swl', swl + 'px');
+    panels.style.setProperty('--swr', swr + 'px');
+    panels.style.setProperty('--gut', (full - swl - bw - swr - 2 * gap) + 'px');   // 실제 왼쪽 여백
+    return;
+  }
   const W = panels.clientWidth - 64, H = panels.clientHeight;
   const bw = Math.floor(Math.min((W - 3 * gap) / 4, (H - 2 * edge - 2 * gap) * ASPECT));
   const bh = Math.round(bw / ASPECT);
@@ -958,7 +1213,7 @@ function triSize() {
   // 위·아래 띠: 남는 세로 공간을 다 쓰되 포스터 한 장 높이를 넘지 않는다
   panels.style.setProperty('--edgeV', Math.max(54, Math.min(bh, Math.floor((H - bh - 2 * gap) / 2))) + 'px');
 }
-/* 상세 정보: 제목 · 원제 · 감독 · 연도/나라, 한 칸 띄고 Wikidata 정보(있는 것만), 끝에 #spine 과 criterion.com 링크 */
+/* 상세 정보: #spine · 제목 · 원제 · 감독 · 연도/나라, 한 칸 띄고 Wikidata 정보(있는 것만), 끝에 criterion.com 링크 */
 function criterionUrl(c) {
   if (!c.cid) return '';
   return c.cid.startsWith('box:') ? `https://www.criterion.com/boxsets/${c.cid.slice(4)}` : `https://www.criterion.com/films/${c.cid}`;
@@ -973,19 +1228,76 @@ function rowName(k, r) {
   return M.rowNames?.[k]?.[r] || '';
 }
 function infoHTML(c) {
-  const kv = (k, v) => v && v.length ? `<div class="kv"><span>${k}</span><span>${esc([].concat(v).join(', '))}</span></div>` : '';
-  const spec = [c.rt && `${c.rt} min`, ...(c.ar || []), c.clr].filter(Boolean).join(' · ');
-  const fmt = (c.fmt || []).join(' · ');
+  const kv = (k, v) => v && v.length ? `<div class="kv" data-k="${k}"><span>${k}</span><span>${esc([].concat(v).join(', '))}</span></div>` : '';
+  // 늘 보이는 네 줄과 Show More 로 펼치는 줄. c.cast, c.fmt, c.genre, c.box 는 데이터에 남아 있고 화면에만 쓰지 않는다
   const url = criterionUrl(c);
-  const rows = [kv('Film', spec), kv('Edition', fmt), kv('Language', c.language), kv('Written by', c.writer), kv('Cinematography', c.dop),
-    kv('Music', c.music), kv('Cast', c.cast), kv('Genre', c.genre), kv('Box set', c.box ? (c.kind === 'box' ? 'Box set' : c.box) : '')].filter(Boolean);
-  return `<div class="t">${esc(c.title)}</div>
-    ${c.orig ? `<div class="o">${esc(c.orig)}</div>` : ''}
-    ${c.directors ? `<div>${esc(c.directors)}</div>` : ''}
-    <div>${[c.year, c.countries].filter(Boolean).map(esc).join(' · ')}</div>
-    ${rows.length ? '<div class="sp"></div>' + rows.join('') : ''}
-    <div class="n"><span>#${c.spine}</span>${url ? `<a href="${url}" target="_blank" rel="noopener">criterion.com ↗</a>` : ''}</div>`;
+  const rows = [kv('Country', c.countries), kv('Runtime', c.rt ? `${c.rt} min` : ''), kv('Aspect ratio', c.ar), kv('Language', c.language)].filter(Boolean);
+  const extra = [kv('Color', c.clr), kv('Cinematography', c.dop), kv('Music', c.music), kv('Written by', c.writer)].filter(Boolean);
+  return `${url ? `<a class="no" href="${url}" target="_blank" rel="noopener" aria-label="#${c.spine} on criterion.com">#${c.spine}<svg class="out" viewBox="5 5 14 14" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg></a>` : `<div class="no">#${c.spine}</div>`}
+    <div class="tt"><div class="t">${esc(c.title)}</div>${c.orig ? `<div class="o">${esc(c.orig)}</div>` : ''}</div>
+    <div>${[c.directors, c.year].filter(Boolean).map(esc).join(' · ')}</div>
+    <div class="body">${rows.length || extra.length ? '<div class="sp"></div>' + rows.join('') : ''}
+    ${extra.length ? `<div class="extra" id="infoExtra">${extra.join('')}</div>` : ''}
+    ${extra.length || infoOpen ? `<div class="m"><button class="more" aria-expanded="${infoOpen}" aria-controls="infoExtra">${infoOpen ? 'Show Less' : 'Show More'}</button></div>` : ''}
+    </div>`;
 }
+/* 정보 칸은 스크롤하지 않고 크기도 바꾸지 않는다(넓은 화면 = 커버 높이, 좁은 화면 = NARROW_INFO).
+   넘치면 칸 안에서만 줄인다: 값을 한 줄로 → 제목을 줄이고 → 줄 간격을 좁히고 → 그래도 넘치면 아래 줄부터 뺀다 */
+const INFO_DROP = ['Written by', 'Music', 'Cinematography', 'Color', 'Language', 'Aspect ratio', 'Runtime', 'Country'];
+let infoOpen = false;   // More 를 펼친 상태는 다른 커버로 옮겨 가도 유지한다
+const NARROW_GUTTER = 26;   // 좁은 화면 양옆 여백. 왼쪽에 줄 이름을 세로로 쓴다
+const NARROW_INFO = 258;   // 좁은 화면 정보 칸 높이(px): 접힌 내용의 95% 가 들어가는 높이. 펼치거나 더 길면 위로 늘어난다(커버 크기는 그대로)
+// 평소 padding: 가운데 커버의 윗변·아랫변까지(offsetTop 은 날아오는 중의 transform 과 무관)
+function infoPads(info) {
+  const mid = panels.querySelector('.box.mid');
+  if (!mid) return [0, 2];
+  return [Math.max(0, mid.offsetTop - info.offsetTop),
+    Math.max(2, info.offsetTop + info.offsetHeight - mid.offsetTop - mid.offsetHeight + 2)];
+}
+/* 넓은 화면: 넘치는 만큼만 가운데를 중심으로 위아래 반씩 늘리고(한쪽이 모자라면 다른 쪽에서), 그래도 넘치면 줄인다.
+   계산은 transition 을 끈 채 끝낸 뒤, animate 면 이전 padding 에서 새 padding 으로 옮겨 간다 */
+function fillInfo(info, c, animate = false) {
+  const wide = !narrow(), from = wide ? [info.style.paddingTop, info.style.paddingBottom] : [info.style.marginTop];
+  info.style.transition = 'none';
+  info.className = 'info' + (infoOpen ? ' open' : ''); info.innerHTML = infoHTML(c);
+  const over = () => info.scrollHeight - info.clientHeight > 1;
+  const setPad = p => { info.style.paddingTop = p[0] + 'px'; info.style.paddingBottom = p[1] + 'px'; };
+  const drop = keys => { for (const k of keys) { if (!over()) return; info.querySelector(`.kv[data-k="${k}"]`)?.remove(); } };
+  let pad = null;
+  if (wide) { pad = infoPads(info); setPad(pad); info.style.marginTop = ''; }
+  else { info.style.paddingTop = info.style.paddingBottom = ''; info.style.marginTop = '0px'; }
+  info._over = over();
+  if (!wide) {
+    /* 좁은 화면: 펼친 줄 높이(+간격)만큼 정확히 위로 늘린다. 그러면 Show More 아래는 제자리이고, 제목부터 표까지가
+       검은 영역 윗변과 한 덩어리로 같은 속도로 올라간다. 그래도 넘치면 넘치는 만큼 더(가운데 커버 윗변까지) */
+    const mid = panels.querySelector('.box.mid'), cap = Math.max(0, info.offsetTop - (mid ? mid.offsetTop : 0));
+    const ex = infoOpen ? info.querySelector('.extra') : null;
+    let grow = ex ? ex.offsetHeight + 6 : 0;
+    info.style.marginTop = -Math.min(cap, grow) + 'px';
+    if (over()) grow += info.scrollHeight - info.clientHeight;
+    info.style.marginTop = -Math.min(cap, grow) + 'px';
+  }
+  if (info._over && wide) {
+    const need = info.scrollHeight - info.clientHeight;
+    let down = Math.min(pad[1] - 2, need / 2), up = Math.min(pad[0], need - down);
+    down = Math.min(pad[1] - 2, need - up);
+    setPad([pad[0] - up, pad[1] - down]);
+  }
+  if (over()) {   // 좁은 화면은 글자 크기를 바꾸지 않는다
+    let done = false;
+    if (wide) for (const k of ['tight', 'small', 'compact']) { info.classList.add(k); if (!over()) { done = true; break; } }
+    if (!done) { drop(INFO_DROP); if (over()) info.querySelector('.sp')?.remove(); }
+  }
+  if (animate && from[0]) {
+    const props = wide ? ['paddingTop', 'paddingBottom'] : ['marginTop'], to = props.map(k => info.style[k]);
+    props.forEach((k, n) => { info.style[k] = from[n]; });
+    void info.offsetHeight;
+    info.style.transition = '';
+    props.forEach((k, n) => { info.style[k] = to[n]; });
+  } else { void info.offsetHeight; info.style.transition = ''; }
+}
+function fitInfo(info, c) { fillInfo(info, c); }
+
 function showTri({ kind = 'axis', from = null } = {}) {
   const c = C[cur], [l, r] = pair(cur, axis);
   swapText(document.getElementById('triName'), AXES[axis].name);
@@ -999,6 +1311,7 @@ function showTri({ kind = 'axis', from = null } = {}) {
   shown.forEach(i => { C[i]._shared = i === cur ? [...new Set(shown.filter(j => j !== cur).flatMap(j => (C[j].objs || []).filter(o => mid.has(o))))] : (C[i].objs || []).filter(o => mid.has(o)); });
 
   triSize();
+  const prevRow = panels.querySelector('.rowname')?.textContent;   // 같은 줄 안에서 움직이면 줄 이름은 그대로 둔다
   panels.innerHTML = '';
   Object.entries(cols).forEach(([col, i]) => {
     if (i === undefined) return;
@@ -1006,35 +1319,36 @@ function showTri({ kind = 'axis', from = null } = {}) {
     const p = C[i], side = i !== cur;
     const box = document.createElement('div');
     box.className = 'box' + (side ? ' side' : ' mid');
-    box.style.gridColumn = col;
+    box.style.gridColumn = gc(col);
+    box._i = i;
     box.dataset.role = side ? (col === 1 ? 'left' : 'right') : 'mid';
     box.innerHTML = `<img src="large/${encodeURIComponent(p.file)}" alt="${esc(p.title)} cover"><canvas></canvas>`;
     drawTrace(box.querySelector('canvas'), p, axis);
-    box.addEventListener('click', side ? ev => openTri(i, true, ev.currentTarget.getBoundingClientRect()) : nextAxis);
+    // 날아가기 출발점은 잘린 칸이 아니라 커버 전체(img)의 사각형
+    box.addEventListener('click', side ? ev => openTri(i, true, ev.currentTarget.querySelector('img').getBoundingClientRect()) : nextAxis);
     // 가운데 커버는 팝오버를 띄우지 않는다(화면의 주인공이라 가린다). enter 는 그대로 동작
     panels.append(box);
   });
   const info = document.createElement('div');
-  info.className = 'info';
-  info.innerHTML = infoHTML(c);
   panels.append(info);
+  fitInfo(info, c);
   const rp = RING_POS[axis]?.get(cur);
   if (rp) {
     const n = RINGS[axis].length, wrap = x => ((x % n) + n) % n;
-    [['up', -1, 1], ['mid', 0, 2], ['down', 1, 3]].forEach(([row, dr, gr]) => {
-      const t = rowName(axis, wrap(rp[0] + dr)); if (!t) return;
+    const t = rowName(axis, wrap(rp[0]));
+    if (t) {
       const el = document.createElement('div');
-      el.className = 'rowname'; el.dataset.row = row; el.style.gridRow = gr;
+      el.className = 'rowname'; el.dataset.row = 'mid';
       el.innerHTML = `<span>${esc(t)}</span>`;
       panels.append(el);
-    });
+    }
   }
   ['up', 'down'].forEach(row => exits[row].forEach((ex, col) => {
     if (!ex) return;
     const el = document.createElement('div');
     el.className = 'peek';
     el.dataset.row = row; el.dataset.col = col;
-    el.style.gridColumn = col;
+    el.style.gridColumn = gc(col);
     el.innerHTML = `<img src="large/${encodeURIComponent(C[ex.j].file)}" alt="${esc(C[ex.j].title)} cover"><canvas></canvas>`;
     drawTrace(el.querySelector('canvas'), C[ex.j], axis);
     el.addEventListener('click', () => goExit(row, col));
@@ -1063,9 +1377,9 @@ function showTri({ kind = 'axis', from = null } = {}) {
     const slot = el.classList.contains('peek') ? el.dataset.row + el.dataset.col : el.dataset.role;
     rise(el, BASE + ORDER.indexOf(slot) * STEP, +getComputedStyle(el).opacity);
   });
-  panels.querySelectorAll('.rowname').forEach(el => rise(el, BASE + { up: 0, mid: 3, down: 6 }[el.dataset.row] * STEP));
+  panels.querySelectorAll('.rowname').forEach(el => { if (el.textContent !== prevRow) rise(el, BASE + 3 * STEP); });
   if (!from && kind !== 'axis') rise(midBox, BASE + ORDER.indexOf('mid') * STEP);   // 날아올 자리가 없을 때(뒤로 가기 등)
-  if (kind !== 'axis') [...info.children].forEach((line, n) => rise(line, BASE + ORDER.length * STEP + 160 + n * 70));
+  if (kind !== 'axis') [...info.children].flatMap(el => el.classList.contains('body') ? [...el.children] : [el]).forEach((line, n) => rise(line, BASE + ORDER.length * STEP + 160 + n * 70));
 }
 /* 띠는 포스터를 잘라 보여준다. 날아가기 출발점은 띠가 아니라 잘린 포스터 전체(img)의 사각형이다.
    영역 밖으로 나간 부분은 #panels 의 overflow: clip 이 가린다 */
@@ -1076,10 +1390,12 @@ function goExit(row, col = 2) {
 }
 function goSide(role) {
   const box = panels.querySelector(`.box.side[data-role="${role}"]`);
-  if (box) box.click();
+  if (box) openTri(box._i, true, box.querySelector('img').getBoundingClientRect());
 }
-function closeTri() {
+function closeTri(fromPop = false) {
   if (cur === null) return;
+  const goBack = pushed && !fromPop;   // 돌아간 기록의 주소는 popstate 에서 지금 상태로 고친다
+  if (goBack) { pushed = false; history.back(); }
   const i = cur, box = panels.querySelector('.box.mid');
   const land = !RM && box && G.visible(i);
   if (land) {
@@ -1093,9 +1409,85 @@ function closeTri() {
   document.body.classList.remove('tri-open');
   cur = null; hist = [];
   syncAxisButtons();
-  syncHash();
+  if (!goBack) syncHash();
+  if (focusBack && document.contains(focusBack)) focusBack.focus({ preventScroll: true }); else cv.focus({ preventScroll: true });
+  focusBack = null;
 }
-document.getElementById('close').addEventListener('click', closeTri);
+document.getElementById('close').addEventListener('click', () => closeTri());
+/* More: 펼칠 때는 다시 그린 뒤(줄인 줄을 되살린다) 높이 0 에서 키우며 줄마다 떠오르게, 접을 때는 높이를 줄인 뒤 다시 그린다.
+   gap(6px)까지 함께 줄이려고 margin-top 을 -6px 로 보낸다 */
+panels.addEventListener('click', e => {
+  if (!e.target.closest('.info .more') || cur === null) return;
+  const info = panels.querySelector('.info'), c = C[cur];
+  const refocus = () => info.querySelector('.more')?.focus({ preventScroll: true });
+  infoOpen = !infoOpen;
+  if (RM) { fillInfo(info, c); refocus(); return; }
+  if (infoOpen) {
+    fillInfo(info, c, true); refocus();
+    const ex = info.querySelector('.extra');
+    if (!ex) return;
+    const h = ex.scrollHeight;
+    ex.animate([{ height: '0px', marginTop: '-6px', opacity: 0 }, { height: h + 'px', marginTop: '0px', opacity: 1 }], { duration: 420, easing: OUT });
+    [...ex.children].forEach((r, n) => r.animate([{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }],
+      { duration: 420, delay: 40 + n * 45, easing: OUT, fill: 'backwards' }));
+  } else {
+    const ex = info.querySelector('.extra'), btn = info.querySelector('.more');
+    if (!ex) { fillInfo(info, c, true); refocus(); return; }
+    btn.textContent = 'Show More'; btn.setAttribute('aria-expanded', 'false');
+    // 접히는 동안 칸도 커버 높이로 돌아간다(같은 시간). 끝나면 다시 그려 맞춘다
+    if (!narrow()) { const p = infoPads(info); info.style.paddingTop = p[0] + 'px'; info.style.paddingBottom = p[1] + 'px'; }
+    else info.style.marginTop = '0px';
+    const a = ex.animate([{ height: ex.offsetHeight + 'px', marginTop: '0px', opacity: 1 }, { height: '0px', marginTop: '-6px', opacity: 0 }],
+      { duration: 420, easing: OUT, fill: 'forwards' });
+    a.onfinish = () => { if (!infoOpen && cur !== null && C[cur] === c) { fillInfo(info, c, true); refocus(); } };
+  }
+});
+
+/* 세 폭 보기 스와이프: 좌우 = 이전·다음, 위아래 = 아래·위 줄로(밀어 올리면 아래 줄이 온다). 정보 칸은 스크롤에 쓴다 */
+let swipe = null, swallowClick = 0;
+panels.addEventListener('pointerdown', e => {
+  if (e.pointerType === 'mouse' || e.target.closest('.info')) return;
+  swipe = { x: e.clientX, y: e.clientY };
+});
+panels.addEventListener('pointercancel', () => { swipe = null; });
+panels.addEventListener('pointerup', e => {
+  if (!swipe) return;
+  const dx = e.clientX - swipe.x, dy = e.clientY - swipe.y;
+  swipe = null;
+  if (Math.max(Math.abs(dx), Math.abs(dy)) < 40) return;
+  swallowClick = performance.now();
+  if (Math.abs(dx) > Math.abs(dy)) goSide(dx < 0 ? 'right' : 'left');
+  else goExit(dy < 0 ? 'down' : 'up', 2);
+});
+panels.addEventListener('click', e => { if (performance.now() - swallowClick < 400) { e.stopPropagation(); e.preventDefault(); } }, true);
+
+/* ---------- 격자 키보드 이동: 방향키로 가장 가까운 이웃 타일, enter 로 연다 ---------- */
+let kf = -1;
+function gridStep(dir) {
+  const L = G.layout(axis), ok = i => L.px[i] === L.px[i];
+  const cx = i => L.px[i] + L.tw / 2, cy = i => L.py[i] + L.tw / ASPECT / 2;
+  let next = -1;
+  if (kf < 0 || !ok(kf)) {   // 처음엔 왼쪽 위 커버
+    let best = Infinity;
+    for (let i = 0; i < N; i++) if (ok(i) && L.py[i] * 4 + L.px[i] < best) { best = L.py[i] * 4 + L.px[i]; next = i; }
+  } else {
+    const [ux, uy] = { left: [-1, 0], right: [1, 0], up: [0, -1], down: [0, 1] }[dir];
+    let best = Infinity;
+    for (let i = 0; i < N; i++) {
+      if (!ok(i) || i === kf) continue;
+      const dx = cx(i) - cx(kf), dy = cy(i) - cy(kf), along = dx * ux + dy * uy, across = Math.abs(dx * uy - dy * ux);
+      if (along <= 1) continue;
+      const score = along + across * 2.5;   // 진행 방향 우선, 옆으로 벗어날수록 불리
+      if (score < best) { best = score; next = i; }
+    }
+  }
+  if (next < 0) return;
+  kf = next;
+  G.setHover(kf); showLens(kf); showTip(kf);
+}
+function gridBlur() { if (kf >= 0) { kf = -1; tip.classList.remove('show'); hideLens(); } }
+cv.addEventListener('blur', gridBlur);
+cv.addEventListener('mousemove', () => { kf = -1; });
 
 /* ---------- 단축키: e.code(물리 키)로 읽어 한/영 입력 상태와 무관하다 (KeyF = f, F, ㄹ) ---------- */
 // 3×3 키 배치가 화면의 3×3(정보 칸 제외)과 같다: q w e / a s d / z x c
@@ -1109,6 +1501,17 @@ addEventListener('keydown', e => {
   if (e.target === qEl) return;
   const c = e.code;
   hideKbd();
+  if ((c === 'Enter' || c === 'Space') && e.target.closest?.('button, a') && !e.target.closest('header')) return;
+  if (axMenu.classList.contains('open')) {
+    if (c === 'Escape') { axOpen(false); axBtn.focus({ preventScroll: true }); return; }
+    if (c === 'ArrowDown' || c === 'ArrowUp') {
+      e.preventDefault();
+      const bs = [...axList.querySelectorAll('button:not(:disabled)')], i = bs.indexOf(document.activeElement);
+      bs[(i + (c === 'ArrowDown' ? 1 : -1) + bs.length) % bs.length]?.focus();
+      return;
+    }
+    if (c === 'Enter' || c === 'Space') return;   // 포커스된 항목 버튼에 맡긴다
+  }
   if (c === 'KeyF' || c === 'Slash') { e.preventDefault(); qEl.focus(); qEl.select(); return; }
   if (c === 'Space') { e.preventDefault(); setTrace(!traceOn); return; }
   const dm = c.match(/^(?:Digit|Numpad)(\d)$/);
@@ -1117,7 +1520,13 @@ addEventListener('keydown', e => {
     if (cur === null || has(cur, k)) setAxis(k);
     return;
   }
-  if (cur === null) return;
+  if (cur === null) {
+    const dir = { ArrowLeft: 'left', ArrowRight: 'right', ArrowUp: 'up', ArrowDown: 'down' }[c];
+    if (dir) { e.preventDefault(); if (document.activeElement !== cv) cv.focus({ preventScroll: true }); gridStep(dir); }
+    else if (c === 'Enter' && kf >= 0) { e.preventDefault(); const i = kf; kf = -1; openFromGrid(i); }
+    else if (c === 'Escape') gridBlur();
+    return;
+  }
   if (c === 'Escape') closeTri();
   else if (c === 'Backspace') { e.preventDefault(); if (hist.length) openTri(hist.pop(), false); }
   else if (c === 'Enter') { e.preventDefault(); nextAxis(); }
@@ -1144,6 +1553,7 @@ function showKbd(el) {
   kbd.style.top = Math.max(8, y) + 'px';
 }
 document.addEventListener('mouseover', e => {
+  if (NOHOVER.matches || fromTouch()) return;
   const el = e.target.closest?.('[data-key]');
   if (el === kbdEl) return;
   hideKbd();
@@ -1186,7 +1596,8 @@ function runSearch() {
   renderResults(); setCount();
 }
 function setCount() {
-  document.getElementById('count').textContent = qEl.value.trim() ? `${hits.length} / ${M.count}` : `${M.count} / ${M.films}`;
+  // 밝게 남은 커버 / 전체 편수. 평소엔 확보한 커버 전부, 검색 중엔 맞는 것
+  document.getElementById('count').textContent = `${qEl.value.trim() ? hits.length : M.count} / ${M.films}`;
 }
 function renderResults() {
   const q = qEl.value.trim();
@@ -1236,12 +1647,23 @@ resEl.addEventListener('mousemove', e => {
 });
 
 /* ---------- 주소: #<축>[,t][,tri=<spine>] ---------- */
+/* 세 폭 보기를 열 때만 기록을 하나 쌓는다(pushState). 그 안의 이동·축 바꾸기는 그 기록을 고쳐 쓴다.
+   닫기(×, esc)는 history.back() 으로 그 기록을 걷어 내고, 브라우저 뒤로 가기는 popstate 에서 닫는다 */
+let pushed = false;
 function syncHash() {
   const parts = [axis];
   if (traceOn) parts.push('t');
   if (cur !== null) parts.push(`tri=${C[cur].spine}`);
-  history.replaceState(null, '', '#' + parts.join(','));
+  const h = '#' + parts.join(',');
+  if (cur !== null && !pushed) { history.pushState({ tri: true }, '', h); pushed = true; }
+  else history.replaceState(history.state, '', h);
 }
+addEventListener('popstate', () => {
+  const sp = +(location.hash.match(/tri=(\d+)/)?.[1] || 0);
+  if (cur !== null && !sp) { pushed = false; closeTri(true); }
+  else if (cur === null && sp) { const i = C.findIndex(c => c.spine === sp); if (i >= 0) { pushed = true; openTri(i); } }
+  else if (cur === null) syncHash();   // 닫기로 돌아온 기록: 축·눈 상태를 지금 것으로
+});
 function start() {
   const parts = location.hash.slice(1).split(',');
   // 예전 주소(#map, #spine,tri=2:lines:t)도 받아 준다
@@ -1253,15 +1675,20 @@ function start() {
   syncAxisButtons(); movePill(axesEl, true);
   setTrace(parts.includes('t') || parts.includes('trace') || old[2] === 't');
   const i = old[0] ? C.findIndex(c => c.spine === +old[0]) : -1;
-  if (i >= 0) openTri(i);
+  if (i >= 0) { history.replaceState(null, '', '#' + [axis, ...(traceOn ? ['t'] : [])].join(',')); openTri(i); }
   G.prefetch();
 }
-let rz;
+let rz, wasNarrow = narrow();
 addEventListener('resize', () => {
   clearTimeout(rz);
-  rz = setTimeout(() => { G.size(); G.go(axis, false); movePill(axesEl, true); if (cur !== null) triSize(); }, 60);
+  rz = setTimeout(() => {
+    G.size(); G.go(axis, false); movePill(axesEl, true); fitAxes();
+    if (cur !== null) { if (narrow() !== wasNarrow) showTri({ kind: 'axis' }); else { triSize(); const info = panels.querySelector('.info'); if (info) fitInfo(info, C[cur]); } }
+    wasNarrow = narrow();
+  }, 60);
 });
 start();
+fitAxes();
 </script>
 </body>
 </html>

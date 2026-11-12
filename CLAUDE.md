@@ -39,7 +39,7 @@
   - 짝이 시각보다 의미로 묶인다(Seven Samurai → Sanjuro, Three Outlaw Samurai). SigLIP 이 커버의 제목 글자를 읽기 때문. 시각 축으로 쓰려면 art 버전(텍스트 가린 이미지)을 넣어야 한다.
   - 기법 제로샷은 sigmoid 확률이 0.00–0.09로 낮아 절대값으로는 못 쓴다. 라벨 안 순위는 typographic, collage, watercolor 정도가 그럴듯하고 photograph 는 틀린다.
 - 웹 뷰어(2026-11-11, 사용자 피드백으로 여러 번 개편): web/index.html. 축 10개(Spine, 개봉 연도, 전체 인상, 색, 구도선, 텍스트 배치, 대비, 획, 레이아웃, 물체)가 격자 배치와 세 폭 짝을 함께 정한다. 원본/흔적 토글 공용. 격자는 WebGL2 인스턴싱(좌표 보간은 셰이더, 아틀라스는 data URL JS), 화면 이동은 #flyer. 세 폭 보기는 3×3: 위 줄 다른 축으로 이어진 커버, 아래 줄 먼 곳의 커버. 세부는 README.
-  - 사용자 취향: 담백하게. 설명 문구·수치 캡션·조작 안내는 뺐다. 'The 3 covers are associated based on' 과 'Covers are sorted according to' 라벨은 남긴다. 포스터 밑은 제목, #spine · 연도 · 감독만.
+  - 사용자 취향: 담백하게. 설명 문구·수치 캡션·조작 안내는 뺐다. 격자 라벨은 'Arranged by', 세 폭 보기 라벨은 'Grouped by'(2026-11-12 사용자 선택, 이전 'Covers are sorted according to' / 'Neighboring covers are associated based on'). 포스터 밑은 제목, #spine · 연도 · 감독만.
   - 2026-11-12 개편: 세 폭 보기는 4열(이전 · 지금 · 상세 정보 · 다음) + 위·아래 줄. 이동은 축마다 토러스 격자(META.rings, 좌우 = 줄 안 순환, 위아래 = 줄 사이 순환, 모든 커버를 돈다). 최근접 둘을 양옆에 두면 A↔B 고리가 생겨 버렸다.
   - UI 는 영어로 통일(축 버튼 Spine/Year/Look/Color/Lines/Type/Contrast/Strokes/Layout/Objects). 상세 정보의 번호는 '#834'.
   - 단축키는 e.code(물리 키)로 읽어 한/영 상태와 무관. 이동 q w e / a s d / z x c(화면 3×3과 같은 배치, s = 다음 축), 축 1–9·0, space 눈, f·/ 검색, esc, backspace 뒤로, 방향키 보조. 팝오버(0.2초)는 머리줄 버튼에만, 포스터에는 띄우지 않는다.
@@ -50,6 +50,14 @@
   - 머리줄: 눈(맨 왼쪽) · 축 · … · 개수 · 검색 · 닫기. 오른쪽 아래 크레딧(umjo.me, Poster World, Not affiliated). favicon.svg(눈), og.jpg.
   - 격자에서 흔적을 켠 채 축을 바꾸면 제자리에서 흔적이 번져 바뀐 뒤(SWAP 420ms) 움직인다. 세 폭 보기 등장 순서는 q w e a s d z x c, 정보 글자는 맨 끝.
   - 구도선 축은 full 버전이라 글자 획이 선으로 많이 잡힌다. art 버전과 비교할 것.
+  - v0.3.0 모바일(폭 720px 이하, CSS 와 JS narrow() 가 같은 기준): 축 버튼 가로 스크롤, 검색은 펼치면 머리줄을 덮음, 세로 화면이면 지도 축·연도 축을 전치. 터치는 훑으면 미리보기(가장 가까운 타일 18px 안), 같은 커버를 한 번 더 누르거나 미리보기를 누르면 연다. 세 폭 보기는 이전·지금·다음 한 줄(양옆은 안쪽 가장자리만) + 위·아래 띠 + 아래 정보, 스와이프로 이동(밀어 올리면 아래 줄).
+  - 같은 버전: 세 폭 보기를 열 때만 pushState(브라우저 뒤로 가기 = 닫기, ×·esc 는 history.back()), 격자 방향키 이동 + enter, 세 폭 보기 포커스 이동·복귀, WebGL 2 없으면 안내 문구. 개수 표시는 늘 '밝은 커버 / 전체 편수'.
+  - 줄 이름은 가운데 줄 것만(사용자), 1열 왼쪽 여백에 세로로, 글자는 작게(--t1, 키운 것은 사용자가 되돌림). 가운데 커버 윗변부터 아래 띠 끝(폰은 정보 영역 옆)까지 쓸 수 있다. 폰도 양옆 여백 26px(NARROW_GUTTER)을 두고 같은 세로쓰기이며, 검은 정보 영역은 양옆 여백까지 덮는다(--gut, 날아오르는 커버가 틈으로 보이지 않게). 줄 이름은 그 위 층(z 7). 폰 크레딧은 가운데 정렬: 위는 Inspired by … 와 Not affiliated … 를 살짝 띄운 한 줄(폭이 모자라면 두 줄, 사용자가 두 줄도 좋다고 함), 맨 아래 이름 · 버전. 축 드롭다운은 클릭·탭으로 열면 포커스를 옮기지 않고(키보드일 때만), 호버하면 옅은 바탕.
+  - 화면 구간은 세 개(사용자): S ≤ 720(폰 배치) · M 721–1024 · L ≥ 1025(BP_S, BP_M). 격자 지도 전치만 폭이 아니라 화면 방향(세로가 1.1배 넘게 길 때) 기준.
+  - 글자 크기는 구간마다 끊지 않는 가변 토큰 --t1–--t6(폰 390px 값과 1440px 값을 잇는 clamp 직선). 폰 전용 글자 크기 지정은 두지 않는다.
+  - 축 드롭다운: S·M 에서, 그리고 L 이라도 머리줄이 넘치면(fitAxes() 가 잰다) body.axcompact 로 바꿔 지금 축 버튼 하나 + 세로 목록. 목록은 가로 세그먼트와 같은 결(#111 바탕, 28px 알약 버튼, 고른 것은 흰 알약, Spine·Year 와 나머지 사이 1px 선). 바깥 누름·esc 로 닫고, 위아래 화살표로 이동. 세 폭 보기에서 그 커버에 없는 축은 비활성.
+  - 머리줄 높이는 모두 36px(축 버튼 28 + 여백 4×2). 눈(18px)·돋보기(16px)·닫기(16px SVG)는 같은 선 굵기(약 1.2px).
+  - v0.3.1 상세 정보: #spine · 제목 · 감독 · 연도는 커버 윗변에, 표와 Show More 는 아랫변에 붙인다(.body). 표는 늘 보이는 Country · Runtime · Aspect ratio · Language 네 줄(영화마다 일관되게), 표 아래 Show More 를 누르면 Color · Cinematography · Music · Written by 가 높이를 키우며 펼쳐지고 줄마다 떠오른다(접을 때는 높이를 줄인 뒤 다시 그림. infoOpen, 다른 커버로 옮겨도 유지). 정보 칸은 절대 스크롤하지 않는다(사용자). .info 는 3열 전체(grid-row 1/4)를 차지하고 평소엔 padding 으로 커버 높이만 쓴다(infoPads, 가운데 커버 offsetTop 기준). 넘치면 fillInfo 가 넘치는 만큼만 padding 을 위아래 반씩 줄여 가운데를 중심으로 늘리고(padding transition .42s, 펼치기 애니메이션과 같은 시간), 그래도 넘치면 값 한 줄 → 제목 축소 → 줄 간격 축소 → 아래 줄부터 뺀다. 좁은 화면은 정보 칸 258px 고정(NARROW_INFO, 접힌 내용의 95% 가 들어가는 높이, 열고 닫아도 커버 크기 그대로)이고 정보 영역이 검은 덮개 층(z 6)이다: 펼치면 펼친 줄 높이만큼 정확히 위로 늘어나(Show More 아래는 제자리, 제목부터 표까지 한 덩어리로 같은 속도), 그래도 넘치면 글자 크기를 바꾸지 않고(사용자) 더 위로 늘어나 아래 띠를 덮고(가운데 커버 윗변까지), 아래 줄로 이동할 때 날아오르는 커버(flyWithin z 5)는 그 뒤에서 나온다. 펼친 상태로 펼칠 것이 없는 커버에 가도 Show Less 는 남는다. criterion.com 링크(새 탭)는 #spine 번호에 건다. 번호 뒤 작은 화살표(Lucide arrow-up-right)를 늘 흐리게, 가리키면 점선 밑줄. 제목에 링크를 걸거나 Show More 를 호버 때만 보이게 한 시도는 사용자가 되돌렸다.
 - 박스 세트 커버 시험 수집(2026-11-11, 사용자: "일단 받고 생각하자"): scripts/fetch_box_covers.py → posters_box/, 기록 data/raw/box_cover_sources.csv. 박스 세트 쪽 spine 245개 중 Wikidata 에 Criterion ID 가 있는 151편. DB 에는 넣지 않았다. 넣을지는 사용자 결정 대기.
   - 결과: 151편 전부 받음, 박스 세트 49개. 이미지 주소는 151개 모두 다르지만 그림이 같은 쌍이 14개(28편): World Cinema Project 1–4 는 디스크 한 장(2편)마다 커버 하나, Gates of Heaven/Vernon, Florida, The Emigrants/The New Land, I Am Curious Yellow/Blue(부제만 다름). 자기 커버가 있는 것은 123편(예: 284 Kanal, DVD 시기 디자인).
   - 같은 그림 판정: 24×30 흑백 상관 0.99 이상. World Cinema Project 끼리는 같은 템플릿이라 0.9–0.94 로 높게 나오니 기준을 낮추지 말 것.
