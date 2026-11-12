@@ -768,8 +768,9 @@ def text_tilt(r: dict, frame_rects: list) -> float:
     return float(acc / wsum) if wsum else 0.0
 
 
-def dense_region(pos: dict[int, list[int]], mem: list[int], name: str, keep: float = 0.6) -> list | None:
-    """클러스터 영역: 그 무리가 가장 빽빽한 곳(이웃이 많은 커버)을 중심으로 가까운 keep 비율만 감싸는 네모."""
+def dense_region(pos: dict[int, list[int]], mem: list[int], name: str, keep: float = 0.7) -> dict | None:
+    """클러스터 영역: 그 무리가 가장 빽빽한 곳을 중심으로 가까운 keep 비율의 '그 무리 커버 칸'만. 사이에 낀 다른 커버는 들지 않는다.
+    라벨 자리는 영역 위쪽 가운데."""
     mem = [i for i in mem if i in pos]
     if len(mem) < 8:
         return None
@@ -778,8 +779,10 @@ def dense_region(pos: dict[int, list[int]], mem: list[int], name: str, keep: flo
     c = P[np.argmax((D < 4).sum(1))]
     d = np.hypot(*(P - c).T)
     Q = P[d <= np.quantile(d, keep)]
-    x0, y0 = Q.min(0); x1, y1 = Q.max(0)
-    return [float(x0 - .6), float(y0 - .6), float(x1 + 1.6), float(y1 + 1.6), name]
+    mx = Q[:, 0].mean()
+    col = Q[np.abs(Q[:, 0] - mx) <= 2]                  # 가운데 열들 중 가장 위 칸 바로 위
+    top = (col if len(col) else Q)[:, 1].min()
+    return {"name": name, "cells": Q.astype(int).tolist(), "label": [float(mx + .5), float(top - .4)]}
 
 
 def soft_axes(X: np.ndarray, anchor: np.ndarray, pull: float = 0.35) -> np.ndarray:
@@ -971,11 +974,116 @@ def centroid_labels(pos: dict[int, list[int]], groups: dict[str, list[int]]) -> 
     return out
 
 
+def equal_earth(lon: np.ndarray, lat: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    """Equal Earth 도법(넓이가 정확한 표준 세계지도). 입력 도, 출력은 지구 반지름 1 기준(y 는 북쪽이 +)."""
+    A1, A2, A3, A4 = 1.340264, -0.081106, 0.000893, 0.003796
+    lam, phi = np.radians(lon), np.radians(lat)
+    th = np.arcsin(np.sqrt(3) / 2 * np.sin(phi))
+    t2 = th * th; t6 = t2 ** 3
+    x = 2 * np.sqrt(3) * lam * np.cos(th) / (3 * (A1 + 3 * A2 * t2 + t6 * (7 * A3 + 9 * A4 * t2)))
+    y = th * (A1 + A2 * t2 + t6 * (A3 + A4 * t2))
+    return x, y
+
+
+def country_map(items: list[dict]) -> tuple:
+    """지도는 늘리거나 당기지 않는다(Equal Earth). 커버를 실제 국경 안에 채우고, 나라 넓이에 비해 영화가 많으면 그 나라 타일을 작게.
+    좌표 단위: 지도 폭 1000. 반환 pos[i] = [x, y](타일 왼쪽 위), size[i] = 타일 너비."""
+    feats = {f["properties"]["NAME"]: f["geometry"] for f in json.loads(BORDERS.read_text())["features"]}
+    WMAP = 1000.0
+    xmax = equal_earth(np.array([180.0]), np.array([0.0]))[0][0]
+    ytop = equal_earth(np.array([0.0]), np.array([84.0]))[1][0]
+    ybot = equal_earth(np.array([0.0]), np.array([-58.0]))[1][0]
+    sc = WMAP / (2 * xmax)
+    to_map = lambda lon, lat: ((equal_earth(lon, lat)[0] + xmax) * sc, (ytop - equal_earth(lon, lat)[1]) * sc)
+    HMAP = (ytop - ybot) * sc
+    TA = 1 / (1288 / 1600)                       # 타일 세로/가로
+    GAPX, GAPY = 1.18, 1.18 * 1.42 / 1.18 * (1288 / 1600) * TA / TA   # 칸 간격(타일 너비 대비)
+
+    groups: dict[str, list[int]] = {}
+    for i, it in enumerate(items):
+        c = it.get("country") or ""
+        groups.setdefault(MAP_GROUP.get(c, c), []).append(i)
+    pos, size, labels = {}, {}, []
+    film_paths, label_boxes = [], []
+    for c, mem in sorted(groups.items(), key=lambda kv: -len(kv[1])):
+        rings = country_rings(SHAPE_OF.get(c, [c]), feats)
+        n = len(mem)
+        polys = [np.stack(to_map(r[:, 0], r[:, 1]), 1) for r in rings] if rings else []
+        if polys:
+            allp = np.concatenate(polys)
+            mn, mx = allp.min(0), allp.max(0)
+            K = 8
+            W, H = int((mx[0] - mn[0]) * K) + 3, int((mx[1] - mn[1]) * K) + 3
+            im = Image.new("L", (W, H), 0); d = ImageDraw.Draw(im)
+            for q in polys:
+                d.polygon([((x - mn[0]) * K + 1, (y - mn[1]) * K + 1) for x, y in q], fill=255)
+            mask = np.asarray(im) > 127
+
+            def lattice(s):   # 타일 너비 s 일 때 나라 안에 들어가는 자리(칸 중심이 국경 안)
+                sx, sy = s * 1.18, s * TA + s * 0.18
+                xs = np.arange(mn[0], mx[0], sx); ys = np.arange(mn[1], mx[1], sy)
+                out = []
+                for yy in ys:
+                    for xx in xs:
+                        cx, cy = xx + s / 2, yy + s * TA / 2
+                        if mask[min(H - 1, int((cy - mn[1]) * K + 1)), min(W - 1, int((cx - mn[0]) * K + 1))]:
+                            out.append((xx, yy))
+                return np.array(out).reshape(-1, 2)
+            lo, hi = 0.05, 60.0
+            for _ in range(32):
+                mid = (lo + hi) / 2
+                if len(lattice(mid)) >= n:
+                    lo = mid
+                else:
+                    hi = mid
+            s = min(lo, 4.5)                             # 땅이 넓어 영화가 드문 나라도 타일이 너무 커지지 않게
+            pts = lattice(s)
+        else:
+            pts, s = np.zeros((0, 2)), 0
+        SMIN = 1.1
+        if len(pts) < n or s < SMIN:   # 너무 작은 나라: 최소 크기로 그 자리에 모은다(국경을 조금 넘어도)
+            s = max(s, SMIN)
+            lon0, lat0 = (np.concatenate(rings).mean(0) if rings else LONLAT.get(c, (0, -50)))
+            cx, cy = to_map(np.array([lon0]), np.array([lat0])); cx, cy = cx[0], cy[0]
+            pts = sunflower(n) * s * 1.18 / np.sqrt(CELL_X * CELL_Y) + np.array([cx - s / 2, cy - s * TA / 2])
+        if len(pts) > n:
+            pts = pts[np.round(np.linspace(0, len(pts) - 1, n)).astype(int)]
+        ctr = pts.mean(0)
+        order = np.argsort(np.hypot(*(pts - ctr).T))
+        mem_sorted = sorted(mem, key=lambda i: (items[i].get("year") or 0, items[i]["spine"]))
+        for k, i in enumerate(mem_sorted):
+            pos[i] = [round(float(pts[order[k]][0]), 2), round(float(pts[order[k]][1]), 2)]
+            size[i] = round(float(s), 3)
+        if n >= 12:   # 클러스터 라벨: 나라 위쪽 가운데. 겹치면 뺀다(글자 하나 ≈ 4.2 단위)
+            lx, ly = float(pts[:, 0].mean() + s / 2), float(pts[:, 1].min() - 2.5)
+            w = len(c) * 4.2 + 6
+            if not any(abs(lx - a) < (w + b) / 2 and abs(ly - y2) < 9 for a, y2, b in label_boxes):
+                labels.append([round(lx, 2), round(ly, 2), c, "center"]); label_boxes.append((lx, ly, w))
+        for q in polys:
+            film_paths.append("M" + "L".join(f"{x:.1f} {y:.1f}" for x, y in q[::max(1, len(q) // 400)]) + "Z")
+    # 모든 나라(흐리게)
+    world = []
+    for f in json.loads(BORDERS.read_text())["features"]:
+        g = f["geometry"]
+        for poly in ([g["coordinates"]] if g["type"] == "Polygon" else g["coordinates"]):
+            r = np.array(poly[0], float)
+            if r[:, 1].max() < -58 or _ring_area(r) < 0.5:
+                continue
+            X, Y = to_map(r[:, 0], r[:, 1])
+            pts_, last = [], None
+            for x, y in zip(X, Y):
+                if last is None or abs(x - last[0]) + abs(y - last[1]) > 0.6:
+                    pts_.append(f"{x:.1f} {y:.1f}"); last = (x, y)
+            if len(pts_) >= 3:
+                world.append("M" + "L".join(pts_) + "Z")
+    return pos, size, {"free": True, "w": WMAP, "h": round(HMAP, 1)}, labels, {"world": "".join(world), "films": "".join(film_paths)}
+
+
 def free_layouts(items: list[dict], tropes: dict, look: dict[int, np.ndarray], u_look: dict[int, tuple[float, float]], ax: dict) -> dict[str, tuple]:
     out: dict[str, tuple] = {}
     n = len(items)
 
-    out["country"] = country_cartogram(items)
+    out["country"] = country_map(items)
 
     # 화면비: 비율마다 진짜 화면비 모양의 블록. 블록 안은 연도 순(왼쪽 위 → 오른쪽 아래), 블록은 왼쪽부터 아래를 맞춰 놓는다
     buckets: dict[str, list[int]] = {}
@@ -1095,6 +1203,11 @@ def free_layouts(items: list[dict], tropes: dict, look: dict[int, np.ndarray], u
     # 같은 값끼리는 겉모습 지도 순으로 조금 흩어 둔다. 딱 두 사람이 적당히 큰 자리에 Couple 영역(배경 네모)을 둔다
     cnt = np.array([max(f.get("faces", 0) or 0, f.get("persons", 0) or 0) for f in F], float)
     occ = np.array([min(1.0, max(f.get("person_max", 0) or 0, 2.5 * (f.get("face_max", 0) or 0), 2 * (f.get("face_sum", 0) or 0))) for f in F])
+    # 검출기가 놓친 꽉 찬 얼굴·사람: 판정이 사람 쪽이면 최소 한 명, SigLIP 클로즈업 점수만큼 크게
+    cat = [tropes[items[i]["file"]].get("people") for i in ids]
+    zf = np.array([z.get("face_close", 0.0) for z in Z])
+    cnt = np.where((cnt == 0) & np.isin(cat, ["Big face", "Lone figure", "Figures", "Couple", "Talking heads", "Crowd"]), 1, cnt)
+    occ = np.where(np.array(cat) == "Big face", np.maximum(occ, np.clip(0.35 + 0.4 * zf, 0.35, 1.0)), occ)
     XMAX = np.log1p(12)
     xn = np.minimum(np.log1p(cnt), XMAX) / XMAX
     yn = np.sqrt(occ)
@@ -1114,9 +1227,10 @@ def free_layouts(items: list[dict], tropes: dict, look: dict[int, np.ndarray], u
     labels = []   # 축이 느슨해 눈금은 두지 않는다(방향만 축 이름으로)
     cp = np.array([pos[i] for i in ids if tropes[items[i]["file"]].get("people") == "Couple"], float)
     regions = []
-    r = dense_region(pos, [i for i in ids if tropes[items[i]["file"]].get("people") == "Couple"], "Couple")
-    if r:
-        regions.append(r)
+    for cat_, name_ in (("No one", "No people"), ("Big face", "Big face"), ("Couple", "Couple"), ("Crowd", "Crowd")):
+        r = dense_region(pos, [i for i in ids if tropes[items[i]["file"]].get("people") == cat_], name_)
+        if r:
+            regions.append(r)
     out["people"] = (pos, size, labels, "", {"axes": ["More people", "Larger in the frame"], "regions": regions})
 
     # Type: 느슨한 축(가로 = 제목이 아래로, 세로 = 글자가 클수록 위) + 기울기·글자 분포·겉모습으로 뭉친다
@@ -1327,8 +1441,15 @@ def main() -> None:
     glabels: dict[str, list] = {}
     gbg: dict[str, str] = {}
     gextra: dict[str, dict] = {}
-    for k, (pos, size, labs, *bg) in free_layouts(items, tropes, ax["look"], u_look, ax).items():
-        gpos[k], grids[k], glabels[k] = pos, size, labs
+    gsize: dict[str, dict[int, float]] = {}
+    for k, res in free_layouts(items, tropes, ax["look"], u_look, ax).items():
+        if len(res) == 5 and isinstance(res[2], dict) and res[2].get("free"):   # 연속 좌표(지도): pos, 타일 크기, 판 크기
+            pos, tsize, grid, labs, bgd = res
+            gpos[k], grids[k], glabels[k], gsize[k] = pos, grid, labs, tsize
+            bg = [bgd]
+        else:
+            pos, size, labs, *bg = res
+            gpos[k], grids[k], glabels[k] = pos, size, labs
         if len(bg) > 1 and bg[1]:
             gextra[k] = bg[1]
         bg = bg[:1]
@@ -1339,6 +1460,9 @@ def main() -> None:
     print("  rings " + ", ".join(f"{k} {len(r)}x~{round(sum(len(x) for x in r) / len(r))}" for k, r in rings.items()), flush=True)
     for i, it in enumerate(items):
         it["g"] = {k: gpos[k][i] for k in gpos if i in gpos[k]}
+        gw = {k: gsize[k][i] for k in gsize if i in gsize[k]}
+        if gw:
+            it["gw"] = gw
         it["nb"] = {k: nb[k][i] for k in nb if i in nb[k]}
         if i in nb["color"]:
             it["nb"]["color"] = nb["color"][i]

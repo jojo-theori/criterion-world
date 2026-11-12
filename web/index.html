@@ -240,9 +240,9 @@
   #stage.zoomed #grid { cursor: grab; }
   #grid.grabbing { cursor: grabbing !important; }
   /* 영역 네모(People 의 Couple): 평소엔 거의 보이지 않고, 호버하면 밝아지며 이름이 뜬다 */
-  #gridbg rect.region { fill: rgba(235,235,235,.025); stroke: rgba(235,235,235,.07); stroke-width: 1; transition: fill .35s var(--out), stroke .35s var(--out); }
-  #gridbg rect.region.hot { fill: rgba(235,235,235,.09); stroke: rgba(235,235,235,.35); }
-  .rlabel { position: absolute; transform: translateX(-50%); font-size: var(--t1); color: var(--fg); opacity: 0; pointer-events: none;
+  #gridbg path.region { fill: rgba(235,235,235,.045); stroke: none; transition: fill .35s var(--out); }
+  #gridbg path.region.hot { fill: rgba(235,235,235,.13); }
+  .rlabel { position: absolute; transform: translateX(-50%); font-size: var(--t1); color: var(--fg); opacity: .45; pointer-events: none;
     background: rgba(0,0,0,.7); padding: 0 4px; border-radius: 2px; transition: opacity .3s var(--out); white-space: nowrap; }
   .rlabel.hot { opacity: 1; }
   /* 좌표 뜻: 가로는 아래 가운데, 세로는 왼쪽 가운데(아래에서 위로 읽는다) */
@@ -419,7 +419,7 @@
 /* 빌드마다 바뀌는 값(data.js 크기)을 data.js 와 아틀라스 주소에 붙인다. 커버가 늘면 아틀라스 칸 순서가 바뀌는데,
    브라우저가 이전 아틀라스를 캐시에서 쓰면 칸마다 엉뚱한 커버가 그려진다 */
 window.BUILD = '';
-const SIZES = /*SIZES*/{"data.js": 1672117, "atlas/cover_s.webp": 780562}/*END*/;
+const SIZES = /*SIZES*/{"data.js": 1716767, "atlas/cover_s.webp": 780562}/*END*/;
 window.PRELOAD = {};
 window.BUILD = '?v=' + (SIZES['data.js'] || 0);
 (() => {
@@ -466,7 +466,7 @@ window.BUILD = '?v=' + (SIZES['data.js'] || 0);
 <script type="text/plain" id="main">
 const M = window.META, C = window.COVERS, N = C.length;
 // 버전: 화면·동작이 바뀌면 올린다. 데이터 날짜는 build_web.py 가 META.built 에 적는다
-const VERSION = '0.9.2';
+const VERSION = '1.0.1';
 document.getElementById('ver').textContent = `v${VERSION}`;
 document.getElementById('ver').title = M.built ? `data ${M.built}` : '';
 const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -734,15 +734,15 @@ const G = (() => {
   const hiEl = document.createElement('div'); hiEl.id = 'hires'; stage.appendChild(hiEl);
   const hiImgs = new Map();
   function updateHi() {
-    const on = vs >= 3.9 && !traceOn && !hlOn && !(dur > 0 && performance.now() - t0 < maxEnd + 20);
+    const on = vs > 1.001 && !traceOn && !hlOn && !(dur > 0 && performance.now() - t0 < maxEnd + 20);
     const want = new Set();
     if (on) for (let i = 0; i < N; i++) {
       const b = i * 4; if (to[b + 3] < .5 || i === hidden) continue;
       const x = to[b] * vs + vx, y = to[b + 1] * vs + vy, w = to[b + 2] * vs, h = w / ASPECT;
-      if (x + w < 0 || y + h < 0 || x > Wc || y > Hc) continue;
+      if (w < 34 || x + w < 0 || y + h < 0 || x > Wc || y > Hc) continue;   // 아틀라스(80px)로 충분한 크기는 덮지 않는다
       want.add(i);
       let im = hiImgs.get(i);
-      const src = `${vs >= 7 ? 'large' : 'thumbs'}/${encodeURIComponent(C[i].file)}`;
+      const src = `${w * (devicePixelRatio || 1) > 150 ? 'large' : 'thumbs'}/${encodeURIComponent(C[i].file)}`;
       if (!im) { im = document.createElement('img'); im.alt = ''; im.onload = () => im.classList.add('ok'); hiEl.appendChild(im); hiImgs.set(i, im); }
       if (im._src !== src) {   // 썸네일 → 큰 이미지: 받는 동안은 앞의 것을 그대로 보인다
         const nx = new Image(); nx.onload = () => { if (im._src === src) { im.src = src; im.classList.add('ok'); } }; nx.src = src;
@@ -804,6 +804,14 @@ const G = (() => {
   function layout(k) {
     if (cache[k]) return cache[k];
     const px = new Float32Array(N).fill(NaN), py = new Float32Array(N).fill(NaN), lab = [];
+    if (M.grids[k]?.free) {   // 지도: 늘리지 않은 실제 지도 좌표(폭 1000) 그대로, 판 전체를 화면에 맞춘다
+      const g0 = M.grids[k], sc = Math.min(Wc / g0.w, (Hc - 18) / g0.h);
+      const ox = (Wc - g0.w * sc) / 2, oy = Math.max(0, (Hc - 18 - g0.h * sc) / 2);
+      const tws = new Float32Array(N).fill(NaN);
+      C.forEach((c, i) => { const g = c.g[k]; if (g) { px[i] = ox + g[0] * sc; py[i] = oy + g[1] * sc; tws[i] = (c.gw?.[k] || 1) * sc; } });
+      (M.gridLabels?.[k] || []).forEach(([x, y, t, al]) => lab.push([ox + x * sc, oy + y * sc, t, al]));
+      return cache[k] = { px, py, tw: 4, tws, labels: lab, bg: [ox, oy, sc, sc] };
+    }
     // 세로로 긴 화면(폰)에서는 가로로 긴 지도를 전치한다. 왼쪽 숫자 자리는 좁은 화면에서만 따로 남긴다(넓으면 여백에 들어간다)
     const tall = Hc > Wc * 1.1, labW = narrow() ? 26 : 0;
     let f, minX = 0, oyBg = 0;
@@ -834,7 +842,7 @@ const G = (() => {
       for (let yr = Math.ceil(M.yearMin / 10) * 10; yr <= M.yearMax; yr += 10) lab.push([(yr - M.yearMin) * (f.w + f.g), H + 18, String(yr), 'left']);
     } else {
       // 자유 배치 축(지도, 화면비, 분포, 색상환, 범주 섬)은 모양이 뜻이라 폰에서도 돌리지 않는다
-      const free = !!M.gridLabels?.[k], rot = tall && !free;
+      const free = !!M.gridLabels?.[k] || !!M.gridExtra?.[k], rot = tall && !free;
       const [cols, rows] = M.grids[k], X = rot ? 1 : 0, Y = 1 - X;
       f = rot ? fit(rows, cols) : fit(cols, rows);
       C.forEach((c, i) => { if (c.g[k]) { px[i] = c.g[k][X] * (f.w + f.g); py[i] = c.g[k][Y] * (f.h + f.g); } });
@@ -882,7 +890,7 @@ const G = (() => {
     maxEnd = 0;
     for (let i = 0; i < N; i++) {
       const s = stateAt(i, now, tmp), ok = L.px[i] === L.px[i], b = i * 4;
-      const tx = ok ? L.px[i] : s[0], ty = ok ? L.py[i] : s[1], tw = ok ? L.tw : s[2];
+      const tx = ok ? L.px[i] : s[0], ty = ok ? L.py[i] : s[1], tw = ok ? (L.tws ? L.tws[i] : L.tw) : s[2];
       to[b] = tx; to[b + 1] = ty; to[b + 2] = tw; to[b + 3] = ok ? 1 : 0;
       if (boot) { from[b] = tx + tw * .4; from[b + 1] = ty + tw / ASPECT * .4; from[b + 2] = tw * .2; from[b + 3] = 0; }
       else if (s[3] < .01) { from[b] = tx; from[b + 1] = ty; from[b + 2] = tw; from[b + 3] = 0; }  // 숨어 있던 타일은 제자리에서 나타난다
@@ -936,15 +944,15 @@ const G = (() => {
   const axX = document.createElement('div'), axY = document.createElement('div');
   axX.className = 'gaxis x'; axY.className = 'gaxis y'; stage.append(axX, axY);
   function placeRegions(k, L) {
-    bgG.querySelectorAll('rect').forEach(r => r.remove());
+    bgG.querySelectorAll('path.region').forEach(r => r.remove());
     stage.querySelectorAll('.rlabel').forEach(r => r.remove());
-    regions = (M.gridExtra?.[k]?.regions || []).map(([x0, y0, x1, y1, name]) => {
-      const r = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-      r.setAttribute('x', x0); r.setAttribute('y', y0); r.setAttribute('width', x1 - x0); r.setAttribute('height', y1 - y0);
-      r.setAttribute('rx', .4); r.setAttribute('vector-effect', 'non-scaling-stroke'); r.classList.add('region');
-      bgG.appendChild(r);
-      const lab = document.createElement('div'); lab.className = 'rlabel'; lab.textContent = name; stage.appendChild(lab);
-      return { x0, y0, x1, y1, r, lab };
+    regions = (M.gridExtra?.[k]?.regions || []).map(g => {
+      const r = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      // 칸마다 조금 큰 네모를 겹쳐 하나의 덩어리로(타일은 칸의 왼쪽 위 0.85 × 0.87 을 차지)
+      r.setAttribute('d', g.cells.map(([x, y]) => `M${x - .3} ${y - .3}h1.45v1.47h-1.45Z`).join(''));
+      r.classList.add('region'); bgG.appendChild(r);
+      const lab = document.createElement('div'); lab.className = 'rlabel'; lab.textContent = g.name; stage.appendChild(lab);
+      return { cells: new Set(g.cells.map(([x, y]) => x + ',' + y)), at: g.label, r, lab };
     });
     hotR = -1;
     const ax = M.gridExtra?.[k]?.axes;
@@ -957,15 +965,16 @@ const G = (() => {
     const L = cache[axis]; if (!L) return;
     const [ox, oy, sx, sy] = L.bg;
     regions.forEach(g => {
-      g.lab.style.left = ((ox + (g.x0 + g.x1) / 2 * sx) * vs + vx) + 'px';
-      g.lab.style.top = ((oy + g.y0 * sy) * vs + vy - 18) + 'px';
+      g.lab.style.left = ((ox + g.at[0] * sx) * vs + vx) + 'px';
+      g.lab.style.top = Math.max(2, (oy + g.at[1] * sy) * vs + vy - 16) + 'px';
     });
   }
   // 화면 좌표 → 지금 축의 칸 좌표
   function hotAt(mx, my) {
     const L = cache[axis]; if (!L || !regions.length) return;
     const [ox, oy, sx, sy] = L.bg, cx = ((mx - vx) / vs - ox) / sx, cy = ((my - vy) / vs - oy) / sy;
-    const n = regions.findIndex(g => cx >= g.x0 && cx <= g.x1 && cy >= g.y0 && cy <= g.y1);
+    const key = (x, y) => Math.floor(x) + ',' + Math.floor(y);
+    const n = regions.findIndex(g => g.cells.has(key(cx, cy)) || g.cells.has(key(cx + .3, cy + .3)) || g.cells.has(key(cx - .3, cy - .3)));
     if (n === hotR) return;
     regions.forEach((g, k) => { g.r.classList.toggle('hot', k === n); g.lab.classList.toggle('hot', k === n); });
     hotR = n;
@@ -1245,7 +1254,7 @@ lens.addEventListener('click', () => { if (lensOn !== null && cur === null) open
 
 /* ---------- 줌: 전체 → 2.2배 → 4.5배, 그보다 더 들어가면 그 자리 커버의 상세 화면 ----------
    트랙패드 핀치(ctrl+휠, Safari 는 gesture), 터치 두 손가락, +/− 버튼과 키. 확대한 채 끌거나 두 손가락으로 밀면 이동 */
-const ZOOMS = [1, 2, 4, 8], ZMAX = ZOOMS[ZOOMS.length - 1];
+const ZOOMS = [1, 2, 4, 8, 16], ZMAX = ZOOMS[ZOOMS.length - 1];
 // 브라우저 자체 줌은 막는다: ctrl+휠(트랙패드 핀치), ⌘/ctrl + = - 0, Safari 제스처. 격자 위의 핀치는 아래에서 단계 줌으로 받는다
 addEventListener('wheel', e => { if (e.ctrlKey) e.preventDefault(); }, { passive: false });
 ['gesturestart', 'gesturechange', 'gestureend'].forEach(n => document.addEventListener(n, e => e.preventDefault(), { passive: false }));
@@ -1839,7 +1848,8 @@ panels.addEventListener('click', e => { if (performance.now() - swallowClick < 4
 let kf = -1;
 function gridStep(dir) {
   const L = G.layout(axis), ok = i => L.px[i] === L.px[i];
-  const cx = i => L.px[i] + L.tw / 2, cy = i => L.py[i] + L.tw / ASPECT / 2;
+  const tw = i => L.tws ? L.tws[i] : L.tw;
+  const cx = i => L.px[i] + tw(i) / 2, cy = i => L.py[i] + tw(i) / ASPECT / 2;
   let next = -1;
   if (kf < 0 || !ok(kf)) {   // 처음엔 왼쪽 위 커버
     let best = Infinity;

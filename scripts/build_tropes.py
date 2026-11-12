@@ -138,7 +138,8 @@ def features(name: str, faces: dict, objects: dict) -> dict:
     # 얼굴: YuNet + 겹치지 않는 OWLv2 face(그림 얼굴)
     fb = [d["box"] for d in faces.get(name, [])]
     for o in objects.get(name, []):
-        if o["label"] == "face" and o["score"] >= 0.2 and all(iou(o["box"], b) < 0.3 for b in fb) and area(o["box"]) < 0.5:
+        # 커버 절반보다 큰 얼굴(꽉 찬 클로즈업)은 점수가 충분할 때만(크라이테리온 로고 같은 오검출을 피한다)
+        if o["label"] == "face" and o["score"] >= 0.2 and all(iou(o["box"], b) < 0.3 for b in fb) and (area(o["box"]) < 0.5 or o["score"] >= 0.3):
             fb.append(o["box"])
     fa = sorted((area(b) for b in fb), reverse=True)
     f["faces"] = len(fb)
@@ -239,11 +240,11 @@ def people(f: dict, s: dict[str, float] | None = None) -> str:
         return "Couple"
     if 2 <= f["big_faces"] <= 4:
         return "Talking heads"
-    if f["face_max"] >= 0.035 or (f["faces"] == 0 and s.get("face_close", 0) > 1.2):
+    if f["face_max"] >= 0.035 or (f["faces"] == 0 and s.get("face_close", 0) > 0.7):   # 검출기가 놓친 꽉 찬 얼굴은 SigLIP 단서로
         return "Big face"
     if f["faces"] + f["persons"] >= 1 and f["face_max"] < 0.006 and f["person_max"] < 0.12 and f["empty_share"] > 0.3:
         return "Lone figure"
-    if f["faces"] + f["persons"] >= 1 or s.get("people", 0) > 1.0:
+    if f["faces"] + f["persons"] >= 1 or s.get("people", 0) > 0.7 or s.get("face_close", 0) > 0.5:
         return "Figures"
     return "No one"
 
