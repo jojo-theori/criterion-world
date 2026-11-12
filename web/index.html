@@ -1305,6 +1305,7 @@ function showTri({ kind = 'axis', from = null } = {}) {
   shown.forEach(i => { C[i]._shared = i === cur ? [...new Set(shown.filter(j => j !== cur).flatMap(j => (C[j].objs || []).filter(o => mid.has(o))))] : (C[i].objs || []).filter(o => mid.has(o)); });
 
   triSize();
+  const prevRow = panels.querySelector('.rowname')?.textContent;   // 같은 줄 안에서 움직이면 줄 이름은 그대로 둔다
   panels.innerHTML = '';
   Object.entries(cols).forEach(([col, i]) => {
     if (i === undefined) return;
@@ -1370,7 +1371,7 @@ function showTri({ kind = 'axis', from = null } = {}) {
     const slot = el.classList.contains('peek') ? el.dataset.row + el.dataset.col : el.dataset.role;
     rise(el, BASE + ORDER.indexOf(slot) * STEP, +getComputedStyle(el).opacity);
   });
-  panels.querySelectorAll('.rowname').forEach(el => rise(el, BASE + 3 * STEP));
+  panels.querySelectorAll('.rowname').forEach(el => { if (el.textContent !== prevRow) rise(el, BASE + 3 * STEP); });
   if (!from && kind !== 'axis') rise(midBox, BASE + ORDER.indexOf('mid') * STEP);   // 날아올 자리가 없을 때(뒤로 가기 등)
   if (kind !== 'axis') [...info.children].flatMap(el => el.classList.contains('body') ? [...el.children] : [el]).forEach((line, n) => rise(line, BASE + ORDER.length * STEP + 160 + n * 70));
 }
