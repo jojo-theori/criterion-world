@@ -57,52 +57,68 @@ CH.forEach(([id, name], n) => {
   b.innerHTML = `<kbd>${CH[n][2]}</kbd>${name}`; b.onclick = () => choose(id); btns.appendChild(b);
 });
 const enc = f => encodeURIComponent(f);
-function card(item, z = 0) {
-  const c = document.createElement('div'); c.className = 'card';
-  c.style.backgroundImage = `url("large/${enc(item.file)}")`;
+// 카드 쌓기: 맨 앞 카드가 날아가면 뒤 카드가 그대로 앞으로 올라오고, 맨 뒤에 새 카드가 붙는다(화면을 통째로 다시 그리지 않는다)
+const cards = new Map();   // 파일 → 카드
+function pose(c, z) {
   c.style.transform = `translateY(${z * 10}px) scale(${1 - z * .04})`; c.style.zIndex = 10 - z; c.style.opacity = z ? .35 : 1;
-  c.innerHTML = `<div class="stamp"></div>` + (z ? '' : `<div class="meta"><b>#${item.spine}</b> · model: ${item.model || '—'}</div>`);   // 글자는 맨 앞 카드만
+  c.querySelector('.meta').style.visibility = z ? 'hidden' : 'visible';   // 글자는 맨 앞 카드만
+}
+function makeCard(item) {
+  const c = document.createElement('div'); c.className = 'card'; c._item = item;
+  c.style.backgroundImage = `url("large/${enc(item.file)}")`;
+  c.innerHTML = `<div class="stamp"></div><div class="meta"><b>#${item.spine}</b> · model: ${item.model || '—'}</div>`;
+  c.style.opacity = 0; c.style.transform = 'translateY(30px) scale(.88)';
+  stage.prepend(c);                       // 뒤에 붙인다
   return c;
 }
 function render() {
-  stage.innerHTML = '';
-  const left = Q.length - k;
-  if (k >= Math.min(Q.length, BATCH) ) {
-    stage.innerHTML = `<div class="done"><b>${Math.min(BATCH, k)} labeled</b>${left > 0 ? 'press enter for the next 100' : 'all covers labeled'}</div>`;
-    return;
+  const end = Math.min(Q.length, BATCH);
+  stage.querySelector('.done')?.remove();
+  const want = Q.slice(k, Math.min(k + 3, end));
+  for (const [f, c] of cards) if (!want.some(it => it.file === f) && !c.classList.contains('leaving')) { c.remove(); cards.delete(f); }
+  want.forEach(it => { if (!cards.has(it.file)) cards.set(it.file, makeCard(it)); });
+  requestAnimationFrame(() => want.forEach((it, z) => pose(cards.get(it.file), z)));
+  if (k >= end) {
+    const d = document.createElement('div'); d.className = 'done';
+    d.innerHTML = `<b>${k} labeled</b>${Q.length - k > 0 ? 'press enter for the next 100' : 'all covers labeled'}`;
+    stage.appendChild(d);
+  } else {
+    const g = GUESS[Q[k].model];
+    btns.querySelectorAll('button').forEach(b => b.classList.toggle('hint', b.dataset.id === g));
   }
-  for (let z = 2; z >= 0; z--) if (Q[k + z]) stage.appendChild(card(Q[k + z], z));
-  const g = GUESS[Q[k].model];
-  btns.querySelectorAll('button').forEach(b => b.classList.toggle('hint', b.dataset.id === g));
-  document.getElementById('prog').textContent = `${k} / ${Math.min(BATCH, Q.length)}`;
-  document.getElementById('barI').style.width = `${k / Math.min(BATCH, Q.length) * 100}%`;
+  document.getElementById('prog').textContent = `${k} / ${end}`;
+  document.getElementById('barI').style.width = `${k / Math.max(1, end) * 100}%`;
   document.getElementById('tot').textContent = `${total} total`;
-  [1, 2, 3].forEach(z => { if (Q[k + z]) new Image().src = `large/${enc(Q[k + z].file)}`; });   // 다음 장 미리 받기
+  [3, 4].forEach(z => { if (Q[k + z]) new Image().src = `large/${enc(Q[k + z].file)}`; });   // 다음 장 미리 받기
 }
 async function post(url, body) {
   const r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
   return r.json();
 }
-// 고르면: 도장이 찍히고 카드가 선택지 쪽으로 날아간다
+// 고르면: 맨 앞 카드(지금 보이는 그 포스터)에 답을 저장하고, 도장이 찍힌 채 선택지 쪽으로 날아간다
 function choose(id) {
   if (k >= Math.min(Q.length, BATCH)) return;
-  const item = Q[k], top = stage.querySelector('.card:last-child');
+  const item = Q[k], top = cards.get(item.file);
   const n = CH.findIndex(c => c[0] === id), b = btns.querySelector(`[data-id="${id}"]`);
   b.classList.add('hit'); setTimeout(() => b.classList.remove('hit'), 220);
-  top.querySelector('.stamp').textContent = CH[n][1]; top.classList.add('stamped');
-  const dx = (n - 2.5) * 140;   // 버튼 순서 쪽으로 날아간다
-  top.style.transition = 'transform .35s var(--out), opacity .35s var(--out)';
-  requestAnimationFrame(() => { top.style.transform = `translate(${dx}px, 60px) rotate(${(n - 2.5) * 4}deg) scale(.9)`; top.style.opacity = 0; });
-  post('/api/label', { file: item.file, label: id, model: item.model }).then(r => { total = r.done; });
+  post('/api/label', { file: item.file, label: id, model: item.model }).then(r => { total = r.done; document.getElementById('tot').textContent = `${total} total`; });
   hist.push(item); k++;
-  setTimeout(render, 230);
+  if (top) {
+    cards.delete(item.file); top.classList.add('leaving');
+    top.querySelector('.stamp').textContent = CH[n][1]; top.classList.add('stamped'); top.style.zIndex = 20;
+    const dx = (n - 2.5) * 140;   // 버튼 순서 쪽으로 날아간다
+    top.style.transform = `translate(${dx}px, 60px) rotate(${(n - 2.5) * 4}deg) scale(.9)`; top.style.opacity = 0;
+    setTimeout(() => top.remove(), 450);
+  }
+  render();
 }
 function undo() {
   if (!hist.length) return;
   const item = hist.pop(); k--;
   post('/api/undo', { file: item.file }).then(r => { total = r.done; render(); });
+  render();
 }
-function skip() { if (k < Q.length) { Q.push(Q.splice(k, 1)[0]); render(); } }
+function skip() { if (k < Q.length) { const it = Q.splice(k, 1)[0]; Q.push(it); cards.get(it.file)?.remove(); cards.delete(it.file); render(); } }
 addEventListener('keydown', e => {
   const code = e.code.replace(/^Numpad(\d)$/, 'Digit$1'), hit = CH.find(c => c[3] === code);
   if (hit) { e.preventDefault(); choose(hit[0]); }
@@ -112,6 +128,7 @@ addEventListener('keydown', e => {
 });
 async function load() {
   const r = await (await fetch('/api/queue')).json();
+  cards.forEach(c => c.remove()); cards.clear();
   Q = r.queue; k = 0; hist = []; total = r.done; render();
 }
 load();
