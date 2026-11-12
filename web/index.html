@@ -224,6 +224,8 @@
       animation-duration: 0s !important; animation-delay: 0s !important; }
   }
   /* 첫 로딩 */
+  /* 자유 배치 이름표: 덩어리 위 가운데, 커버 위에 얹혀도 읽히게 */
+  .axis.free { transform: translateX(-50%); white-space: nowrap; background: rgba(0,0,0,.7); padding: 0 4px; border-radius: 2px; }
   #boot { position: fixed; inset: 0; z-index: 100; background: #000; display: none; flex-direction: column; align-items: center;
     justify-content: center; gap: 14px; transition: opacity .6s var(--out); }
   #boot.on { display: flex; }
@@ -386,7 +388,7 @@
 /* 빌드마다 바뀌는 값(data.js 크기)을 data.js 와 아틀라스 주소에 붙인다. 커버가 늘면 아틀라스 칸 순서가 바뀌는데,
    브라우저가 이전 아틀라스를 캐시에서 쓰면 칸마다 엉뚱한 커버가 그려진다 */
 window.BUILD = '';
-const SIZES = /*SIZES*/{"data.js": 1656862, "atlas/cover_s.webp": 780562}/*END*/;
+const SIZES = /*SIZES*/{"data.js": 1662580, "atlas/cover_s.webp": 780562}/*END*/;
 window.PRELOAD = {};
 window.BUILD = '?v=' + (SIZES['data.js'] || 0);
 (() => {
@@ -433,7 +435,7 @@ window.BUILD = '?v=' + (SIZES['data.js'] || 0);
 <script type="text/plain" id="main">
 const M = window.META, C = window.COVERS, N = C.length;
 // 버전: 화면·동작이 바뀌면 올린다. 데이터 날짜는 build_web.py 가 META.built 에 적는다
-const VERSION = '0.4.0';
+const VERSION = '0.5.0';
 document.getElementById('ver').textContent = `v${VERSION}`;
 document.getElementById('ver').title = M.built ? `data ${M.built}` : '';
 const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -461,7 +463,6 @@ const AXES = {
 const KEYS = Object.keys(AXES);
 const META_AXES = new Set(['spine', 'year']);
 const TROPE_AXES = new Set(['people', 'type', 'composition', 'medium']);
-const RING_GRID = new Set(['country', 'runtime', 'aspect', ...TROPE_AXES]);   // 격자 = 범주 줄을 쌓은 것(build_web.py rings_grid)
 const stem = f => f.replace(/\.jpg$/, '');
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const has = (i, k) => META_AXES.has(k) || !!C[i].nb[k];
@@ -771,24 +772,22 @@ const G = (() => {
       C.forEach((c, i) => { px[i] = (c.year - M.yearMin) * (f.w + f.g); py[i] = H - f.h - slot[i] * (f.h + f.g); });
       for (let yr = Math.ceil(M.yearMin / 10) * 10; yr <= M.yearMax; yr += 10) lab.push([(yr - M.yearMin) * (f.w + f.g), H + 18, String(yr), 'left']);
     } else {
-      const [cols, rows] = M.grids[k], X = tall ? 1 : 0, Y = 1 - X;
-      f = tall ? fit(rows, cols) : fit(cols, rows);
+      // 자유 배치 축(지도, 화면비, 분포, 색상환, 범주 섬)은 모양이 뜻이라 폰에서도 돌리지 않는다
+      const free = !!M.gridLabels?.[k], rot = tall && !free;
+      const [cols, rows] = M.grids[k], X = rot ? 1 : 0, Y = 1 - X;
+      f = rot ? fit(rows, cols) : fit(cols, rows);
       C.forEach((c, i) => { if (c.g[k]) { px[i] = c.g[k][X] * (f.w + f.g); py[i] = c.g[k][Y] * (f.h + f.g); } });
-      // 범주 축: 격자 한 줄 = 세 폭 보기의 한 줄. 왼쪽 여백에 이름(그림 범주는 범주가 바뀌는 줄에만)
-      const names = M.rowNames?.[k];
-      if (!tall && names && RING_GRID.has(k)) {
-        let prev = '';
-        names.forEach((nm, r) => {
-          const cat = TROPE_AXES.has(k) ? nm.split(/ · |, /)[0] : nm;
-          if (cat !== prev) lab.push([-10, r * (f.h + f.g) + f.h / 2, cat, 'right']);
-          prev = cat;
-        });
+      (M.gridLabels?.[k] || []).forEach(([x, y, t, al]) => lab.push([x * (f.w + f.g), y * (f.h + f.g), t, al]));
+      if (free) {   // 세로로 가운데
+        let maxY = 0; for (let i = 0; i < N; i++) if (py[i] === py[i]) maxY = Math.max(maxY, py[i]);
+        const oy = Math.max(0, (Hc - 18 - (maxY + f.h)) / 2);
+        for (let i = 0; i < N; i++) py[i] += oy;
+        lab.forEach(l => { l[1] += oy; });
       }
     }
     let maxX = 0;
     for (let i = 0; i < N; i++) if (px[i] === px[i]) maxX = Math.max(maxX, px[i]);
     const ox = Math.max(minX, (Wc - (maxX + f.w)) / 2);
-    if (RING_GRID.has(k) && ox < 170) lab.length = 0;      // 이름 둘 여백이 없으면(좁은 화면) 뺀다
     for (let i = 0; i < N; i++) px[i] += ox;
     lab.forEach(l => { l[0] += ox; });
     return cache[k] = { px, py, tw: f.w, labels: lab };
@@ -858,6 +857,7 @@ const G = (() => {
       const a = document.createElement('div');
       a.className = 'axis'; a.textContent = t; a.style.top = (ly - 6) + 'px';
       if (align === 'right') a.style.right = `calc(100% - ${lx}px)`; else a.style.left = lx + 'px';
+      if (align === 'center') { a.classList.add('free'); }
       stage.appendChild(a);
     });
   }

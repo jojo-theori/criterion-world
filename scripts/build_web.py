@@ -675,6 +675,214 @@ def category_axes(items: list[dict], tropes: dict, u_look: dict[int, tuple[float
     return out
 
 
+
+# ---------- 자유 배치(2026-11-12): 격자를 직사각형으로 채우지 않고 축마다 모양을 그린 뒤 가까운 칸에 배정한다 ----------
+CELL_X, CELL_Y = 1.18, 1.42     # 칸 하나의 화면 크기(타일 너비 1 기준, 간격 포함). 모양을 화면 비율로 맞출 때 쓴다
+
+LONLAT = {
+    "United States": (-98, 39), "Canada": (-92, 57), "Mexico": (-102, 23), "Cuba": (-79, 21.5), "Guatemala": (-90.5, 15.5),
+    "Brazil": (-51, -10), "Argentina": (-64, -34), "United Kingdom": (-2, 54), "Ireland": (-8, 53.3), "France": (2.5, 46.5),
+    "Belgium": (4.5, 50.6), "Switzerland": (8.2, 46.8), "Austria": (14.5, 47.5), "Germany": (10.4, 51), "West Germany": (8, 50.5),
+    "Portugal": (-8, 39.5), "Spain": (-3.7, 40.3), "Italy": (12.5, 42.8), "Greece": (22, 39), "Sweden": (16, 62),
+    "Denmark": (10, 56), "Norway": (9, 61), "Finland": (26, 63), "Soviet Union": (37.6, 55.7), "Ukraine": (31, 49),
+    "Latvia": (24.6, 56.9), "Kazakhstan": (67, 48), "Poland": (19.4, 52), "Czechoslovakia": (16.5, 49.7), "Hungary": (19.5, 47.2),
+    "Romania": (25, 45.9), "Yugoslavia": (20.5, 44), "North Macedonia": (21.7, 41.6), "Iran": (53, 32.5), "Turkey": (35, 39),
+    "Egypt": (30, 26.8), "Morocco": (-6, 32), "Algeria": (3, 28), "Senegal": (-14.5, 14.5), "Angola": (17.9, -12.3),
+    "Nigeria": (8, 9.5), "Ethiopia": (39.5, 9), "Cameroon": (12.4, 5.7), "Lesotho": (28.2, -29.5), "Guinea-Bissau": (-15, 12),
+    "India": (79, 22), "Bangladesh": (90.3, 23.7), "Japan": (138, 36.5), "Hong Kong": (114.2, 22.3), "Taiwan": (121, 23.7),
+    "China": (104, 35), "South Korea": (127.8, 36.3), "Philippines": (122, 12.5), "Thailand": (101, 15), "Indonesia": (113, -1),
+    "Australia": (134, -25), "New Zealand": (172, -41),
+}
+
+
+def sunflower(n: int, scale: float = 1.0) -> np.ndarray:
+    """원반 안에 고르게 n 점(화면 단위, 넓이 ≈ n 칸). 0 번이 가운데."""
+    k = np.arange(n) + 0.5
+    r = np.sqrt(k / np.pi) * np.sqrt(CELL_X * CELL_Y) * scale
+    a = k * np.pi * (3 - np.sqrt(5))
+    return np.stack([r * np.cos(a), r * np.sin(a)], 1)
+
+
+def pack(ids: list[int], target: np.ndarray, margin: int = 2) -> tuple[dict[int, list[int]], list[int]]:
+    """화면 단위 목표 좌표 → 겹치지 않는 정수 칸(목표에 가장 가깝게, 헝가리안). 빈칸이 남아 모양이 보인다."""
+    tc = np.stack([target[:, 0] / CELL_X, target[:, 1] / CELL_Y], 1)
+    lo = np.floor(tc.min(0)) - margin
+    hi = np.ceil(tc.max(0)) + margin
+    gx, gy = np.meshgrid(np.arange(lo[0], hi[0] + 1), np.arange(lo[1], hi[1] + 1))
+    cells = np.stack([gx.ravel(), gy.ravel()], 1)
+    while len(cells) < len(ids) * 1.05:      # 칸이 모자라면 넓힌다
+        lo -= 2; hi += 2
+        gx, gy = np.meshgrid(np.arange(lo[0], hi[0] + 1), np.arange(lo[1], hi[1] + 1))
+        cells = np.stack([gx.ravel(), gy.ravel()], 1)
+    d = ((tc[:, None, 0] - cells[None, :, 0]) * CELL_X) ** 2 + ((tc[:, None, 1] - cells[None, :, 1]) * CELL_Y) ** 2
+    _, col = linear_sum_assignment(d)
+    got = cells[col].astype(int)
+    mn = got.min(0)
+    got -= mn
+    pos = {i: [int(x), int(y)] for i, (x, y) in zip(ids, got)}
+    size = [int(got[:, 0].max()) + 1, int(got[:, 1].max()) + 1]
+    pack.offset = mn                          # 이름표 좌표를 같은 칸 좌표로 옮길 때 쓴다
+    return pos, size
+
+
+def blob_labels(pos: dict[int, list[int]], groups: dict[str, list[int]], min_n: int = 1) -> list:
+    """덩어리마다 이름표: 덩어리 맨 위 칸의 가운데 위."""
+    out = []
+    for name, mem in sorted(groups.items(), key=lambda kv: -len(kv[1])):   # 큰 덩어리부터, 겹치는 이름표는 뺀다
+        mem = [i for i in mem if i in pos]
+        if len(mem) < min_n:
+            continue
+        xs = [pos[i][0] for i in mem]; ys = [pos[i][1] for i in mem]
+        top = min(ys)
+        cx = sum(xs) / len(xs)
+        w = len(name) * 1.0 + 1
+        if any(abs(cx + 0.5 - o[0]) < (w + len(o[2]) * 1.0 + 1) / 2 and abs(top - 0.35 - o[1]) < 2.2 for o in out):
+            continue
+        out.append([round(cx + 0.5, 2), top - 0.35, name, "center"])
+    return out
+
+
+def free_layouts(items: list[dict], tropes: dict, look: dict[int, np.ndarray], hue: list) -> dict[str, tuple]:
+    out: dict[str, tuple] = {}
+    n = len(items)
+
+    # 나라: 경위도에 나라별 덩어리(오래된 영화가 가운데). 대양은 줄이고 붐비는 유럽은 넓힌다.
+    # 모양이 뚜렷한 나라는 덩어리를 늘이고 돌린다(가로 배율, 세로 배율, 회전°)
+    def proj(lon: float, lat: float) -> tuple[float, float]:
+        if lon < -30:
+            x = -14 + (lon + 30) * 0.42
+        elif lon <= 45:
+            x = lon * 0.95
+        else:
+            x = 43 + (lon - 45) * 0.5
+        y = -lat * 1.0 if lat > 30 else -30 - (lat - 30) * 0.45
+        return x, y
+    SHAPE = {"United States": (1.55, 0.65, 0), "Japan": (0.62, 1.6, -35), "Italy": (0.6, 1.6, -35), "United Kingdom": (0.7, 1.45, 10),
+             "Sweden": (0.6, 1.6, 20), "France": (1.0, 1.0, 0), "Canada": (1.8, 0.55, 0), "Mexico": (1.3, 0.75, -25),
+             "Soviet Union": (1.5, 0.7, 0), "India": (0.9, 1.1, 0), "Chile": (0.4, 2.5, 0)}
+    S = 1.25
+    ids, tg, groups = [], [], {}
+    by_c: dict[str, list[int]] = {}
+    for i, it in enumerate(items):
+        by_c.setdefault(it.get("country") or "", []).append(i)
+    for c, mem in by_c.items():
+        lon, lat = LONLAT.get(c, (-30, -40))
+        mem.sort(key=lambda i: (items[i].get("year") or 0, items[i]["spine"]))
+        sx, sy, rot = SHAPE.get(c, (1, 1, 0))
+        pts = sunflower(len(mem)) * np.array([sx, sy])
+        th = np.radians(rot)
+        pts = pts @ np.array([[np.cos(th), -np.sin(th)], [np.sin(th), np.cos(th)]]).T
+        x, y = proj(lon, lat)
+        ids += mem; tg.append(pts + np.array([x * S * 1.2, y * S * 1.2]))
+        groups[c or "Unknown"] = mem
+    pos, size = pack(ids, np.concatenate(tg), margin=1)
+    out["country"] = (pos, size, blob_labels(pos, {c: m for c, m in groups.items()}, min_n=12))
+
+    # 화면비: 비율마다 진짜 화면비 모양의 블록. 블록 안은 연도 순(왼쪽 위 → 오른쪽 아래), 블록은 왼쪽부터 아래를 맞춰 놓는다
+    buckets: dict[str, list[int]] = {}
+    ratio = {}
+    for i, it in enumerate(items):
+        v = aspect_value(it.get("ar"))
+        if v:
+            lab = next(l for lim, l in ASPECT_BUCKETS if v < lim)
+            buckets.setdefault(lab, []).append(i)
+            ratio.setdefault(lab, []).append(v)
+    pos, labels, x0, blocks = {}, [], 0, []
+    for _, lab in ASPECT_BUCKETS:
+        if lab not in buckets:
+            continue
+        mem = sorted(buckets[lab], key=lambda i: (items[i].get("year") or 0, items[i]["spine"]))
+        R = float(np.median(ratio[lab]))
+        best = None
+        for rows in range(1, len(mem) + 1):
+            cols = int(np.ceil(len(mem) / rows))
+            err = abs(np.log(cols * CELL_X / (rows * CELL_Y) / R)) + 0.02 * (cols * rows - len(mem))
+            if best is None or err < best[0]:
+                best = (err, rows, cols)
+        blocks.append((lab, mem, best[1], best[2]))
+    H = max(b[2] for b in blocks)
+    for lab, mem, rows, cols in blocks:
+        for k, i in enumerate(mem):
+            pos[i] = [x0 + k % cols, H - rows + k // cols]
+        labels.append([x0 + cols / 2, H + 0.9, f"{lab}", "center"])
+        x0 += cols + 2
+    out["aspect"] = (pos, [x0 - 2, H + 1], labels)
+
+    # 상영 시간: 분포 막대(3분 칸, 막대 너비 2칸, 60분 아래와 200분 위는 양 끝 막대). 아래에서 위로, 같은 막대 안은 짧은 순
+    have = [i for i, it in enumerate(items) if it.get("rt")]
+    NB, BW = 2 + (200 - 60) // 3 + 1, 2
+    bin_of = lambda m: 0 if m < 60 else NB - 1 if m >= 200 else 1 + (m - 60) // 3
+    bars: dict[int, list[int]] = {}
+    for i in sorted(have, key=lambda i: (items[i]["rt"], items[i].get("year") or 0)):
+        bars.setdefault(bin_of(items[i]["rt"]), []).append(i)
+    xb = lambda b: b * BW + (1 if b > 0 else 0) + (1 if b == NB - 1 else 0)      # 양 끝 막대는 한 칸 띄운다
+    Hc = max((len(v) + BW - 1) // BW for v in bars.values())
+    pos = {i: [xb(b) + k % BW, Hc - 1 - k // BW] for b, v in bars.items() for k, i in enumerate(v)}
+    labels = [[xb(0) + 1, Hc + 0.6, "< 60′", "center"], [xb(NB - 1) + 1, Hc + 0.6, "200′ +", "center"]]
+    labels += [[xb(1 + (m - 60) // 3), Hc + 0.6, f"{m}′", "center"] for m in (90, 120, 150, 180)]
+    out["runtime"] = (pos, [xb(NB - 1) + BW, Hc + 1], labels)
+
+    # 색: 색상환 원판. 무채색은 가운데 원(밝은 것이 한가운데), 유채색은 바깥 고리: 각도 = 색상(순위로 고르게), 반지름 = 밝을수록 안쪽
+    R0 = np.sqrt(n * CELL_X * CELL_Y / np.pi)
+    gi = [i for i, (h, l, g) in enumerate(hue) if g]
+    ci = [i for i, (h, l, g) in enumerate(hue) if not g]
+    tg = np.zeros((n, 2))
+    gs = sorted(gi, key=lambda i: -hue[i][1])                       # 밝은 것부터 가운데
+    tg[gs] = sunflower(len(gs))
+    r_in = np.sqrt(len(gi) / n)
+    hrank = np.argsort(np.argsort([((hue[i][0] * 360 + 30) % 360) for i in ci])) / max(1, len(ci))
+    lrank = np.argsort(np.argsort([hue[i][1] for i in ci])) / max(1, len(ci) - 1)   # 0 = 어두움
+    for i, a, l in zip(ci, hrank, lrank):
+        r = np.sqrt(r_in ** 2 + (1 - r_in ** 2) * (1 - l))
+        th = a * 2 * np.pi - np.pi / 2
+        tg[i] = [r * R0 * np.cos(th), r * R0 * np.sin(th)]
+    pos, size = pack(list(range(n)), tg, margin=1)
+    out["color"] = (pos, size, [])
+
+    # 그림 범주: 범주마다 섬. 섬 자리 = 범주 평균 임베딩의 PCA 2D, 겹치지 않게 밀어낸다. 섬 안 = 그 범주 안의 PCA 2D
+    for fam, order in TROPE_ORDER.items():
+        mem = {c: [i for i, it in enumerate(items) if tropes.get(it["file"], {}).get(fam) == c and i in look] for c in order}
+        mem = {c: m for c, m in mem.items() if m}
+        means = np.stack([np.mean([look[i] for i in m], 0) for m in mem.values()])
+        means = means - means.mean(0)
+        u, s_, vt = np.linalg.svd(means, full_matrices=False)
+        cen = u[:, :2] * s_[:2]
+        cen = cen / (np.abs(cen).max() + 1e-9)
+        rad = np.array([np.sqrt(len(m) * CELL_X * CELL_Y / np.pi) + 1.6 for m in mem.values()])
+        cen = cen * rad.sum() / 2
+        for _ in range(400):                         # 겹치는 섬을 밀어내고 가운데로 살짝 당긴다
+            moved = False
+            for a in range(len(cen)):
+                for b in range(a + 1, len(cen)):
+                    d = cen[b] - cen[a]; dist = np.hypot(*d) + 1e-6; need = rad[a] + rad[b]
+                    if dist < need:
+                        push = (need - dist) / 2 * d / dist
+                        cen[a] -= push; cen[b] += push; moved = True
+            cen *= 0.995
+            if not moved and _ > 50:
+                break
+        ids, tg, groups = [], [], {}
+        for (c, m), ctr, r in zip(mem.items(), cen, rad):
+            X = np.stack([look[i] for i in m]); X = X - X.mean(0)
+            if len(m) > 2:
+                uu, ss, _v = np.linalg.svd(X, full_matrices=False)
+                q = uu[:, :2] * ss[:2]
+            else:
+                q = np.zeros((len(m), 2))
+            # 섬 안: 범주 안 2D 를 해바라기 원반 크기로 맞춘 뒤 자리를 일대일로 맞춘다(가까운 것끼리 붙는다)
+            sf = sunflower(len(m), 0.9)
+            rq = np.hypot(q[:, 0], q[:, 1]); rq = np.argsort(np.argsort(rq)) / max(1, len(m) - 1)   # 반지름은 순위로 펴서 원반을 채운다
+            aq = np.arctan2(q[:, 1], q[:, 0])
+            rs = np.hypot(sf[:, 0], sf[:, 1]).max() + 1e-9
+            qq = np.stack([np.sqrt(rq) * rs * np.cos(aq), np.sqrt(rq) * rs * np.sin(aq)], 1)
+            _, col = linear_sum_assignment(((qq[:, None] - sf[None]) ** 2).sum(-1))
+            pts = sf[col]
+            ids += m; tg.append(pts + ctr); groups[c] = m
+        pos, size = pack(ids, np.concatenate(tg), margin=1)
+        out[fam] = (pos, size, blob_labels(pos, groups))
+    return out
+
+
 def main() -> None:
     for d in SIZES:
         (WEB / d).mkdir(parents=True, exist_ok=True)
@@ -860,6 +1068,9 @@ def main() -> None:
         rings[k], names[k] = rr, nm
         gpos[k], grids[k] = rings_grid(rr)
         nb[k] = ring_neighbors(rr)
+    glabels: dict[str, list] = {}
+    for k, (pos, size, labs) in free_layouts(items, tropes, ax["look"], hue).items():
+        gpos[k], grids[k], glabels[k] = pos, size, labs
     print("  rings " + ", ".join(f"{k} {len(r)}x~{round(sum(len(x) for x in r) / len(r))}" for k, r in rings.items()), flush=True)
     for i, it in enumerate(items):
         it["g"] = {k: gpos[k][i] for k in gpos if i in gpos[k]}
@@ -875,7 +1086,7 @@ def main() -> None:
                 im.convert("L").save(wp, "WEBP", quality=80, method=6)
 
     meta = {"count": len(items), "films": len(films), "maxSpine": max(films),
-            "grids": grids, "atlas": atlas, "rings": rings, "rowNames": shorten_all(names),
+            "grids": grids, "gridLabels": glabels, "atlas": atlas, "rings": rings, "rowNames": shorten_all(names),
             "built": __import__("datetime").date.today().isoformat(),
             "yearMin": min(f[1] for f in films.values()), "yearMax": max(f[1] for f in films.values()),
             "axes": {k: sum(len(r) for r in v) for k, v in rings.items()}}
