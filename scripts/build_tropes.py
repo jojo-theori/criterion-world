@@ -162,6 +162,11 @@ def features(name: str, faces: dict, objects: dict) -> dict:
     pb = [o["box"] for o in objects.get(name, []) if o["label"] in PERSON_LABELS and o["score"] >= 0.25]
     f["person_max"] = max((area(b) for b in pb), default=0.0)
     f["persons"] = len(pb)
+    hp = _PARSE.get(name, {})
+    f["p_person"] = hp.get("person", 0.0)
+    f["p_face"] = hp.get("face", 0.0) + hp.get("hair", 0.0)
+    f["p_limbs"] = hp.get("arms", 0.0) + hp.get("legs", 0.0) + hp.get("shoes", 0.0)
+    f["p_torso"] = hp.get("torso", 0.0) + hp.get("lower", 0.0)
     # 손(얼굴과 따로 잡힌 손): 점수 × 넓이의 최댓값
     f["hand"] = max((o["score"] * (0.3 + area(o["box"]) ** 0.5) for o in objects.get(name, [])
                      if o["label"] == "hand" and o["score"] >= 0.25), default=0.0)
@@ -249,9 +254,14 @@ def people(f: dict, s: dict[str, float] | None = None) -> str:
         return "Big face"
     if f["faces"] + f["persons"] >= 1 and f["face_max"] < 0.006 and f["person_max"] < 0.12 and f["empty_share"] > 0.3:
         return "Lone figure"
+    has_parse = bool(_PARSE)
     if f["faces"] + f["persons"] >= 1 or s.get("people", 0) > 0.7 or s.get("face_close", 0) > 0.5:
+        if has_parse and f["faces"] == 0 and f["p_person"] < 0.01:    # 분할로 보면 사람이 거의 없다(오검출)
+            return "No one"
         return "Figures"
-    if f["hand"] >= 0.15 or s.get("body_part", 0) > 0.9:     # 얼굴·사람 없이 손이나 몸의 일부만
+    if has_parse and f["p_person"] >= 0.03 and f["p_face"] < 0.01:  # 얼굴 없이 몸 부위만(손, 다리, 몸통, 뒷모습)
+        return "Some human"
+    if (f["hand"] >= 0.15 or s.get("body_part", 0) > 0.9) and (not has_parse or f["p_person"] >= 0.01):
         return "Some human"
     return "No one"
 
@@ -364,7 +374,29 @@ def review_page(res: dict) -> Path:
     return out
 
 
+PARSE = A / "human_parse.json"                                # embed_more.py: 사람 부위 분할(화면 비율)
+LABELS = ROOT / "data" / "labels" / "people.json"             # label_server.py: 사람이 고른 답
+_PARSE: dict = {}
+
+
+def human_override(lab: str, model: str, f: dict) -> str:
+    """사람이 고른 사람 수 → People 범주. 모델 범주가 같은 뜻이면 그 세부(큰 얼굴/작은 인물 등)를 살린다."""
+    if lab in ("none", "animal"):
+        return "No one"
+    if lab == "some":
+        return "Some human"
+    if lab == "one":
+        return model if model in ("Big face", "Lone figure", "Figures") else ("Big face" if f.get("face_max", 0) >= 0.035 else "Figures")
+    if lab == "two":
+        return model if model in ("Couple", "Talking heads") else "Talking heads"
+    if lab == "many":
+        return "Crowd"
+    return model
+
+
 def main() -> None:
+    _PARSE.update(json.loads(PARSE.read_text()) if PARSE.exists() else {})
+    human = json.loads(LABELS.read_text()) if LABELS.exists() else {}
     faces = json.loads((A / "faces.json").read_text())
     objects = json.loads((A / "objects" / "owlv2.json").read_text())
     names = sorted(p.name for p in POSTERS.glob("*.jpg") if (A / "visual" / f"{p.stem}.json").exists()
@@ -374,8 +406,13 @@ def main() -> None:
     res = {}
     for n in names:
         f = feats[n]
-        res[n] = {"people": people(f, ms.get(n)), "type": typ(f), "composition": composition(f, ms.get(n)), "medium": medium(f, ms.get(n)),
+        pp = people(f, ms.get(n))
+        if n in human:   # 사람이 고른 답이 모델보다 먼저
+            pp = human_override(human[n]["label"], pp, f)
+        res[n] = {"people": pp, "type": typ(f), "composition": composition(f, ms.get(n)), "medium": medium(f, ms.get(n)),
                   "f": f, "medium_scores": {k: round(v, 4) for k, v in (ms.get(n) or {}).items()}}
+        if n in human:
+            res[n]["human"] = human[n]["label"]
     if OUT.exists():
         old = json.loads(OUT.read_text())
         moved = {fam: sum(1 for n in res if n in old and old[n].get(fam) != res[n][fam]) for fam in FAMILIES}

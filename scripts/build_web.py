@@ -1398,15 +1398,16 @@ def free_layouts(items: list[dict], tropes: dict, look: dict[int, np.ndarray], u
                     col("faces_touch"), col("embrace"),                                # 커플(맞닿은 두 얼굴, 포옹)
                     np.array([np.log1p(f.get("faces", 0) or 0) * (1 - min(1, 8 * (f.get("face_max", 0) or 0))) for f in F]),   # 작은 얼굴이 아주 많음
                     col("face_y_spread"), col("person_max", sq), col("persons", lg), col("subj_cx"), col("subj_area", sq),
-                    zc("face_close"), zc("people")], []),
+                    zc("face_close"), zc("people"),
+                    col("p_person", sq), col("p_face", sq), col("p_limbs", sq), col("p_torso", sq)], []),   # 사람 부위 분할
         "type": ([col("text_area", sq), col("title_h"), col("title_cx"), col("title_cy"), col("title_w"), col("text_share"),
                   col("figure_share")], [("text", 10)]),
         "composition": ([col("long_h", lg), col("long_v", lg), col("img_sym"), col("lr_sym"), col("mirror_iou"), col("sal_cx"), col("sal_cy"),
                          col("sal_spread"), col("diag"), col("empty_share"), col("figure_share"), col("subj_cx"), col("subj_area", sq),
                          *[zc(k) for k in ("Close crop", "Wide scene", "Silhouette", "Busy frame", "Collage", "Centered subject", "Off-center subject")]],
-                        [("lines", 8)]),
+                        [("lines", 8), ("dino_art", 10)]),            # 글자를 지운 그림의 생김새(DINOv2)
         "medium": ([*[zc(k) for k in ("Photo", "Illustration", "Painting", "Graphic", "Typographic")], col("ink"), col("gray")],
-                   [("strokes", 8)]),
+                   [("strokes", 8), ("dino", 8), ("siglip_art", 6)]),
     }
     for fam, (cols, vecs) in spec.items():
         X = np.stack(cols, 1)
@@ -1442,7 +1443,7 @@ def free_layouts(items: list[dict], tropes: dict, look: dict[int, np.ndarray], u
     jit = np.array([u_look.get(i, (0.5, 0.5)) for i in ids]); jit = (jit - jit.mean(0)) / (jit.std(0) + 1e-9)
     # 느슨한 축: 사람 수·비율은 방향만, 실제 자리는 얼굴·사람 신호 전체 + 겉모습이 비슷한 것끼리
     Xp = np.stack(spec["people"][0], 1)
-    Xp = np.concatenate([Xp, 0.6 * pca(look, ids, 6)], 1)
+    Xp = np.concatenate([Xp, 0.6 * pca(ax.get("siglip_art") or look, ids, 6)], 1)   # 겉모습은 글자를 지운 그림으로
     Xp = np.clip((Xp - Xp.mean(0)) / (Xp.std(0) + 1e-9), -3, 3)
     P2 = soft_axes(Xp, np.stack([xn, yn], 1), pull=0.5)   # 사람 수·크기 쪽으로 반쯤 붙잡는다
     span = P2.max(0) - P2.min(0)
@@ -1682,6 +1683,13 @@ def main() -> None:
     gbg: dict[str, str] = {}
     gextra: dict[str, dict] = {}
     gsize: dict[str, dict[int, float]] = {}
+    # 더 많은 시각 신호(embed_more.py): 글자를 지운 그림의 SigLIP·DINOv2, 원본 DINOv2
+    idx = {it["file"]: i for i, it in enumerate(items)}
+    for key, fn in (("siglip_art", "siglip2-base-patch16-384-art.npz"), ("dino", "dinov2-base.npz"), ("dino_art", "dinov2-base-art.npz")):
+        pth = EMBED.parent / fn
+        if pth.exists():
+            d_ = np.load(pth, allow_pickle=True)
+            ax[key] = {idx[str(f_)]: v_ for f_, v_ in zip(d_["files"], d_["vectors"]) if str(f_) in idx}
     for k, res in free_layouts(items, tropes, ax["look"], u_look, ax).items():
         if len(res) == 5 and isinstance(res[2], dict) and res[2].get("free"):   # 연속 좌표(지도): pos, 타일 크기, 판 크기
             pos, tsize, grid, labs, bgd = res
