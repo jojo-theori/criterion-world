@@ -156,10 +156,11 @@
   .rowname[data-row="down"] span { top: 0; }
   /* 오른쪽 아래 만든 이 */
   /* 만든 이: 왼쪽 아래 축 이름 밑에 한 줄 */
+  #credit2 { position: fixed; right: 32px; bottom: 16px; z-index: 30; font-size: 11px; color: #4a4a4a; white-space: nowrap; }
   #credit { position: fixed; left: 32px; bottom: 16px; z-index: 30; font-size: 11px; color: #4a4a4a; white-space: nowrap; }
-  #credit i { font-style: normal; margin: 0 7px; color: #333; }
-  #credit a { color: #6a6a6a; text-decoration: none; transition: color .2s; }
-  #credit a:hover { color: var(--fg); }
+  #credit i, #credit2 i { font-style: normal; margin: 0 7px; color: #333; }
+  #credit a, #credit2 a { color: #6a6a6a; text-decoration: none; transition: color .2s; }
+  #credit a:hover, #credit2 a:hover { color: var(--fg); }
   #credit .ver { color: #3a3a3a; font-variant-numeric: tabular-nums; }
   .peek { position: relative; overflow: hidden; cursor: pointer; opacity: .38;
     transition: opacity .3s var(--out), transform .4s var(--out); }
@@ -213,7 +214,10 @@
   <div class="v" id="gridName"></div>
 </footer>
 <div id="credit">
-  <a href="https://umjo.me" target="_blank" rel="noopener">Criterion World by umjo.me</a><i>·</i>Inspired by <a href="https://www.epfl-ecal-lab.ch" target="_blank" rel="noopener">Poster World, EPFL+ECAL Lab</a><i>·</i>Not affiliated with The Criterion Collection<i>·</i><span class="ver" id="ver"></span>
+  <a href="https://umjo.me" target="_blank" rel="noopener">Criterion World by umjo.me</a><i>·</i><span class="ver" id="ver"></span>
+</div>
+<div id="credit2">
+  Inspired by <a href="https://www.epfl-ecal-lab.ch" target="_blank" rel="noopener">Poster World, EPFL+ECAL Lab</a><i>·</i>Not affiliated with The Criterion Collection
 </div>
 <div id="tip"></div>
 <div id="lens"></div>
@@ -231,7 +235,7 @@
 <script>
 const M = window.META, C = window.COVERS, N = C.length;
 // 버전: 화면·동작이 바뀌면 올린다. 데이터 날짜는 build_web.py 가 META.built 에 적는다
-const VERSION = '0.1.0';
+const VERSION = '0.1.1';
 document.getElementById('ver').textContent = `v${VERSION}`;
 document.getElementById('ver').title = M.built ? `data ${M.built}` : '';
 const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
