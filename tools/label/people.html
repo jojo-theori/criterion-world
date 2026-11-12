@@ -40,11 +40,12 @@
 </header>
 <main id="stage"></main>
 <footer id="btns"></footer>
-<div class="help">1–6 choose · ← or backspace undo · space skip · the model's guess is outlined</div>
+<div class="help">0 1 2 3 = number of people · S some human · A animal · ← or backspace undo · space skip · the model's guess is outlined</div>
 <script>
+// 키 = 사람 수(0 없음, 1 한 사람, 2 두 사람, 3 셋 이상), S 일부만, A 동물
 const CH = [
-  ['none', 'No human'], ['animal', 'Animal'], ['some', 'Some human'],
-  ['one', 'One person'], ['two', 'Two people'], ['many', 'Many people'],
+  ['none', 'No human', '0', 'Digit0'], ['one', 'One person', '1', 'Digit1'], ['two', 'Two people', '2', 'Digit2'],
+  ['many', 'Many people', '3', 'Digit3'], ['some', 'Some human', 'S', 'KeyS'], ['animal', 'Animal', 'A', 'KeyA'],
 ];
 // 모델 판정 → 가장 가까운 선택지(힌트로 테두리만)
 const GUESS = { 'No one': 'none', 'Some human': 'some', 'Big face': 'one', 'Lone figure': 'one', 'Figures': 'one', 'Couple': 'two', 'Talking heads': 'two', 'Crowd': 'many' };
@@ -53,7 +54,7 @@ let Q = [], k = 0, hist = [], total = 0;
 const stage = document.getElementById('stage'), btns = document.getElementById('btns');
 CH.forEach(([id, name], n) => {
   const b = document.createElement('button'); b.dataset.id = id;
-  b.innerHTML = `<kbd>${n + 1}</kbd>${name}`; b.onclick = () => choose(id); btns.appendChild(b);
+  b.innerHTML = `<kbd>${CH[n][2]}</kbd>${name}`; b.onclick = () => choose(id); btns.appendChild(b);
 });
 const enc = f => encodeURIComponent(f);
 function card(item, z = 0) {
@@ -89,7 +90,7 @@ function choose(id) {
   const n = CH.findIndex(c => c[0] === id), b = btns.querySelector(`[data-id="${id}"]`);
   b.classList.add('hit'); setTimeout(() => b.classList.remove('hit'), 220);
   top.querySelector('.stamp').textContent = CH[n][1]; top.classList.add('stamped');
-  const dx = (n - 2.5) * 140;
+  const dx = (n - 2.5) * 140;   // 버튼 순서 쪽으로 날아간다
   top.style.transition = 'transform .35s var(--out), opacity .35s var(--out)';
   requestAnimationFrame(() => { top.style.transform = `translate(${dx}px, 60px) rotate(${(n - 2.5) * 4}deg) scale(.9)`; top.style.opacity = 0; });
   post('/api/label', { file: item.file, label: id, model: item.model }).then(r => { total = r.done; });
@@ -103,8 +104,8 @@ function undo() {
 }
 function skip() { if (k < Q.length) { Q.push(Q.splice(k, 1)[0]); render(); } }
 addEventListener('keydown', e => {
-  const n = e.code.match(/^(?:Digit|Numpad)([1-6])$/);
-  if (n) { e.preventDefault(); choose(CH[+n[1] - 1][0]); }
+  const code = e.code.replace(/^Numpad(\d)$/, 'Digit$1'), hit = CH.find(c => c[3] === code);
+  if (hit) { e.preventDefault(); choose(hit[0]); }
   else if (e.code === 'Backspace' || e.code === 'ArrowLeft') { e.preventDefault(); undo(); }
   else if (e.code === 'Space') { e.preventDefault(); skip(); }
   else if (e.code === 'Enter' && k >= BATCH) { load(); }
