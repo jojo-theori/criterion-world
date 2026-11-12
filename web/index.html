@@ -87,13 +87,13 @@
   body.tri-open .count { opacity: 0; }
 
   /* 격자: 캔버스 한 장 */
-  #stage { position: fixed; top: 64px; left: 32px; right: 32px; bottom: 100px; }
+  #stage { position: fixed; top: 64px; left: 32px; right: 32px; bottom: 112px; }
   #grid { position: absolute; inset: 0; width: 100%; height: 100%; cursor: default; }
   #grid.hover { cursor: pointer; }
   .axis { position: absolute; font-size: 10px; color: var(--dim); white-space: nowrap; pointer-events: none;
     animation: fadeIn .6s var(--out) .45s both; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
-  footer { position: fixed; left: 32px; bottom: 28px; right: 32px; pointer-events: none; }
+  footer { position: fixed; left: 32px; bottom: 40px; right: 32px; pointer-events: none; }
   .k { font-size: 13px; color: var(--dim); }
   .v { font-size: 34px; margin-top: 2px; }
 
@@ -121,7 +121,7 @@
   #tri.open footer { transform: none; }
   /* 위·아래: 다른 클러스터로 빠지는 출구, 가운데: 세 폭 */
   /* 간격은 가로세로 모두 --gap 하나 */
-  #panels { --gap: 18px; position: absolute; top: 64px; bottom: 112px; left: 0; right: 0; display: grid;
+  #panels { --gap: 18px; position: absolute; top: 64px; bottom: 124px; left: 0; right: 0; display: grid;
     --edge: 54px; grid-template-columns: var(--bw) var(--bw) var(--bw) var(--bw);
     grid-template-rows: var(--edgeV, var(--edge)) var(--bh) var(--edgeV, var(--edge)); align-content: center;
     gap: var(--gap); justify-content: center;
@@ -155,14 +155,12 @@
   .rowname[data-row="up"] span { bottom: 0; }
   .rowname[data-row="down"] span { top: 0; }
   /* 오른쪽 아래 만든 이 */
-  #credit { position: fixed; right: 32px; bottom: 30px; z-index: 30; font-size: 12px; line-height: 1.6; color: #555; text-align: right; }
-  #credit a { color: #777; text-decoration: none; transition: color .2s; }
+  /* 만든 이: 왼쪽 아래 축 이름 밑에 한 줄 */
+  #credit { position: fixed; left: 32px; bottom: 16px; z-index: 30; font-size: 11px; color: #4a4a4a; white-space: nowrap; }
+  #credit i { font-style: normal; margin: 0 7px; color: #333; }
+  #credit a { color: #6a6a6a; text-decoration: none; transition: color .2s; }
   #credit a:hover { color: var(--fg); }
-  #credit .ver { color: #3a3a3a; font-variant-numeric: tabular-nums; margin-left: 6px; }
-  /* 평소엔 한 줄, 호버하면 위로 두 줄(영감, 비제휴)이 펼쳐진다 */
-  #credit .more { max-height: 0; opacity: 0; overflow: hidden; transform: translateY(6px);
-    transition: max-height .4s var(--out), opacity .3s var(--out), transform .4s var(--out); }
-  #credit:hover .more, #credit:focus-within .more { max-height: 3.4em; opacity: 1; transform: none; }
+  #credit .ver { color: #3a3a3a; font-variant-numeric: tabular-nums; }
   .peek { position: relative; overflow: hidden; cursor: pointer; opacity: .38;
     transition: opacity .3s var(--out), transform .4s var(--out); }
   .peek[data-row="up"] { grid-row: 1; }
@@ -215,11 +213,7 @@
   <div class="v" id="gridName"></div>
 </footer>
 <div id="credit">
-  <div class="more">
-    <div>Inspired by <a href="https://www.epfl-ecal-lab.ch" target="_blank" rel="noopener">Poster World, EPFL+ECAL Lab</a></div>
-    <div>Not affiliated with The Criterion Collection</div>
-  </div>
-  <div><a href="https://umjo.me" target="_blank" rel="noopener">Criterion World by umjo.me</a> <span class="ver" id="ver"></span></div>
+  <a href="https://umjo.me" target="_blank" rel="noopener">Criterion World by umjo.me</a><i>·</i>Inspired by <a href="https://www.epfl-ecal-lab.ch" target="_blank" rel="noopener">Poster World, EPFL+ECAL Lab</a><i>·</i>Not affiliated with The Criterion Collection<i>·</i><span class="ver" id="ver"></span>
 </div>
 <div id="tip"></div>
 <div id="lens"></div>
