@@ -378,8 +378,12 @@
    배포(http): data.js 와 반 크기 커버 아틀라스를 직접 받아 받은 양을 보여준다. 크기는 build_web.py 가 SIZES 에 적는다
    (brotli 로 오더라도 읽는 쪽은 풀린 바이트라 원래 크기와 비교한다). 다 받으면 본 스크립트(#main)를 실행한다.
    로컬(file://): fetch 를 못 써서 예전처럼 script 로 읽는다. ⌘⇧R(강한 새로고침) 때만 더미 진행을 보여준다 */
+/* 빌드마다 바뀌는 값(data.js 크기)을 data.js 와 아틀라스 주소에 붙인다. 커버가 늘면 아틀라스 칸 순서가 바뀌는데,
+   브라우저가 이전 아틀라스를 캐시에서 쓰면 칸마다 엉뚱한 커버가 그려진다 */
+window.BUILD = '';
 const SIZES = /*SIZES*/{"data.js": 1699041, "atlas/cover_s.webp": 780562}/*END*/;
 window.PRELOAD = {};
+window.BUILD = '?v=' + (SIZES['data.js'] || 0);
 (() => {
   const boot = document.getElementById('boot'), pctEl = document.getElementById('bootPct'), mbEl = document.getElementById('bootMB');
   const bar = boot.querySelector('.bar i');
@@ -398,7 +402,7 @@ window.PRELOAD = {};
     const total = files.reduce((a, f) => a + (SIZES[f] || 0), 0);
     const tick = () => show(Object.values(got).reduce((a, b) => a + b, 0), total);
     const pull = async f => {
-      const r = await fetch(f); const rd = r.body.getReader(), parts = [];
+      const r = await fetch(f + BUILD); const rd = r.body.getReader(), parts = [];
       got[f] = 0;
       for (;;) { const { done, value } = await rd.read(); if (done) break; parts.push(value); got[f] += value.length; tick(); }
       return new Blob(parts, { type: r.headers.get('content-type') || '' });
@@ -408,11 +412,11 @@ window.PRELOAD = {};
       const sc = document.createElement('script'); sc.textContent = await data.text(); document.body.appendChild(sc);
       show(total, total); runMain(); finish();
     }).catch(() => {   // 받는 중 실패하면 예전 방식으로
-      const sc = document.createElement('script'); sc.src = 'data.js'; sc.onload = () => { runMain(); finish(); }; document.body.appendChild(sc);
+      const sc = document.createElement('script'); sc.src = 'data.js' + BUILD; sc.onload = () => { runMain(); finish(); }; document.body.appendChild(sc);
     });
   } else {
     const fake = sessionStorage.getItem('hardReload'); sessionStorage.removeItem('hardReload');
-    const sc = document.createElement('script'); sc.src = 'data.js';
+    const sc = document.createElement('script'); sc.src = 'data.js' + BUILD;
     if (!fake) { boot.remove(); sc.onload = runMain; document.body.appendChild(sc); return; }
     boot.classList.add('on');
     const T = 1400, t0 = performance.now(), total = (SIZES['data.js'] || 1.6e6) + (SIZES['atlas/cover_s.webp'] || 0.8e6);
@@ -580,14 +584,14 @@ const atlasReq = {};
 const HTTP = location.protocol.startsWith('http');
 function loadAtlas(name) {
   if (HTTP) return atlasReq[name] ??= new Promise(res => {
-    const im = new Image(); im.src = window.PRELOAD?.[name] || `atlas/${name}.webp`;
+    const im = new Image(); im.src = window.PRELOAD?.[name] || `atlas/${name}.webp${BUILD}`;
     im.decode().then(() => res(im), () => res(null));
   });
   return atlasReq[name] ??= new Promise(res => {
     const done = () => { const im = new Image(); im.src = ATLAS[name]; im.decode().then(() => res(im), () => res(null)); };
     if (ATLAS[name]) return done();
     const s = document.createElement('script');
-    s.src = `atlas/${name}.js`; s.onload = done; s.onerror = () => res(null);
+    s.src = `atlas/${name}.js${BUILD}`; s.onload = done; s.onerror = () => res(null);
     document.head.appendChild(s);
   });
 }
@@ -918,7 +922,7 @@ const G = (() => {
 const tip = document.getElementById('tip'), lens = document.getElementById('lens');
 let lensOn = null, lensBox = null;
 function sprite(el, name, i) {
-  el.style.background = `url("atlas/${name}.${HTTP ? 'webp' : 'jpg'}") ${(i % A.cols) / (A.cols - 1) * 100}% ${Math.floor(i / A.cols) / (A.rows - 1) * 100}% / ${A.cols * 100}% ${A.rows * 100}%`;
+  el.style.background = `url("atlas/${name}.${HTTP ? 'webp' : 'jpg'}${BUILD}") ${(i % A.cols) / (A.cols - 1) * 100}% ${Math.floor(i / A.cols) / (A.rows - 1) * 100}% / ${A.cols * 100}% ${A.rows * 100}%`;
 }
 function showLens(i, touch = false) {
   const c = C[i], r = G.rect(i, false);
