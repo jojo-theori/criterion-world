@@ -240,16 +240,18 @@
   .axbtn svg { width: 10px; height: 10px; fill: none; stroke: var(--dim); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round;
     transition: transform .3s var(--out); }
   .axmenu.open .axbtn svg { transform: rotate(180deg); }
-  .axlist { position: absolute; left: 0; top: 44px; min-width: 200px; margin: 0; padding: 6px; list-style: none; z-index: 40;
-    background: #0e0e0e; border: 1px solid var(--line); border-radius: 14px;
+  /* 목록은 가로 세그먼트(.group)와 같은 결: #111 알약 바탕, 28px 알약 버튼, 고른 것은 흰 알약에 검은 글자, 묶음 사이는 1px 선 */
+  .axlist { position: absolute; left: 0; top: 44px; min-width: 100%; display: flex; flex-direction: column; gap: 2px; padding: 4px;
+    background: #111; border-radius: 18px; z-index: 40;
     opacity: 0; transform: translateY(-6px); pointer-events: none; transition: opacity .2s var(--out), transform .25s var(--out); }
   .axmenu.open .axlist { opacity: 1; transform: none; pointer-events: auto; }
-  .axlist .axg { padding: 8px 10px 4px; font-size: 11px; color: #555; }
-  .axlist button { display: block; width: 100%; text-align: left; padding: 9px 10px; border: 0; border-radius: 9px; background: none;
-    color: var(--dim); font: inherit; font-size: 14px; cursor: pointer; }
-  .axlist button:not(:disabled):hover { color: var(--fg); }
-  .axlist button.on { color: var(--fg); background: #1d1d1d; }
+  .axlist .sep { height: 1px; margin: 4px 10px; background: #333; }
+  .axlist button { height: 28px; padding: 0 14px; border: 0; border-radius: 999px; background: transparent; text-align: left;
+    color: var(--dim); font: inherit; font-size: 13px; white-space: nowrap; cursor: pointer; transition: color .3s var(--out), background .3s var(--out); }
+  .axlist button:not(:disabled):not(.on):hover { color: var(--fg); }
+  .axlist button.on { color: #000; background: var(--fg); }
   .axlist button:disabled { opacity: .3; cursor: default; }
+  .axlist button:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
 
   .nogl { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; text-align: center;
     padding: 0 16px; font-size: 14px; color: var(--dim); }
@@ -480,10 +482,10 @@ KEYS.forEach((k, n) => {
 });
 axesEl.addEventListener('click', e => { const b = e.target.closest('button'); if (b && !b.disabled) setAxis(b.dataset.axis); });
 
-/* 축 드롭다운(2단): Film(Spine, Year) · Cover(나머지). 머리줄 구분선과 같은 나눔 */
+/* 축 드롭다운(2단): Spine·Year 와 나머지를 가로 세그먼트와 같은 자리에서 1px 선으로 나눈다 */
 const axMenu = document.getElementById('axmenu'), axBtn = document.getElementById('axbtn'), axList = document.getElementById('axlist');
-[['Film', KEYS.slice(0, 2)], ['Cover', KEYS.slice(2)]].forEach(([g, ks]) => {
-  const h = document.createElement('div'); h.className = 'axg'; h.textContent = g; axList.appendChild(h);
+[KEYS.slice(0, 2), KEYS.slice(2)].forEach((ks, n) => {
+  if (n) { const h = document.createElement('span'); h.className = 'sep'; axList.appendChild(h); }
   ks.forEach(k => { const b = document.createElement('button'); b.dataset.axis = k; b.textContent = AXES[k].label; b.setAttribute('role', 'menuitemradio'); axList.appendChild(b); });
 });
 function axOpen(on) {
