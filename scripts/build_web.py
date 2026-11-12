@@ -743,6 +743,59 @@ def blob_labels(pos: dict[int, list[int]], groups: dict[str, list[int]], min_n: 
     return out
 
 
+# ---------- 텍스트 기울기 ----------
+TEXT_TILT: dict[int, float] = {}
+
+
+def text_tilt(r: dict, frame_rects: list) -> float:
+    """글자 영역의 긴 변이 가로에서 벗어난 각도(0–90°)를 넓이로 가중 평균. 왼쪽 크라이테리온 띠와 틀 안 글자는 뺀다."""
+    import cv2
+    W, H = r["width"], r["height"]
+    acc = wsum = 0.0
+    for x in r["regions"]:
+        P = np.array(x["poly"], np.float32)
+        if len(P) < 3:
+            continue
+        cx, cy = P[:, 0].mean() / W, P[:, 1].mean() / H
+        if cx < 0.1 or any(a <= cx <= c and b <= cy <= d for a, b, c, d in frame_rects):
+            continue
+        (_, _), (w, h), ang = cv2.minAreaRect(P)
+        if w < h:
+            ang += 90
+        dev = abs(((ang + 90) % 180) - 90)          # 가로에서 벗어난 정도
+        area = w * h
+        acc += dev * area; wsum += area
+    return float(acc / wsum) if wsum else 0.0
+
+
+def dense_region(pos: dict[int, list[int]], mem: list[int], name: str, keep: float = 0.6) -> list | None:
+    """클러스터 영역: 그 무리가 가장 빽빽한 곳(이웃이 많은 커버)을 중심으로 가까운 keep 비율만 감싸는 네모."""
+    mem = [i for i in mem if i in pos]
+    if len(mem) < 8:
+        return None
+    P = np.array([pos[i] for i in mem], float)
+    D = np.hypot(*(P[:, None] - P[None]).transpose(2, 0, 1))
+    c = P[np.argmax((D < 4).sum(1))]
+    d = np.hypot(*(P - c).T)
+    Q = P[d <= np.quantile(d, keep)]
+    x0, y0 = Q.min(0); x1, y1 = Q.max(0)
+    return [float(x0 - .6), float(y0 - .6), float(x1 + 1.6), float(y1 + 1.6), name]
+
+
+def soft_axes(X: np.ndarray, anchor: np.ndarray, pull: float = 0.35) -> np.ndarray:
+    """느슨한 축: UMAP 을 축 좌표에서 출발시켜 고차원에서 비슷한 것끼리 뭉치게 하고, 결과를 축 방향으로 돌려 세운 뒤
+    축 좌표 쪽으로 pull 만큼 당긴다. 축은 대략적인 방향만 말하고, 실제 자리는 무리가 정한다."""
+    import umap
+    a = (anchor - anchor.mean(0)) / (anchor.std(0) + 1e-9)
+    u = umap.UMAP(n_neighbors=15, min_dist=0.2, init=a * 4, n_epochs=400, random_state=0).fit_transform(X)
+    u = (u - u.mean(0)) / (u.std(0) + 1e-9)
+    # 직교 프로크루스테스: 회전·뒤집기만으로 u 를 축 좌표에 맞춘다
+    U_, _, Vt = np.linalg.svd(u.T @ a)
+    u = u @ (U_ @ Vt)
+    u = (u - u.mean(0)) / (u.std(0) + 1e-9)
+    return (1 - pull) * u + pull * a
+
+
 # ---------- 나라: 실제 국경 모양 카토그램 ----------
 BORDERS = ROOT / "data" / "raw" / "ne_50m_admin_0_countries.geojson"     # Natural Earth(public domain)
 SHAPE_OF = {"United States": ["United States of America"], "Soviet Union": ["Russia"], "Czechoslovakia": ["Czechia", "Slovakia"],
@@ -877,8 +930,24 @@ def country_cartogram(items: list[dict]) -> tuple:
                     pts.append(f"{v[0]:.2f} {v[1]:.2f}"); last = v
             if len(pts) >= 3:
                 path.append("M" + "L".join(pts) + "Z")
+    # 모든 나라: 같은 투영·배율의 실제 지도(위계가 낮게 흐리게). 작은 섬과 남극은 생략, 0.3 칸보다 가까운 점은 합친다
+    world = []
+    for f in json.loads(BORDERS.read_text())["features"]:
+        g = f["geometry"]
+        for poly in ([g["coordinates"]] if g["type"] == "Polygon" else g["coordinates"]):
+            r = np.array(poly[0], float)
+            if r[:, 1].max() < -58 or _ring_area(r) < 0.8:
+                continue
+            pts, last = [], None
+            for lon, lat in r:
+                X_, Y_ = proj(lon, lat)
+                v = (X_ * S / CELL_X + G / 2 - x0, Y_ * S / CELL_Y + G / 2 - y0)
+                if last is None or abs(v[0] - last[0]) + abs(v[1] - last[1]) > 0.3:
+                    pts.append(f"{v[0]:.1f} {v[1]:.1f}"); last = v
+            if len(pts) >= 3:
+                world.append("M" + "L".join(pts) + "Z")
     labels = blob_labels(pos, {s["name"]: s["mem"] for s, _, _ in placed}, min_n=12)
-    return pos, size, labels, "".join(path)
+    return pos, size, labels, {"world": "".join(world), "films": "".join(path)}
 
 
 def centroid_labels(pos: dict[int, list[int]], groups: dict[str, list[int]]) -> list:
@@ -917,26 +986,51 @@ def free_layouts(items: list[dict], tropes: dict, look: dict[int, np.ndarray], u
             lab = next(l for lim, l in ASPECT_BUCKETS if v < lim)
             buckets.setdefault(lab, []).append(i)
             ratio.setdefault(lab, []).append(v)
-    pos, labels, x0, blocks = {}, [], 0, []
+    # 블록(액자)의 바깥 비율이 실제 화면비와 정확히 같도록 칸 간격을 정수가 아닌 값으로 조율한다.
+    # 남는 자리는 마지막 줄에 몰지 않고 고르게 흩어 액자 모양을 지킨다. 액자는 배경에 가는 선으로 그린다
+    TW_, TH_ = 1 / CELL_X, (CELL_Y - (CELL_X - 1)) / CELL_Y      # 타일이 칸에서 차지하는 비율(가로, 세로)
+    PAD = 0.45
+    pos, labels, x0, blocks = {}, [], 0.0, []
     for _, lab in ASPECT_BUCKETS:
         if lab not in buckets:
             continue
         mem = sorted(buckets[lab], key=lambda i: (items[i].get("year") or 0, items[i]["spine"]))
+        n_ = len(mem)
         R = float(np.median(ratio[lab]))
+        a_, b_ = TW_ + 2 * PAD, TH_ + 2 * PAD
         best = None
-        for rows in range(1, len(mem) + 1):
-            cols = int(np.ceil(len(mem) / rows))
-            err = abs(np.log(cols * CELL_X / (rows * CELL_Y) / R)) + 0.02 * (cols * rows - len(mem))
-            if best is None or err < best[0]:
-                best = (err, rows, cols)
-        blocks.append((lab, mem, best[1], best[2]))
-    H = max(b[2] for b in blocks)
-    for lab, mem, rows, cols in blocks:
-        for k, i in enumerate(mem):
-            pos[i] = [x0 + k % cols, H - rows + k // cols]
-        labels.append([x0 + cols / 2, H + 0.9, f"{lab}", "center"])
-        x0 += cols + 2
-    out["aspect"] = (pos, [x0 - 2, H + 1], labels)
+        for rows in range(1, n_ + 1):
+            for cols in (int(np.ceil(n_ / rows)), int(np.ceil(n_ / rows)) + 1):
+                if cols * rows < n_ or cols * rows > n_ * 1.3 + 2:
+                    continue
+                sx, sy = 1.0, 1.0
+                if cols > 1:
+                    sx = (R * ((rows - 1) + b_) * CELL_Y / CELL_X - a_) / (cols - 1)
+                if cols == 1 or sx < 1:
+                    sx = 1.0
+                    sy = (((cols - 1) + a_) * CELL_X / (R * CELL_Y) - b_) / max(rows - 1, 1)
+                    if sy < 1:
+                        continue
+                score = np.log(max(sx, sy)) + 0.6 * (cols * rows - n_) / n_
+                if best is None or score < best[0]:
+                    best = (score, rows, cols, sx, sy)
+        if best is None:
+            best = (0, 1, n_, 1.0, 1.0)
+        blocks.append((lab, mem, *best[1:]))
+    Hmax = max((r_ - 1) * sy_ + b_ for _, _, r_, _, _, sy_ in blocks)
+    frames = []
+    for lab, mem, rows, cols, sx, sy in blocks:
+        slots = np.round(np.linspace(0, rows * cols - 1, len(mem))).astype(int)
+        hb = (rows - 1) * sy + TH_ + 2 * PAD
+        top = Hmax - hb + PAD
+        for k, i in zip(slots, mem):
+            pos[i] = [round(x0 + PAD + (k % cols) * sx, 3), round(top + (k // cols) * sy, 3)]
+        fx0, fy0 = x0, Hmax - hb
+        fx1, fy1 = x0 + (cols - 1) * sx + TW_ + 2 * PAD, Hmax
+        frames.append(f"M{fx0:.2f} {fy0:.2f}L{fx1:.2f} {fy0:.2f}L{fx1:.2f} {fy1:.2f}L{fx0:.2f} {fy1:.2f}Z")
+        labels.append([round((fx0 + fx1) / 2, 2), round(Hmax + 0.9, 2), f"{lab}", "center"])
+        x0 = fx1 + 1.6
+    out["aspect"] = (pos, [int(np.ceil(x0)), int(np.ceil(Hmax + 1.5))], labels, {"world": "", "films": "".join(frames)})
 
     # 상영 시간: 분포 막대(3분 칸, 막대 너비 2칸, 60분 아래와 200분 위는 양 끝 막대). 아래에서 위로, 같은 막대 안은 짧은 순
     have = [i for i, it in enumerate(items) if it.get("rt")]
@@ -1005,27 +1099,42 @@ def free_layouts(items: list[dict], tropes: dict, look: dict[int, np.ndarray], u
     xn = np.minimum(np.log1p(cnt), XMAX) / XMAX
     yn = np.sqrt(occ)
     jit = np.array([u_look.get(i, (0.5, 0.5)) for i in ids]); jit = (jit - jit.mean(0)) / (jit.std(0) + 1e-9)
-    xn = xn + 0.025 * jit[:, 0]; yn = yn + 0.025 * jit[:, 1]
+    # 느슨한 축: 사람 수·비율은 방향만, 실제 자리는 얼굴·사람 신호 전체 + 겉모습이 비슷한 것끼리
+    Xp = np.stack(spec["people"][0], 1)
+    Xp = np.concatenate([Xp, 0.6 * pca(look, ids, 6)], 1)
+    Xp = np.clip((Xp - Xp.mean(0)) / (Xp.std(0) + 1e-9), -3, 3)
+    P2 = soft_axes(Xp, np.stack([xn, yn], 1))
+    span = P2.max(0) - P2.min(0)
     Wv = np.sqrt(len(ids) * CELL_X * CELL_Y * 1.9 * 1.7); Hv = Wv / 1.7
-    tg = np.stack([xn * Wv, (1 - yn) * Hv], 1)
+    tg = np.stack([(P2[:, 0] - P2[:, 0].min()) / span[0] * Wv, (1 - (P2[:, 1] - P2[:, 1].min()) / span[1]) * Hv], 1)
     pos, size = pack(ids, tg, margin=1)
     off = pack.offset
     cell = lambda vx, vy: (vx / CELL_X - off[0], vy / CELL_Y - off[1])
     bottom = max(v[1] for v in pos.values()) + 1.6
-    labels = []
-    for c in (0, 1, 2, 3, 5, 10):
-        x, _ = cell(np.log1p(c) / XMAX * Wv, 0)
-        labels.append([float(round(x + .5, 2)), float(bottom), "10+" if c == 10 else str(c), "center"])
-    left = min(v[0] for v in pos.values()) - 0.8
-    for share in (0.05, 0.2, 0.5, 1.0):
-        _, y = cell(0, (1 - np.sqrt(share)) * Hv)
-        labels.append([float(left), float(round(y + .5, 2)), f"{round(share * 100)}%", "right"])
+    labels = []   # 축이 느슨해 눈금은 두지 않는다(방향만 축 이름으로)
     cp = np.array([pos[i] for i in ids if tropes[items[i]["file"]].get("people") == "Couple"], float)
     regions = []
-    if len(cp) >= 8:
-        x0, y0 = np.percentile(cp, 10, axis=0); x1, y1 = np.percentile(cp, 90, axis=0)
-        regions.append([float(x0 - .6), float(y0 - .6), float(x1 + 1.6), float(y1 + 1.6), "Couple"])
-    out["people"] = (pos, size, labels, "", {"axes": ["Number of people", "Share of the frame"], "regions": regions})
+    r = dense_region(pos, [i for i in ids if tropes[items[i]["file"]].get("people") == "Couple"], "Couple")
+    if r:
+        regions.append(r)
+    out["people"] = (pos, size, labels, "", {"axes": ["More people", "Larger in the frame"], "regions": regions})
+
+    # Type: 느슨한 축(가로 = 제목이 아래로, 세로 = 글자가 클수록 위) + 기울기·글자 분포·겉모습으로 뭉친다
+    deg = np.array([TEXT_TILT.get(i, 0.0) for i in ids])
+    diag = np.clip(np.minimum(deg - 8, 82 - deg) / 20, 0, 1)        # 15–75° 쯤이 1(대각선 글자)
+    vert = np.clip((deg - 70) / 15, 0, 1)                           # 세로쓰기
+    Xt = np.stack([*spec["type"][0], diag, diag, vert], 1)          # 대각선은 두 번 넣어 무게를 준다
+    Xt = np.concatenate([Xt, pca(ax["text"], ids, 10), 0.5 * pca(look, ids, 6)], 1)
+    Xt = np.clip((Xt - Xt.mean(0)) / (Xt.std(0) + 1e-9), -3, 3)
+    tx_ = col("title_cy"); ty_ = np.sqrt(col("title_h") + 0.5 * col("text_area"))
+    P2 = soft_axes(Xt, np.stack([tx_, ty_], 1))
+    span = P2.max(0) - P2.min(0)
+    tg = np.stack([(P2[:, 0] - P2[:, 0].min()) / span[0] * Wv, (1 - (P2[:, 1] - P2[:, 1].min()) / span[1]) * Hv], 1)
+    pos, size = pack(ids, tg, margin=1)
+    groups = {c: [i for i in ids if tropes[items[i]["file"]].get("type") == c] for c in TROPE_ORDER["type"]}
+    tregions = [r for r in (dense_region(pos, [i for i, d in zip(ids, diag) if d >= .8], "Diagonal type"),
+                            dense_region(pos, [i for i, v in zip(ids, vert) if v >= .8], "Vertical type")) if r]
+    out["type"] = (pos, size, centroid_labels(pos, groups), "", {"axes": ["Title lower", "Larger type"], "regions": tregions})
     return out
 
 
@@ -1129,6 +1238,7 @@ def main() -> None:
             trace["people"] = [[round(v, 4) for v in b[:4]] + [b[4]] for b in ppl]
         it["country"] = first_country(countries)
         if r:
+            TEXT_TILT[i] = text_tilt(r, frame_rects)
             ax["text"][i] = text_vector(r, frame_rects)
             trace["text"] = [simplify(x["poly"], r["width"], r["height"]) for x in r["regions"] if len(x["poly"]) >= 3]
         sj = STROKES / f"{p.stem}.json"

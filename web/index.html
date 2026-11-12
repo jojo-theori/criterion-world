@@ -248,11 +248,12 @@
   /* 좌표 뜻: 가로는 아래 가운데, 세로는 왼쪽 가운데(아래에서 위로 읽는다) */
   .gaxis { position: absolute; font-size: var(--t1); color: var(--dim); pointer-events: none; opacity: 0; transition: opacity .5s var(--out); white-space: nowrap; }
   #stage.has-axes .gaxis { opacity: 1; }
-  .gaxis.x { left: 50%; bottom: -20px; transform: translateX(-50%); }
+  .gaxis.x { left: 50%; bottom: 2px; transform: translateX(-50%); }
   .gaxis.y { left: 0; top: 50%; transform: translate(-50%, -50%) rotate(-90deg) translateY(-50%); transform-origin: center; left: 10px; }
   #gridbg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0; transition: opacity .8s var(--out); overflow: visible; }
   #gridbg.on { opacity: 1; }
-  #gridbg path { fill: #101010; stroke: #333; stroke-width: 1; stroke-linejoin: round; }
+  #gridbg path { fill: #111; stroke: #3a3a3a; stroke-width: 1; stroke-linejoin: round; }
+  #gridbg path.world { fill: #0a0a0a; stroke: #1e1e1e; }   /* 영화가 없는 나라까지 모든 나라: 위계가 낮게 */
   .axis.free { transform: translateX(-50%); white-space: nowrap; background: rgba(0,0,0,.7); padding: 0 4px; border-radius: 2px; }
   #boot { position: fixed; inset: 0; z-index: 100; background: #000; display: none; flex-direction: column; align-items: center;
     justify-content: center; gap: 14px; transition: opacity .6s var(--out); }
@@ -418,7 +419,7 @@
 /* 빌드마다 바뀌는 값(data.js 크기)을 data.js 와 아틀라스 주소에 붙인다. 커버가 늘면 아틀라스 칸 순서가 바뀌는데,
    브라우저가 이전 아틀라스를 캐시에서 쓰면 칸마다 엉뚱한 커버가 그려진다 */
 window.BUILD = '';
-const SIZES = /*SIZES*/{"data.js": 1662752, "atlas/cover_s.webp": 780562}/*END*/;
+const SIZES = /*SIZES*/{"data.js": 1672117, "atlas/cover_s.webp": 780562}/*END*/;
 window.PRELOAD = {};
 window.BUILD = '?v=' + (SIZES['data.js'] || 0);
 (() => {
@@ -465,7 +466,7 @@ window.BUILD = '?v=' + (SIZES['data.js'] || 0);
 <script type="text/plain" id="main">
 const M = window.META, C = window.COVERS, N = C.length;
 // 버전: 화면·동작이 바뀌면 올린다. 데이터 날짜는 build_web.py 가 META.built 에 적는다
-const VERSION = '0.8.1';
+const VERSION = '0.9.2';
 document.getElementById('ver').textContent = `v${VERSION}`;
 document.getElementById('ver').title = M.built ? `data ${M.built}` : '';
 const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -918,7 +919,9 @@ const G = (() => {
   const bgSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   bgSvg.id = 'gridbg'; stage.insertBefore(bgSvg, cv);
   const bgV = document.createElementNS('http://www.w3.org/2000/svg', 'g'), bgG = document.createElementNS('http://www.w3.org/2000/svg', 'g'), bgP = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-  bgP.setAttribute('vector-effect', 'non-scaling-stroke'); bgG.appendChild(bgP); bgV.appendChild(bgG); bgSvg.appendChild(bgV);
+  const bgW = document.createElementNS('http://www.w3.org/2000/svg', 'path'); bgW.classList.add('world');
+  bgW.setAttribute('vector-effect', 'non-scaling-stroke'); bgP.setAttribute('vector-effect', 'non-scaling-stroke');
+  bgG.append(bgW, bgP); bgV.appendChild(bgG); bgSvg.appendChild(bgV);
   const bgReq = {};
   function loadBg(k) {   // 배경 그림은 그 축을 처음 열 때 받는다(map/<축>.js)
     return bgReq[k] ??= new Promise(res => {
@@ -971,10 +974,12 @@ const G = (() => {
     placeRegions(k, L);
     const on = !!M.gridBg?.[k];
     if (!regions.length) bgSvg.classList.toggle('on', false);
-    if (!on) return;
+    if (!on) { bgP.setAttribute('d', ''); bgW.setAttribute('d', ''); bgP._k = null; return; }   // 지도·액자가 없는 축: 이전 축의 선을 지운다
     loadBg(k).then(d => {
       if (axis !== k || !d) return;
-      if (bgP._k !== k) { bgP.setAttribute('d', d); bgP._k = k; }
+      if (bgP._k !== k) {
+        bgP.setAttribute('d', typeof d === 'string' ? d : d.films || ''); bgW.setAttribute('d', typeof d === 'string' ? '' : d.world || ''); bgP._k = k;
+      }
       bgSvg.classList.add('on');
     });
     const [ox, oy, sx, sy] = L.bg;
