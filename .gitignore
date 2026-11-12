@@ -1,6 +1,5 @@
 # 가상환경
 .venv/
-.venv
 .venv-ml/
 __pycache__/
 .DS_Store
@@ -22,10 +21,9 @@ web/atlas/*.js
 web/atlas/*.jpg
 web/strokes/*.png
 
-# 내려받는 모델 파일(스크립트가 없으면 받는다)
+# 이 Mac 의 로컬 작업물(venv 링크, 내려받은 모델, 480px 사본·이전 분석·빈 칸 커버 찾기)
+.venv
 data/models/
-
-# 다른 컴퓨터에서 다시 돌릴 때의 임시 작업 폴더(480px 사본·이전 분석·빈 칸 커버 찾기)
 posters_480/
 posters_missing/
 data_480/
