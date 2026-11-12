@@ -190,6 +190,7 @@ def neighbors(vecs: dict[int, np.ndarray], kind: str) -> dict[int, list[int]]:
 
 
 ATLAS_TILE = (80, 100)
+TILE_AS = {"type": "text", "composition": "lines", "medium": "strokes"}   # 범주 축의 흔적은 이전 분석의 그림을 쓴다
 ATLAS_COLS = 32
 FONT = "/System/Library/Fonts/Helvetica.ttc"
 
@@ -204,9 +205,11 @@ def trace_tile(axis: str, it: dict, tr: dict, big: Image.Image | None) -> Image.
     d = ImageDraw.Draw(im)
     if axis == "cover" and big is not None:          # 원본 썸네일 (격자 캔버스가 쓴다)
         return big.resize((W, H), Image.LANCZOS)
-    if axis in ("spine", "year"):
-        txt = str(it["spine"] if axis == "spine" else it["year"])
-        f = ImageFont.truetype(FONT, int(h * (0.34 if len(txt) <= 3 else 0.28)))
+    if axis in ("spine", "year", "country", "runtime", "aspect"):
+        txt = str({"spine": it["spine"], "year": it["year"], "country": it.get("country", ""),
+                   "runtime": f"{it['rt']}′" if it.get("rt") else "",
+                   "aspect": (it.get("ar") or [""])[0].split(" ")[0].split(",")[0].split("/")[0]}[axis])
+        f = ImageFont.truetype(FONT, int(h * (0.34 if len(txt) <= 3 else 0.28 if len(txt) <= 4 else min(0.2, 1.7 / max(len(txt), 1)))))
         d.text((w / 2, h / 2), txt, font=f, fill=(235, 235, 235), anchor="mm")
     elif axis == "color":
         y = 0.0
@@ -238,6 +241,10 @@ def trace_tile(axis: str, it: dict, tr: dict, big: Image.Image | None) -> Image.
         small = Image.new("RGB", (40, 50))
         small.putdata([col[ch] for ch in g])
         im = small.resize((w, h), Image.NEAREST)
+    elif axis == "people" and tr.get("people"):
+        for x0, y0, x1, y1, face in sorted(tr["people"], key=lambda b: b[4]):
+            d.rectangle([x0 * w, y0 * h, x1 * w, y1 * h], fill=(235, 235, 235) if face else (40, 40, 40),
+                        outline=(235, 235, 235), width=4)
     elif axis == "objects" and tr.get("objects"):
         for o in reversed(tr["objects"][:10]):
             x0, y0, x1, y1 = o["box"]
@@ -251,13 +258,13 @@ def build_atlases(items: list[dict], traces: list[dict]) -> dict:
     out.mkdir(exist_ok=True)
     W, H = ATLAS_TILE
     rows = (len(items) + ATLAS_COLS - 1) // ATLAS_COLS
-    axes = ["cover", "spine", "year", "look", "color", "lines", "text", "contrast", "strokes", "layout", "objects"]
+    axes = ["cover", "spine", "year", "country", "runtime", "aspect", "color", "people", "type", "composition", "medium"]
     sheets = {a: Image.new("RGB", (ATLAS_COLS * W, rows * H), "black") for a in axes}
     for i, (it, tr) in enumerate(zip(items, traces)):
         with Image.open(WEB / "large" / it["file"]) as big:
             big = big.convert("RGB")
             for a in axes:
-                sheets[a].paste(trace_tile(a, it, tr, big), ((i % ATLAS_COLS) * W, (i // ATLAS_COLS) * H))
+                sheets[a].paste(trace_tile(TILE_AS.get(a, a), it, tr, big), ((i % ATLAS_COLS) * W, (i // ATLAS_COLS) * H))
     for a, sh in sheets.items():
         jp = out / f"{a}.jpg"
         sh.save(jp, quality=88 if a == "cover" else 85)
@@ -504,6 +511,170 @@ def category_rings(axis: str, cats: dict[int, str], order: list[str], u: dict[in
     return rows, out
 
 
+# ---------- 범주 축(2026-11-12): 나라 · 상영 시간 · 화면비 · People · Type · Composition · Medium ----------
+TROPES = ROOT / "data" / "analysis" / "tropes.json"
+FACES = ROOT / "data" / "analysis" / "faces.json"
+PERSON_LABELS = {"person", "silhouette of a person", "couple embracing", "child"}
+TROPE_ORDER = {   # build_tropes.py FAMILIES 와 같은 순서
+    "people": ["Crowd", "Couple", "Talking heads", "Big face", "Lone figure", "Figures", "No one"],
+    "type": ["Type only", "Big centered title", "Big title", "Quiet type", "Title on top", "Title in the middle", "Title at the bottom"],
+    "composition": ["Grid / collage", "Symmetric", "Off-center subject", "Silhouette", "Busy frame", "Close crop",
+                    "Single object", "Open space", "Diagonal", "Wide scene"],
+    "medium": ["Photo", "Illustration", "Painting", "Graphic", "Typographic"],
+}
+TROPE_SUB = {"people": "medium", "type": "medium", "composition": "medium", "medium": "people"}   # 큰 범주를 나눌 두 번째 말
+COUNTRY_FIX = {"Austrailia": "Australia", "Angolia": "Angola", "Bengladesh": "Bangladesh", "Republic of Macedonia": "North Macedonia"}
+REGION = {   # 나라 → 지역(줄 묶음). 순서가 줄 순서
+    "North America": ["United States", "Canada"],
+    "Latin America": ["Mexico", "Cuba", "Brazil", "Argentina", "Guatemala"],
+    "British Isles": ["United Kingdom", "Ireland"],
+    "France": ["France"],
+    "Western Europe": ["Belgium", "Switzerland", "Austria", "Germany", "West Germany", "Portugal", "Spain"],
+    "Italy & Greece": ["Italy", "Greece"],
+    "Nordic": ["Sweden", "Denmark", "Norway", "Finland"],
+    "Eastern Europe": ["Soviet Union", "Ukraine", "Latvia", "Kazakhstan", "Poland", "Czechoslovakia", "Hungary", "Romania",
+                       "Yugoslavia", "North Macedonia"],
+    "Middle East & North Africa": ["Iran", "Turkey", "Egypt", "Morocco", "Algeria"],
+    "Africa": ["Senegal", "Angola", "Nigeria", "Ethiopia", "Cameroon", "Lesotho", "Guinea-Bissau"],
+    "South Asia": ["India", "Bangladesh"],
+    "East Asia": ["Japan", "Hong Kong", "Taiwan", "China", "South Korea"],
+    "Southeast Asia & Oceania": ["Philippines", "Thailand", "Indonesia", "Australia", "New Zealand"],
+}
+COUNTRY_REGION = {c: r for r, cs in REGION.items() for c in cs}
+
+
+def first_country(s: str | None) -> str:
+    c = (s or "").split("|")[0].split(",")[0].strip()
+    return COUNTRY_FIX.get(c, c)
+
+
+def aspect_value(ar: list | None) -> float | None:
+    import re
+    m = re.match(r"\s*(\d\.\d+)", (ar or [""])[0] or "")
+    return float(m.group(1)) if m else None
+
+
+ASPECT_BUCKETS = [(1.30, "1.19:1"), (1.355, "1.33:1"), (1.46, "1.37:1"), (1.70, "1.66:1"), (1.80, "1.78:1"),
+                  (1.95, "1.85:1"), (9.0, "2:1 and wider")]
+
+
+def years_label(items: list[dict], part: list[int]) -> str:
+    ys = sorted(items[i]["year"] for i in part if items[i].get("year"))
+    if not ys:
+        return ""
+    a, b = ys[0], ys[-1]
+    return str(a) if a == b else f"{a}–{str(b)[2:]}" if a // 100 == b // 100 else f"{a}–{b}"
+
+
+def group_rings(groups: list[tuple[str, list[int]]], label, order_in_row, extra=None) -> tuple[list, list[str]]:
+    """[(범주, 정렬된 커버)] → 줄. 범주는 ROW_LEN 안팎으로 고르게 나누고 label(범주, 줄 커버, 나눈 수) 로 이름을 짓는다.
+    줄 안은 order_in_row(i) 순, 줄의 x 는 0–100 (위아래 이동 때 가까운 칸)."""
+    from collections import Counter
+    rows, names, parts_all = [], [], []
+    for c, mem in groups:
+        if not mem:
+            continue
+        n = max(1, round(len(mem) / ROW_LEN))
+        for part in np.array_split(np.array(mem), n):
+            part = [int(i) for i in part]
+            names.append(label(c, part, n))
+            parts_all.append(part)
+            row = sorted(part, key=order_in_row)
+            m = max(1, len(row) - 1)
+            rows.append([[i, round(k / m * 100)] for k, i in enumerate(row)])
+    if extra:   # 겹치는 이름에는 extra(줄 커버)를 붙인다(예: 연도 범위)
+        names = [f"{nm}, {extra(pt)}" if names.count(nm) > 1 else nm for nm, pt in zip(names, parts_all)]
+    seen: Counter = Counter()
+    out = []
+    for nm in names:
+        seen[nm] += 1
+        out.append(nm + ROMAN[min(seen[nm] - 1, len(ROMAN) - 1)] if names.count(nm) > 1 else nm)
+    return rows, out
+
+
+def rings_grid(rows: list) -> tuple[dict[int, list[int]], list[int]]:
+    """격자 = 줄을 그대로 쌓은 것(한 줄 = 한 범주 조각). 세 폭 보기의 위아래와 격자의 위아래가 같다."""
+    pos = {i: [c, r] for r, row in enumerate(rows) for c, (i, _) in enumerate(row)}
+    return pos, [max(len(r) for r in rows), len(rows)]
+
+
+def ring_neighbors(rows: list) -> dict[int, list[int]]:
+    nb = {}
+    for row in rows:
+        ids = [i for i, _ in row]
+        for k, i in enumerate(ids):
+            nb[i] = [ids[(k + d) % len(ids)] for d in (-1, 1, -2, 2)]
+    return nb
+
+
+def category_axes(items: list[dict], tropes: dict, u_look: dict[int, tuple[float, float]]) -> dict[str, tuple[list, list[str]]]:
+    from collections import Counter
+    out: dict[str, tuple[list, list[str]]] = {}
+    ux = lambda i: u_look.get(i, (0.5, 0.5))[0]
+    by_year = lambda i: (items[i].get("year") or 0, items[i]["spine"])
+
+    # 나라: 지역 → 나라(편수 많은 순) → 연도. 줄 이름은 나라 하나면 '나라, 연도', 여럿이면 '지역: 나라, 나라'
+    groups = []
+    for reg, cs in [*REGION.items(), ("Elsewhere", [])]:
+        mem = [i for i, it in enumerate(items) if COUNTRY_REGION.get(first_country(it["countries"]), "Elsewhere") == reg]
+        cnt = Counter(first_country(items[i]["countries"]) for i in mem)
+        rank = {c: k for k, (c, _) in enumerate(cnt.most_common())}
+        mem.sort(key=lambda i: (rank[first_country(items[i]["countries"])], by_year(i)))
+        # 큰 나라(한 줄 이상)는 따로, 작은 나라는 지역으로 모은다
+        big = [c for c, v in cnt.items() if v >= ROW_LEN * 0.75]
+        for c in sorted(big, key=lambda c: rank[c]):
+            groups.append((c, [i for i in mem if first_country(items[i]["countries"]) == c]))
+        rest = [i for i in mem if first_country(items[i]["countries"]) not in big]
+        if rest and len(rest) < 8 and big:      # 너무 짧은 줄은 같은 지역의 마지막 큰 나라 줄에 붙인다
+            c, m = groups[-1]
+            groups[-1] = (c, m + rest)
+        elif rest:
+            groups.append((reg, rest))
+
+    def country_label(c, part, n):
+        cs = list(dict.fromkeys(first_country(items[i]["countries"]) for i in part))
+        if len(cs) == 1:
+            return f"{cs[0]}, {years_label(items, part)}" if n > 1 else cs[0]
+        if len(cs) <= 2 and cs[0] == c:          # 큰 나라 줄에 작은 이웃이 붙은 경우
+            return f"{c} & {cs[1]}, {years_label(items, part)}" if n > 1 else f"{c} & {cs[1]}"
+        reg = COUNTRY_REGION.get(cs[0], "Elsewhere")    # 여러 나라 줄은 지역 이름만(세로 줄 이름이 길어지지 않게)
+        return f"{reg}, {years_label(items, part)}" if n > 1 else reg
+    out["country"] = group_rings(groups, country_label, by_year)
+
+    # 상영 시간: 짧은 것부터, 줄 이름은 그 줄의 범위
+    have = sorted((i for i, it in enumerate(items) if it.get("rt")), key=lambda i: (items[i]["rt"], by_year(i)))
+    def rt_label(c, part, n):
+        v = sorted(items[i]["rt"] for i in part)
+        return f"{v[0]} min" if v[0] == v[-1] else f"{v[0]}–{v[-1]} min"
+    out["runtime"] = group_rings([("rt", have)], rt_label, lambda i: (items[i]["rt"], by_year(i)))
+
+    # 화면비: 표준 비율 묶음 → 연도. 나뉜 줄은 연도 범위로 구분
+    buckets: dict[str, list[int]] = {}
+    for i, it in enumerate(items):
+        v = aspect_value(it.get("ar"))
+        if v:
+            buckets.setdefault(next(lab for lim, lab in ASPECT_BUCKETS if v < lim), []).append(i)
+    groups = [(lab, sorted(buckets[lab], key=by_year)) for _, lab in ASPECT_BUCKETS if lab in buckets]
+    out["aspect"] = group_rings(groups, lambda c, part, n: f"{c}, {years_label(items, part)}" if n > 1 else c, by_year)
+
+    # People · Type · Composition · Medium (build_tropes.py). 큰 범주는 두 번째 말(TROPE_SUB)로 나눠 이름에 붙인다
+    tr = {i: tropes[it["file"]] for i, it in enumerate(items) if it["file"] in tropes}
+    for fam, order in TROPE_ORDER.items():
+        sub = TROPE_SUB[fam]
+        sub_rank = {c: k for k, c in enumerate(TROPE_ORDER[sub])}
+        groups = []
+        for c in order:
+            mem = sorted((i for i in tr if tr[i][fam] == c), key=lambda i: (sub_rank.get(tr[i][sub], 99), by_year(i)))
+            groups.append((c, mem))
+        def lab(c, part, n, sub=sub):
+            if n == 1:
+                return c
+            top = Counter(tr[i][sub] for i in part).most_common(1)[0][0]
+            return f"{c} · {top}"
+        out[fam] = group_rings(groups, lab, ux, lambda pt: years_label(items, pt))
+    return out
+
+
 def main() -> None:
     for d in SIZES:
         (WEB / d).mkdir(parents=True, exist_ok=True)
@@ -519,6 +690,8 @@ def main() -> None:
         emb = dict(zip(e["files"], e["vectors"]))
 
     objects = json.loads(OBJECTS.read_text()) if OBJECTS.exists() else {}
+    faces = json.loads(FACES.read_text()) if FACES.exists() else {}
+    tropes = json.loads(TROPES.read_text()) if TROPES.exists() else {}
     obj_raw: dict[int, list] = {}
 
     items, hue, traces = [], [], []
@@ -595,6 +768,12 @@ def main() -> None:
                 trace["objects"] = dets[:16]
                 # 라벨별 가장 높은 점수 순으로 중복 없이
                 it["objs"] = list(dict.fromkeys(d["label"] for d in dets))[:8]
+        # People 흔적: 얼굴(1)과 사람(0) 상자
+        ppl = [[*d["box"], 1] for d in faces.get(p.name, [])] + \
+              [[*o["box"], 0] for o in objects.get(p.name, []) if o["label"] in PERSON_LABELS and o["score"] >= 0.25][:12]
+        if ppl:
+            trace["people"] = [[round(v, 4) for v in b[:4]] + [b[4]] for b in ppl]
+        it["country"] = first_country(countries)
         if r:
             ax["text"][i] = text_vector(r, frame_rects)
             trace["text"] = [simplify(x["poly"], r["width"], r["height"]) for x in r["regions"] if len(x["poly"]) >= 3]
@@ -667,27 +846,26 @@ def main() -> None:
     rings: dict[str, list] = {}
     rings["color"], names["color"] = category_rings("color", cc, co, {i: (float(xy[i][1]), float(xy[i][0])) for i in range(len(items))}, feat)
     gpos: dict[str, dict[int, list[int]]] = {"color": dict(enumerate(cg))}
-    for k, v in ax.items():
-        if k == "color" or len(v) <= 20:
-            continue
-        ids = sorted(v)
-        X = np.stack([v[i] for i in ids]).astype(np.float32)
-        if k not in COS:
-            X = np.sqrt(np.clip(X, 0, None))     # 히스토그램은 Hellinger 공간에서
+    # 이전 분석 축(Look, Lines, Type, Contrast, Strokes, Layout, Objects)은 범주 축으로 바뀌었다(2026-11-12).
+    # Look 지도(SigLIP UMAP)의 가로 위치만 범주 줄 안의 순서로 쓴다
+    u_look: dict[int, tuple[float, float]] = {}
+    if len(ax["look"]) > 20:
+        ids = sorted(ax["look"])
+        X = np.stack([ax["look"][i] for i in ids]).astype(np.float32)
         u = umap.UMAP(n_neighbors=15, min_dist=0.1, metric="cosine", random_state=0).fit_transform(X)
         u = (u - u.min(0)) / (u.max(0) - u.min(0))
-        g, gc, gr = grid_assign(u, fill=1.5)
-        grids[k], gpos[k] = [gc, gr], dict(zip(ids, g))
-        # 순회용 빈칸 없는 정사각 격자: 같은 지도를 칸 수 ≈ 커버 수로 다시 배정한다
-        cats, order = item_categories(k, ids, feat, X if k == "look" else None)
-        rings[k], names[k] = category_rings(k, cats, order, {i: (float(a), float(b)) for i, (a, b) in zip(ids, u)}, feat)
-        print(f"  map {k}: {len(ids)} covers, grid {gc}x{gr}", flush=True)
-
-    nb = {k: neighbors(v, "cos" if k in COS else "hel") for k, v in ax.items()}
+        u_look = {i: (float(a), float(b)) for i, (a, b) in zip(ids, u)}
+    nb = {"color": neighbors(ax["color"], "hel")}
+    for k, (rr, nm) in category_axes(items, tropes, u_look).items():
+        rings[k], names[k] = rr, nm
+        gpos[k], grids[k] = rings_grid(rr)
+        nb[k] = ring_neighbors(rr)
     print("  rings " + ", ".join(f"{k} {len(r)}x~{round(sum(len(x) for x in r) / len(r))}" for k, r in rings.items()), flush=True)
     for i, it in enumerate(items):
         it["g"] = {k: gpos[k][i] for k in gpos if i in gpos[k]}
         it["nb"] = {k: nb[k][i] for k in nb if i in nb[k]}
+        if i in nb["color"]:
+            it["nb"]["color"] = nb["color"][i]
 
     atlas = build_atlases(items, traces)
     for png in sorted((WEB / "strokes").glob("*.png")):   # 획 흔적: 배포용 WebP (PNG 의 약 1/4)
@@ -700,7 +878,7 @@ def main() -> None:
             "grids": grids, "atlas": atlas, "rings": rings, "rowNames": shorten_all(names),
             "built": __import__("datetime").date.today().isoformat(),
             "yearMin": min(f[1] for f in films.values()), "yearMax": max(f[1] for f in films.values()),
-            "axes": {k: len(v) for k, v in ax.items()}}
+            "axes": {k: sum(len(r) for r in v) for k, v in rings.items()}}
     (WEB / "data.js").write_text("window.META = " + json.dumps(meta) + ";\nwindow.COVERS = "
                                  + json.dumps(items, ensure_ascii=False, separators=(",", ":")) + ";\n")
     print(f"{len(items)} covers, axes {meta['axes']} -> {WEB / 'data.js'}")

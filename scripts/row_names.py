@@ -20,6 +20,10 @@ RULES: dict[str, list[tuple[str, str]]] = {
                (r"\bimage at the top\b", "image top"), (r"\bimage at the bottom\b", "image bottom"),
                (r"\bimage centered\b", "image center"),
                (r"\bimage above center\b", "image above"), (r"\bimage below center\b", "image below")],
+    "type": [(r"\bTitle on top\b", "Top title"), (r"\bTitle in the middle\b", "Middle title"),
+             (r"\bTitle at the bottom\b", "Bottom title"), (r"\bBig centered title\b", "Big centered")],
+    "composition": [(r"\bOff-center subject\b", "Off-center"), (r"\bGrid / collage\b", "Collage")],
+    "medium": [(r"\bTalking heads\b", "Two or more"), (r"\bBig centered title\b", "Big centered")],
     "look": [(r"\bsilhouette of a person\b", "silhouette"), (r"\bcouple embracing\b", "embrace")],
     "objects": [(r"\bsilhouette of a person\b", "silhouette"), (r"\bcouple embracing\b", "embrace")],
 }

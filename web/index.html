@@ -386,7 +386,7 @@
 /* 빌드마다 바뀌는 값(data.js 크기)을 data.js 와 아틀라스 주소에 붙인다. 커버가 늘면 아틀라스 칸 순서가 바뀌는데,
    브라우저가 이전 아틀라스를 캐시에서 쓰면 칸마다 엉뚱한 커버가 그려진다 */
 window.BUILD = '';
-const SIZES = /*SIZES*/{"data.js": 1699041, "atlas/cover_s.webp": 780562}/*END*/;
+const SIZES = /*SIZES*/{"data.js": 1656862, "atlas/cover_s.webp": 780562}/*END*/;
 window.PRELOAD = {};
 window.BUILD = '?v=' + (SIZES['data.js'] || 0);
 (() => {
@@ -433,7 +433,7 @@ window.BUILD = '?v=' + (SIZES['data.js'] || 0);
 <script type="text/plain" id="main">
 const M = window.META, C = window.COVERS, N = C.length;
 // 버전: 화면·동작이 바뀌면 올린다. 데이터 날짜는 build_web.py 가 META.built 에 적는다
-const VERSION = '0.3.5';
+const VERSION = '0.4.0';
 document.getElementById('ver').textContent = `v${VERSION}`;
 document.getElementById('ver').title = M.built ? `data ${M.built}` : '';
 const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -447,19 +447,21 @@ const GAP = 0.18, ASPECT = 1288 / 1600;
 
 /* 축 하나가 격자 배치와 세 폭 짝을 함께 정한다 */
 const AXES = {
-  spine:    { label: 'Spine',      name: 'Spine' },
-  year:     { label: 'Year',  name: 'Release year' },
-  look:     { label: 'Look',  name: 'Overall look' },
-  color:    { label: 'Color',         name: 'Color' },
-  lines:    { label: 'Lines',     name: 'Composition lines' },
-  text:     { label: 'Type', name: 'Typography layout' },
-  contrast: { label: 'Contrast',       name: 'Contrast' },
-  strokes:  { label: 'Strokes',         name: 'Strokes' },
-  layout:   { label: 'Layout',   name: 'Layout' },
-  objects:  { label: 'Objects',       name: 'Object recognition' },
+  spine:       { label: 'Spine',       name: 'Spine' },
+  year:        { label: 'Year',        name: 'Release year' },
+  country:     { label: 'Country',     name: 'Country' },
+  runtime:     { label: 'Runtime',     name: 'Runtime' },
+  aspect:      { label: 'Aspect',      name: 'Aspect ratio' },
+  color:       { label: 'Color',       name: 'Color' },
+  people:      { label: 'People',      name: 'People' },
+  type:        { label: 'Type',        name: 'Typography' },
+  composition: { label: 'Composition', name: 'Composition' },
+  medium:      { label: 'Medium',      name: 'Medium' },
 };
 const KEYS = Object.keys(AXES);
 const META_AXES = new Set(['spine', 'year']);
+const TROPE_AXES = new Set(['people', 'type', 'composition', 'medium']);
+const RING_GRID = new Set(['country', 'runtime', 'aspect', ...TROPE_AXES]);   // 격자 = 범주 줄을 쌓은 것(build_web.py rings_grid)
 const stem = f => f.replace(/\.jpg$/, '');
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const has = (i, k) => META_AXES.has(k) || !!C[i].nb[k];
@@ -497,7 +499,7 @@ function swapText(el, text) {
 /* ---------- 머리줄 ---------- */
 const axesEl = document.getElementById('axes'), eyeEl = document.getElementById('eye');
 KEYS.forEach((k, n) => {
-  if (n === 2) { const s = document.createElement('span'); s.className = 'sep'; axesEl.appendChild(s); }
+  if (n === 5 || n === 6) { const s = document.createElement('span'); s.className = 'sep'; axesEl.appendChild(s); }
   const b = document.createElement('button');
   b.dataset.axis = k; b.textContent = AXES[k].label;
   b.dataset.key = `${(n + 1) % 10}`; b.dataset.tip = AXES[k].name;
@@ -507,7 +509,7 @@ axesEl.addEventListener('click', e => { const b = e.target.closest('button'); if
 
 /* 축 드롭다운(2단): Spine·Year 와 나머지를 가로 세그먼트와 같은 자리에서 1px 선으로 나눈다 */
 const axMenu = document.getElementById('axmenu'), axBtn = document.getElementById('axbtn'), axList = document.getElementById('axlist');
-[KEYS.slice(0, 2), KEYS.slice(2)].forEach((ks, n) => {
+[KEYS.slice(0, 5), KEYS.slice(5, 6), KEYS.slice(6)].forEach((ks, n) => {
   if (n) { const h = document.createElement('span'); h.className = 'sep'; axList.appendChild(h); }
   ks.forEach(k => { const b = document.createElement('button'); b.dataset.axis = k; b.textContent = AXES[k].label; b.setAttribute('role', 'menuitemradio'); axList.appendChild(b); });
 });
@@ -772,10 +774,21 @@ const G = (() => {
       const [cols, rows] = M.grids[k], X = tall ? 1 : 0, Y = 1 - X;
       f = tall ? fit(rows, cols) : fit(cols, rows);
       C.forEach((c, i) => { if (c.g[k]) { px[i] = c.g[k][X] * (f.w + f.g); py[i] = c.g[k][Y] * (f.h + f.g); } });
+      // 범주 축: 격자 한 줄 = 세 폭 보기의 한 줄. 왼쪽 여백에 이름(그림 범주는 범주가 바뀌는 줄에만)
+      const names = M.rowNames?.[k];
+      if (!tall && names && RING_GRID.has(k)) {
+        let prev = '';
+        names.forEach((nm, r) => {
+          const cat = TROPE_AXES.has(k) ? nm.split(/ · |, /)[0] : nm;
+          if (cat !== prev) lab.push([-10, r * (f.h + f.g) + f.h / 2, cat, 'right']);
+          prev = cat;
+        });
+      }
     }
     let maxX = 0;
     for (let i = 0; i < N; i++) if (px[i] === px[i]) maxX = Math.max(maxX, px[i]);
     const ox = Math.max(minX, (Wc - (maxX + f.w)) / 2);
+    if (RING_GRID.has(k) && ox < 170) lab.length = 0;      // 이름 둘 여백이 없으면(좁은 화면) 뺀다
     for (let i = 0; i < N; i++) px[i] += ox;
     lab.forEach(l => { l[0] += ox; });
     return cache[k] = { px, py, tw: f.w, labels: lab };
@@ -1038,16 +1051,34 @@ async function drawTrace(cvs, c, k) {
   await paintTrace(cvs, c, k);
   if (!RM && traceOn) cvs.animate([{ filter: 'blur(10px)' }, { filter: 'blur(0)' }], { duration: 500, easing: OUT });
 }
+const TRACE_AS = { type: 'text', composition: 'lines', medium: 'strokes' };
+// 숫자·말로 보여주는 축(Spine, Year, Country, Runtime, Aspect)의 흔적 글자. 그림 축이면 null
+function traceLabel(c, k) {
+  if (k === 'spine') return String(c.spine);
+  if (k === 'year') return String(c.year);
+  if (k === 'country') return c.country || '';
+  if (k === 'runtime') return c.rt ? `${c.rt}′` : '';
+  if (k === 'aspect') return (c.ar?.[0] || '').split(/[ ,/]/)[0];
+  return null;
+}
 async function paintTrace(cvs, c, k) {
   const W = cvs.width = 480, H = cvs.height = 596, g = cvs.getContext('2d');
   const tr = await loadTrace(c);
   const img = await loadImg(`large/${encodeURIComponent(c.file)}`);
   g.fillStyle = '#000'; g.fillRect(0, 0, W, H);
-  if (META_AXES.has(k)) {
-    const t = String(k === 'spine' ? c.spine : c.year);
+  const label = traceLabel(c, k);
+  k = TRACE_AS[k] || k;     // 범주 축의 흔적은 이전 분석의 그림을 쓴다
+  if (label !== null) {
     g.fillStyle = '#ebebeb'; g.textAlign = 'center'; g.textBaseline = 'middle';
-    g.font = `400 ${t.length <= 3 ? 190 : 160}px "Helvetica Neue", Helvetica, Arial`;
-    g.fillText(t, W / 2, H / 2);
+    const px = label.length <= 3 ? 190 : label.length <= 4 ? 160 : Math.min(110, 760 / label.length);
+    g.font = `400 ${px}px "Helvetica Neue", Helvetica, Arial`;
+    g.fillText(label, W / 2, H / 2);
+  } else if (k === 'people') {
+    // 얼굴은 채운 상자, 사람은 테두리만
+    [...(tr?.people || [])].sort((a, b) => a[4] - b[4]).forEach(([x0, y0, x1, y1, face]) => {
+      g.fillStyle = face ? '#ebebeb' : 'rgba(235,235,235,.08)'; g.fillRect(x0 * W, y0 * H, (x1 - x0) * W, (y1 - y0) * H);
+      g.strokeStyle = '#ebebeb'; g.lineWidth = 2; g.strokeRect(x0 * W, y0 * H, (x1 - x0) * W, (y1 - y0) * H);
+    });
   } else if (k === 'color') {
     let yy = 0;
     c.palette.forEach(([col, r]) => { g.fillStyle = col; g.fillRect(0, yy, W, r * H + 1); yy += r * H; });
@@ -1682,7 +1713,7 @@ function start() {
   const parts = location.hash.slice(1).split(',');
   // 예전 주소(#map, #spine,tri=2:lines:t)도 받아 준다
   const old = parts.find(p => p.startsWith('tri='))?.slice(4).split(':') || [];
-  axis = AXES[old[1]] ? old[1] : AXES[parts[0]] ? parts[0] : parts[0] === 'map' ? 'look' : 'spine';
+  axis = AXES[old[1]] ? old[1] : AXES[parts[0]] ? parts[0] : 'spine';
   G.size();
   G.go(axis, true, true);
   swapText(document.getElementById('gridName'), AXES[axis].name);
