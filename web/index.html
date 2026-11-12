@@ -154,7 +154,7 @@
   .info.small .t { font-size: var(--t5s); }
   .info.tight .kv span:last-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .info .n { font-size: var(--t2); margin-top: 10px; display: flex; gap: 14px; align-items: baseline; }
-  .info .o { margin-top: -8px; margin-bottom: 4px; font-style: italic; }
+  .info .o { margin-top: -2px; margin-bottom: 4px; font-style: italic; }   /* 제목과 한 묶음(.tt) */
   .info .sp { height: 10px; }
   .info .kv { display: grid; grid-template-columns: 7.5em 1fr; column-gap: 10px; font-size: var(--t3); line-height: 1.4; }
   .info .kv span:first-child { color: #555; }
@@ -310,7 +310,10 @@
       margin-left: calc(-1 * var(--gut, 26px));   /* 왼쪽 여백까지 덮는다 */ position: relative; z-index: 6;
       transition: margin-top .42s var(--out); }
     .info .body { margin-top: 0; }
-    .info .t { margin-bottom: 6px; }
+    /* 폰: 원제는 제목 오른쪽에 기준선을 맞춰. 한 줄에 안 들어가면 아래로 */
+    .info .tt { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 10px; }
+    .info .t { margin-bottom: 0; }
+    .info .o { margin: 0; }
     .rowname { grid-row: 2 / 5; z-index: 7; }   /* 폰: 정보 영역 옆 여백까지, 검은 정보 영역 위에 */
     .rowname span { margin-right: 6px; }
   }
@@ -348,7 +351,7 @@
 </header>
 <div id="stage"><canvas id="grid" tabindex="0" aria-label="Cover grid. Arrow keys move, Enter opens"></canvas></div>
 <footer>
-  <div class="k">Covers are sorted according to</div>
+  <div class="k">Arranged by</div>
   <div class="v" id="gridName"></div>
 </footer>
 <div id="credit">
@@ -365,7 +368,7 @@
 <div id="tri" role="dialog" aria-modal="true" aria-label="Triptych" tabindex="-1">
   <div id="panels"></div>
   <footer>
-    <div class="k">Neighboring covers are associated based on</div>
+    <div class="k">Paired by</div>
     <div class="v" id="triName"></div>
   </footer>
 </div>
@@ -1236,8 +1239,7 @@ function infoHTML(c) {
   const rows = [kv('Country', c.countries), kv('Runtime', c.rt ? `${c.rt} min` : ''), kv('Aspect ratio', c.ar), kv('Language', c.language)].filter(Boolean);
   const extra = [kv('Color', c.clr), kv('Cinematography', c.dop), kv('Music', c.music), kv('Written by', c.writer)].filter(Boolean);
   return `${url ? `<a class="no" href="${url}" target="_blank" rel="noopener" aria-label="#${c.spine} on criterion.com">#${c.spine}<svg class="out" viewBox="5 5 14 14" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg></a>` : `<div class="no">#${c.spine}</div>`}
-    <div class="t">${esc(c.title)}</div>
-    ${c.orig ? `<div class="o">${esc(c.orig)}</div>` : ''}
+    <div class="tt"><div class="t">${esc(c.title)}</div>${c.orig ? `<div class="o">${esc(c.orig)}</div>` : ''}</div>
     <div>${[c.directors, c.year].filter(Boolean).map(esc).join(' · ')}</div>
     <div class="body">${rows.length || extra.length ? '<div class="sp"></div>' + rows.join('') : ''}
     ${extra.length ? `<div class="extra" id="infoExtra">${extra.join('')}</div>` : ''}
