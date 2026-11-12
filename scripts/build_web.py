@@ -679,7 +679,7 @@ def category_axes(items: list[dict], tropes: dict, u_look: dict[int, tuple[float
 # ---------- 자유 배치(2026-11-12): 격자를 직사각형으로 채우지 않고 축마다 모양을 그린 뒤 가까운 칸에 배정한다 ----------
 CELL_X, CELL_Y = 1.18, 1.42     # 칸 하나의 화면 크기(타일 너비 1 기준, 간격 포함). 모양을 화면 비율로 맞출 때 쓴다
 
-LAND = ROOT / "data" / "raw" / "ne_110m_land.geojson"   # Natural Earth(public domain), 지도 배경
+LAND = ROOT / "data" / "raw" / "ne_50m_land.geojson"   # Natural Earth(public domain), 지도 배경
 LONLAT = {
     "United States": (-98, 39), "Canada": (-92, 57), "Mexico": (-102, 23), "Cuba": (-79, 21.5), "Guatemala": (-90.5, 15.5),
     "Brazil": (-51, -10), "Argentina": (-64, -34), "United Kingdom": (-2, 54), "Ireland": (-8, 53.3), "France": (2.5, 46.5),
@@ -743,141 +743,170 @@ def blob_labels(pos: dict[int, list[int]], groups: dict[str, list[int]], min_n: 
     return out
 
 
-# ---------- 범주 그림(픽토그램): 범주의 뜻을 그린 모양을 칸으로 채운다 ----------
-def _pict(fam: str, c: str):
-    """(가로:세로 비율, 그리는 함수(d, W, H)). 흰색으로 칠한 곳에 커버가 놓인다."""
-    def ell(d, W, H, x0, y0, x1, y1, fill=255):
-        d.ellipse([x0 * W, y0 * H, x1 * W, y1 * H], fill=fill)
-    def rect(d, W, H, x0, y0, x1, y1, fill=255):
-        d.rectangle([x0 * W, y0 * H, x1 * W, y1 * H], fill=fill)
-    def frame(d, W, H, t=0.16):
-        rect(d, W, H, 0, 0, 1, 1); rect(d, W, H, t, t * 0.8, 1 - t, 1 - t * 0.8, 0)
-    def figure(d, W, H, cx, top, s):
-        ell(d, W, H, cx - 0.09 * s, top, cx + 0.09 * s, top + 0.16 * s * W / H * 0 + 0.13 * s)
-        d.polygon([((cx - 0.17 * s) * W, (top + 0.95 * s) * H), ((cx - 0.12 * s) * W, (top + 0.17 * s) * H),
-                   ((cx + 0.12 * s) * W, (top + 0.17 * s) * H), ((cx + 0.17 * s) * W, (top + 0.95 * s) * H)], fill=255)
-    P = {
-        ("people", "Crowd"): (1.4, lambda d, W, H: [ell(d, W, H, x - .11, y - .15, x + .11, y + .15)
-                                                   for y, xs in ((.2, (.15, .38, .62, .85)), (.5, (.27, .5, .73)), (.8, (.15, .38, .62, .85)))
-                                                   for x in xs]),
-        ("people", "Couple"): (1.5, lambda d, W, H: (ell(d, W, H, 0, 0, .62, 1), ell(d, W, H, .38, 0, 1, 1))),
-        ("people", "Talking heads"): (2.6, lambda d, W, H: [ell(d, W, H, x, .05, x + .3, .95) for x in (0, .35, .7)]),
-        ("people", "Big face"): (0.85, lambda d, W, H: (ell(d, W, H, 0, 0, 1, 1), ell(d, W, H, .25, .3, .38, .42, 0),
-                                                       ell(d, W, H, .62, .3, .75, .42, 0),
-                                                       d.chord([.27 * W, .45 * H, .73 * W, .78 * H], 20, 160, fill=0))),
-        ("people", "Lone figure"): (0.5, lambda d, W, H: figure(d, W, H, .5, 0, 1)),
-        ("people", "Figures"): (1.5, lambda d, W, H: [figure(d, W, H, x, .1 if k % 2 else 0, .9) for k, x in enumerate((.17, .5, .83))]),
-        ("people", "No one"): (0.8, lambda d, W, H: frame(d, W, H)),
-        ("type", "Type only"): (0.8, lambda d, W, H: (rect(d, W, H, 0, 0, 1, .28), rect(d, W, H, .36, .28, .64, 1))),
-        ("type", "Big centered title"): (0.8, lambda d, W, H: (frame(d, W, H), rect(d, W, H, .18, .38, .82, .62))),
-        ("type", "Big title"): (0.8, lambda d, W, H: (frame(d, W, H), rect(d, W, H, 0, .3, 1, .7))),
-        ("type", "Quiet type"): (0.8, lambda d, W, H: (frame(d, W, H), rect(d, W, H, .35, .8, .65, .86))),
-        ("type", "Title on top"): (0.8, lambda d, W, H: (frame(d, W, H), rect(d, W, H, .15, .1, .85, .3))),
-        ("type", "Title in the middle"): (0.8, lambda d, W, H: (frame(d, W, H), rect(d, W, H, .15, .42, .85, .58))),
-        ("type", "Title at the bottom"): (0.8, lambda d, W, H: (frame(d, W, H), rect(d, W, H, .15, .7, .85, .9))),
-        ("composition", "Grid / collage"): (1.0, lambda d, W, H: [rect(d, W, H, x, y, x + .28, y + .28) for x in (0, .36, .72) for y in (0, .36, .72)]),
-        ("composition", "Symmetric"): (1.3, lambda d, W, H: (d.polygon([(0, 0), (.5 * W, .5 * H), (0, H)], fill=255),
-                                                            d.polygon([(W, 0), (.5 * W, .5 * H), (W, H)], fill=255),
-                                                            ell(d, W, H, .38, .3, .62, .7))),
-        ("composition", "Off-center subject"): (1.2, lambda d, W, H: (frame(d, W, H, .13), ell(d, W, H, .2, .22, .55, .78))),
-        ("composition", "Silhouette"): (0.9, lambda d, W, H: (ell(d, W, H, .3, 0, .7, .45), ell(d, W, H, 0, .45, 1, 1.5))),
-        ("composition", "Busy frame"): (1.2, lambda d, W, H: [ell(d, W, H, x, y, x + .17, y + .2) for x in np.linspace(0, .83, 6)
-                                                            for y in np.linspace(0, .8, 5) if (round(x * 10) + round(y * 10)) % 3]),
-        ("composition", "Close crop"): (1.0, lambda d, W, H: rect(d, W, H, 0, 0, 1, 1)),
-        ("composition", "Single object"): (1.0, lambda d, W, H: (frame(d, W, H, .13), ell(d, W, H, .32, .32, .68, .68))),
-        ("composition", "Open space"): (1.4, lambda d, W, H: (frame(d, W, H, .1), ell(d, W, H, .68, .6, .8, .78))),
-        ("composition", "Diagonal"): (1.2, lambda d, W, H: d.polygon([(0, .75 * H), (.75 * W, 0), (W, 0), (W, .25 * H), (.25 * W, H), (0, H)], fill=255)),
-        ("composition", "Wide scene"): (3.4, lambda d, W, H: (rect(d, W, H, 0, .45, 1, 1), ell(d, W, H, .62, 0, .78, .4))),
-        ("medium", "Photo"): (1.5, lambda d, W, H: (rect(d, W, H, .15, 0, .38, .2), rect(d, W, H, 0, .15, 1, 1),
-                                                    ell(d, W, H, .3, .3, .7, .92, 0), ell(d, W, H, .4, .45, .6, .78))),
-        ("medium", "Illustration"): (2.6, lambda d, W, H: d.polygon([(0, .5 * H), (.18 * W, .15 * H), (W, .15 * H), (W, .85 * H), (.18 * W, .85 * H)], fill=255)),
-        ("medium", "Painting"): (1.3, lambda d, W, H: (ell(d, W, H, 0, 0, 1, 1), ell(d, W, H, .62, .55, .8, .78, 0))),
-        ("medium", "Graphic"): (2.0, lambda d, W, H: (d.polygon([(0, H), (.17 * W, 0), (.33 * W, H)], fill=255),
-                                                      ell(d, W, H, .36, 0, .64, 1), rect(d, W, H, .68, .05, 1, .95))),
-        ("medium", "Typographic"): (0.95, lambda d, W, H: (d.polygon([(0, H), (.38 * W, 0), (.62 * W, 0), (W, H), (.75 * W, H), (.5 * W, .2 * H), (.25 * W, H)], fill=255),
-                                                           rect(d, W, H, .25, .58, .75, .74))),
-    }
-    return P.get((fam, c), (1.0, lambda d, W, H: ell(d, W, H, 0, 0, 1, 1)))
+# ---------- 나라: 실제 국경 모양 카토그램 ----------
+BORDERS = ROOT / "data" / "raw" / "ne_50m_admin_0_countries.geojson"     # Natural Earth(public domain)
+SHAPE_OF = {"United States": ["United States of America"], "Soviet Union": ["Russia"], "Czechoslovakia": ["Czechia", "Slovakia"],
+            "Yugoslavia": ["Serbia", "Croatia", "Bosnia and Herz.", "Slovenia", "Montenegro", "Kosovo"]}
+MAP_GROUP = {"West Germany": "Germany"}      # 같은 땅은 한 모양에 함께 담는다
 
 
-def pictogram_cells(fam: str, c: str, n: int) -> np.ndarray:
-    """범주 그림을 칸으로 채운 n 개 자리(칸 좌표, 0 부터). 칸은 화면에서 세로가 길어(CELL_Y/CELL_X) 그 비율로 그린다."""
-    aspect, draw = _pict(fam, c)
-    def cells_at(s: float) -> np.ndarray:
-        Wv, Hv = s * aspect, s                                       # 화면 단위
-        cw, ch = int(np.ceil(Wv / CELL_X)), int(np.ceil(Hv / CELL_Y))
-        K = 12
-        im = Image.new("L", (int(Wv * K) + 1, int(Hv * K) + 1), 0)
-        draw(ImageDraw.Draw(im), im.width - 1, im.height - 1)
-        a = np.asarray(im)
-        out = [(x, y) for y in range(ch) for x in range(cw)
-               if a[min(a.shape[0] - 1, int((y + .5) * CELL_Y * K)), min(a.shape[1] - 1, int((x + .5) * CELL_X * K))] > 127]
-        return np.array(out)
-    lo, hi = 1.0, 200.0
-    for _ in range(40):
-        mid = (lo + hi) / 2
-        if len(cells_at(mid)) >= n:
-            hi = mid
-        else:
-            lo = mid
-    cells = cells_at(hi)
-    if len(cells) > n:      # 남는 칸은 고르게 솎아 모양을 유지한다
-        keep = np.round(np.linspace(0, len(cells) - 1, n)).astype(int)
-        cells = cells[keep]
-    return cells - cells.min(0)
+def _ring_area(r: np.ndarray) -> float:
+    x, y = r[:, 0], r[:, 1]
+    return float(abs(np.dot(x, np.roll(y, 1)) - np.dot(y, np.roll(x, 1))) / 2)
 
 
-def free_layouts(items: list[dict], tropes: dict, look: dict[int, np.ndarray], u_look: dict[int, tuple[float, float]]) -> dict[str, tuple]:
+def country_rings(names: list[str], feats: dict) -> list[np.ndarray]:
+    """나라(들)의 외곽 고리(경위도). 본토에서 먼 해외 영토와 아주 작은 섬은 뺀다."""
+    rings = []
+    for nm in names:
+        g = feats.get(nm)
+        if not g:
+            continue
+        polys = [g["coordinates"]] if g["type"] == "Polygon" else g["coordinates"]
+        rings += [np.array(p[0], float) for p in polys]
+    if not rings:
+        return []
+    main = max(rings, key=_ring_area)
+    c0 = main.mean(0)
+    big = _ring_area(main)
+    keep = [r for r in rings if _ring_area(r) >= big * 0.02 and np.hypot(*(r.mean(0) - c0)) < 22]
+    return keep
+
+
+def country_cartogram(items: list[dict]) -> tuple:
+    """나라마다 실제 국경 모양을 영화 수에 맞는 크기로 키우거나 줄여 그 안을 커버로 채우고, 실제 위치 가까이 겹치지 않게 놓는다.
+    배경 = 놓인 나라 윤곽(칸 좌표 SVG path)."""
+    feats = {f["properties"]["NAME"]: f["geometry"] for f in json.loads(BORDERS.read_text())["features"]}
+    feats["United States of America"] = feats.get("United States of America")
+    groups: dict[str, list[int]] = {}
+    for i, it in enumerate(items):
+        c = it.get("country") or ""
+        groups.setdefault(MAP_GROUP.get(c, c), []).append(i)
+
+    K = 10                                             # 칸 판정용 래스터 해상도(화면 단위당 픽셀)
+    shapes = []
+    for c, mem in groups.items():
+        rings = country_rings(SHAPE_OF.get(c, [c]), feats)
+        if not rings:
+            lon, lat = LONLAT.get(c, (0, -50))
+            rings = [np.array([[lon + np.cos(a), lat + np.sin(a)] for a in np.linspace(0, 2 * np.pi, 24)])]
+        allp = np.concatenate(rings)
+        lon0, lat0 = allp.mean(0)
+        cosl = np.cos(np.radians(lat0))
+        loc = [np.stack([(r[:, 0] - lon0) * cosl, -(r[:, 1] - lat0)], 1) for r in rings]   # 도 단위, 가로는 위도 보정
+        n = len(mem)
+
+        def cells_at(k: float):
+            pts = [r * k for r in loc]
+            mn = np.min([q.min(0) for q in pts], 0); mx = np.max([q.max(0) for q in pts], 0)
+            W, H = int((mx[0] - mn[0]) * K) + 2, int((mx[1] - mn[1]) * K) + 2
+            im = Image.new("L", (W, H), 0); d = ImageDraw.Draw(im)
+            for q in pts:
+                d.polygon([((x - mn[0]) * K, (y - mn[1]) * K) for x, y in q], fill=255)
+            a = np.asarray(im)
+            # 칸 중심이 모양 안이면 그 칸을 쓴다. 칸 격자의 원점은 모양 왼쪽 위
+            cw, ch = int(np.ceil((mx[0] - mn[0]) / CELL_X)) + 1, int(np.ceil((mx[1] - mn[1]) / CELL_Y)) + 1
+            out = [(x, y) for y in range(ch) for x in range(cw)
+                   if a[min(H - 1, int((y + .5) * CELL_Y * K)), min(W - 1, int((x + .5) * CELL_X * K))] > 127]
+            return np.array(out, int).reshape(-1, 2), mn
+        lo, hi = 1e-3, 50.0
+        for _ in range(36):
+            mid = (lo + hi) / 2
+            if len(cells_at(mid)[0]) >= n:
+                hi = mid
+            else:
+                lo = mid
+        cells, mn = cells_at(hi)
+        if len(cells) > n:                             # 남는 칸은 고르게 비운다
+            cells = cells[np.round(np.linspace(0, len(cells) - 1, n)).astype(int)]
+        # 오래된 영화가 모양 가운데
+        ctr = cells.mean(0)
+        order = np.argsort(np.hypot((cells[:, 0] - ctr[0]) * CELL_X, (cells[:, 1] - ctr[1]) * CELL_Y))
+        mem_sorted = sorted(mem, key=lambda i: (items[i].get("year") or 0, items[i]["spine"]))
+        cell_of = {i: cells[order[k]] for k, i in enumerate(mem_sorted)}
+        outline = [np.stack([(q[:, 0] * hi - mn[0]) / CELL_X, (q[:, 1] * hi - mn[1]) / CELL_Y], 1) for q in loc]
+        shapes.append(dict(name=c, mem=mem, cell_of=cell_of, cells=cells, outline=outline, lonlat=(lon0, lat0)))
+
+    # 놓을 자리: 매끄러운 투영(유럽을 넓히고 대양을 줄임) 위 나라 중심. 큰 나라부터, 겹치거나 맞닿지 않는 가장 가까운 자리
+    gl = np.arange(-180, 180.5, 0.5); sx = 0.42 + 0.55 * np.exp(-((gl - 15) / 38) ** 2)
+    X = np.concatenate([[0], np.cumsum((sx[1:] + sx[:-1]) / 4)]); X -= np.interp(0, gl, X)
+    gb = np.arange(-90, 90.5, 0.5); sy = 0.45 + 0.55 / (1 + np.exp(-(gb - 30) / 6))
+    Y = np.concatenate([[0], np.cumsum((sy[1:] + sy[:-1]) / 4)]); Y -= np.interp(0, gb, Y)
+    proj = lambda lon, lat: (float(np.interp(lon, gl, X)), -float(np.interp(lat, gb, Y)))
+    S = 1.9                                            # 투영 단위 → 화면 단위
+    G = 700
+    occ = np.zeros((G, G), bool)
+    pos, placed = {}, []
+    for s in sorted(shapes, key=lambda s: -len(s["mem"])):
+        px, py = proj(*s["lonlat"])
+        cc = s["cells"]
+        mid = cc.mean(0)
+        tx, ty = px * S / CELL_X - mid[0] + G / 2, py * S / CELL_Y - mid[1] + G / 2
+        best = None
+        for r in range(0, 120):
+            cand = [(dx, dy) for dx in range(-r, r + 1) for dy in range(-r, r + 1) if max(abs(dx), abs(dy)) == r]
+            cand.sort(key=lambda d: (d[0] * CELL_X) ** 2 + (d[1] * CELL_Y) ** 2)
+            for dx, dy in cand:
+                ox, oy = int(round(tx)) + dx, int(round(ty)) + dy
+                xs, ys = cc[:, 0] + ox, cc[:, 1] + oy
+                # 한 칸 틈: 자기 칸과 그 이웃이 비어 있어야 한다
+                ok = True
+                for ex, ey in ((0, 0), (1, 0), (-1, 0), (0, 1), (0, -1)):
+                    if occ[ys + ey, xs + ex].any():
+                        ok = False; break
+                if ok:
+                    best = (ox, oy); break
+            if best:
+                break
+        ox, oy = best
+        occ[cc[:, 1] + oy, cc[:, 0] + ox] = True
+        for i, (x, y) in s["cell_of"].items():
+            pos[i] = [int(x + ox), int(y + oy)]
+        placed.append((s, ox, oy))
+    xs = [v[0] for v in pos.values()]; ys = [v[1] for v in pos.values()]
+    x0, y0 = min(xs) - 1, min(ys) - 1
+    pos = {i: [x - x0, y - y0] for i, (x, y) in pos.items()}
+    size = [max(xs) - x0 + 2, max(ys) - y0 + 2]
+    path = []
+    for s, ox, oy in placed:
+        for q in s["outline"]:
+            pts, last = [], None
+            for x, y in q:
+                v = (x + ox - x0, y + oy - y0)
+                if last is None or abs(v[0] - last[0]) + abs(v[1] - last[1]) > 0.08:
+                    pts.append(f"{v[0]:.2f} {v[1]:.2f}"); last = v
+            if len(pts) >= 3:
+                path.append("M" + "L".join(pts) + "Z")
+    labels = blob_labels(pos, {s["name"]: s["mem"] for s, _, _ in placed}, min_n=12)
+    return pos, size, labels, "".join(path)
+
+
+def centroid_labels(pos: dict[int, list[int]], groups: dict[str, list[int]]) -> list:
+    """범주 이름표: 그 범주 커버들이 가장 많이 모인 자리(칸 좌표의 중앙값). 큰 범주부터, 겹치면 조금씩 아래로 비킨다."""
+    out = []
+    for name, mem in sorted(groups.items(), key=lambda kv: -len(kv[1])):
+        mem = [i for i in mem if i in pos]
+        if not mem:
+            continue
+        P = np.array([pos[i] for i in mem], float)
+        med = np.median(P, 0)
+        # 중앙값 근처의 밀집한 곳: 중앙값에서 가까운 절반의 평균
+        d = np.hypot(*(P - med).T); core = P[d <= np.median(d)]
+        x, y = core.mean(0) + 0.5
+        for _ in range(8):
+            if any(abs(x - o[0]) < (len(name) + len(o[2])) * 0.5 / 2 + 1 and abs(y - o[1]) < 1.6 for o in out):
+                y += 1.8
+            else:
+                break
+        out.append([float(round(x, 2)), float(round(y, 2)), name, "center"])
+    return out
+
+
+def free_layouts(items: list[dict], tropes: dict, look: dict[int, np.ndarray], u_look: dict[int, tuple[float, float]], ax: dict) -> dict[str, tuple]:
     out: dict[str, tuple] = {}
     n = len(items)
 
-    # 나라: 경위도에 나라별 덩어리(오래된 영화가 가운데). 대양은 줄이고 붐비는 유럽은 넓힌다.
-    # 모양이 뚜렷한 나라는 덩어리를 늘이고 돌린다(가로 배율, 세로 배율, 회전°)
-    def proj(lon: float, lat: float) -> tuple[float, float]:
-        if lon < -30:
-            x = -14 + (lon + 30) * 0.42
-        elif lon <= 45:
-            x = lon * 0.95
-        else:
-            x = 43 + (lon - 45) * 0.5
-        y = -lat * 1.0 if lat > 30 else -30 - (lat - 30) * 0.45
-        return x, y
-    SHAPE = {"United States": (1.55, 0.65, 0), "Japan": (0.62, 1.6, -35), "Italy": (0.6, 1.6, -35), "United Kingdom": (0.7, 1.45, 10),
-             "Sweden": (0.6, 1.6, 20), "France": (1.0, 1.0, 0), "Canada": (1.8, 0.55, 0), "Mexico": (1.3, 0.75, -25),
-             "Soviet Union": (1.5, 0.7, 0), "India": (0.9, 1.1, 0), "Chile": (0.4, 2.5, 0)}
-    S = 1.25
-    ids, tg, groups = [], [], {}
-    by_c: dict[str, list[int]] = {}
-    for i, it in enumerate(items):
-        by_c.setdefault(it.get("country") or "", []).append(i)
-    for c, mem in by_c.items():
-        lon, lat = LONLAT.get(c, (-30, -40))
-        mem.sort(key=lambda i: (items[i].get("year") or 0, items[i]["spine"]))
-        sx, sy, rot = SHAPE.get(c, (1, 1, 0))
-        pts = sunflower(len(mem)) * np.array([sx, sy])
-        th = np.radians(rot)
-        pts = pts @ np.array([[np.cos(th), -np.sin(th)], [np.sin(th), np.cos(th)]]).T
-        x, y = proj(lon, lat)
-        ids += mem; tg.append(pts + np.array([x * S * 1.2, y * S * 1.2]))
-        groups[c or "Unknown"] = mem
-    pos, size = pack(ids, np.concatenate(tg), margin=1)
-    # 배경: Natural Earth 1:110m 육지 윤곽(공개 데이터)을 같은 투영으로 칸 좌표에 그린다(뷰어가 희미하게 깐다)
-    path = []
-    if LAND.exists():
-        off = pack.offset
-        for ftr in json.loads(LAND.read_text())["features"]:
-            g = ftr["geometry"]
-            polys = [g["coordinates"]] if g["type"] == "Polygon" else g["coordinates"]
-            for poly in polys:
-                ring = poly[0]
-                if max(lat for _, lat in ring) < -55:          # 남극은 뺀다
-                    continue
-                pts = []
-                for lon, lat in ring[::2] if len(ring) > 40 else ring:
-                    x, y = proj(lon, lat)
-                    pts.append(f"{x * S * 1.2 / CELL_X - off[0]:.1f} {y * S * 1.2 / CELL_Y - off[1]:.1f}")
-                path.append("M" + "L".join(pts) + "Z")
-    out["country"] = (pos, size, blob_labels(pos, {c: m for c, m in groups.items()}, min_n=12), "".join(path))
+    out["country"] = country_cartogram(items)
 
     # 화면비: 비율마다 진짜 화면비 모양의 블록. 블록 안은 연도 순(왼쪽 위 → 오른쪽 아래), 블록은 왼쪽부터 아래를 맞춰 놓는다
     buckets: dict[str, list[int]] = {}
@@ -923,38 +952,50 @@ def free_layouts(items: list[dict], tropes: dict, look: dict[int, np.ndarray], u
     labels += [[xb(1 + (m - 60) // 3), Hc + 0.6, f"{m}′", "center"] for m in (90, 120, 150, 180)]
     out["runtime"] = (pos, [xb(NB - 1) + BW, Hc + 1], labels)
 
-    # 그림 범주: 범주마다 그 뜻을 그린 그림(픽토그램) 모양으로 커버를 채운다. 그림 안은 겉모습 지도에서 가까운 것끼리.
-    # 그림들은 왼쪽부터 줄지어 놓고 아래에 이름을 단다
-    ids_all = [i for i in range(n) if i in u_look]
-    upos = {i: np.array(u_look[i]) for i in ids_all}
-    for fam, order in TROPE_ORDER.items():
-        groups = {c: [i for i in ids_all if tropes.get(items[i]["file"], {}).get(fam) == c] for c in order}
-        groups = {c: m for c, m in groups.items() if m}
-        pieces = []
-        for c, m in groups.items():
-            cells = pictogram_cells(fam, c, len(m))
-            L = np.stack([upos[i] for i in m]); L = (L - L.mean(0)) / (L.std(0) + 1e-9)
-            C = cells.astype(float); Cn = (C - C.mean(0)) / (C.std(0) + 1e-9)
-            _, col = linear_sum_assignment(((L[:, None] - Cn[None]) ** 2).sum(-1))
-            pieces.append((c, m, cells[col]))
-        # 줄 배치: 전체 넓이에서 화면 비율(≈1.7)에 맞는 폭을 정하고 넘치면 다음 줄
-        area = sum((p[2][:, 0].max() + 1) * (p[2][:, 1].max() + 1) for p in pieces)
-        maxw = max(max(p[2][:, 0].max() + 1 for p in pieces), np.sqrt(area * 1.7 * CELL_Y / CELL_X) * 1.15)
-        pos, labels, x, y, rowh, row = {}, [], 0, 0, 0, []
-        def flush(row, y, rowh):
-            for c, m, cells, x0 in row:
-                h = cells[:, 1].max() + 1
-                for i, (cx, cy) in zip(m, cells):
-                    pos[i] = [int(x0 + cx), int(y + rowh - h + cy)]          # 줄 안에서 아래 맞춤
-                labels.append([x0 + (cells[:, 0].max() + 1) / 2, y + rowh + 0.9, c, "center"])
-        for c, m, cells in pieces:
-            w, h = cells[:, 0].max() + 1, cells[:, 1].max() + 1
-            if row and x + w > maxw:
-                flush(row, y, rowh); y += rowh + 3; x, rowh, row = 0, 0, []
-            row.append((c, m, cells, x)); x += w + 3; rowh = max(rowh, h)
-        flush(row, y, rowh)
-        size = [int(max(v[0] for v in pos.values()) + 1), int(y + rowh + 2)]
-        out[fam] = (pos, size, [[float(a), float(b), c, al] for a, b, c, al in labels])
+    # 그림 범주: 축마다 그 축의 모델 신호(검출기 수치 + SigLIP 문장 점수 + 분포 벡터)를 모은 벡터를 UMAP 으로 펼친 연속 지도.
+    # 가까이 놓인 커버는 그 축에서 실제로 비슷하다. 범주(판정 결과)는 지도 위 그 범주가 모인 자리에 이름표로만 붙는다
+    import umap
+    def pca(M: dict[int, np.ndarray], ids: list[int], k: int) -> np.ndarray:
+        X = np.stack([M[i] if i in M else np.zeros(len(next(iter(M.values())))) for i in ids]).astype(np.float32)
+        X = X - X.mean(0)
+        u, s_, _ = np.linalg.svd(X, full_matrices=False)
+        return u[:, :k] * s_[:k]
+    ids = [i for i in range(n) if items[i]["file"] in tropes]
+    F = [tropes[items[i]["file"]]["f"] for i in ids]
+    Z = [tropes[items[i]["file"]].get("medium_scores", {}) for i in ids]
+    col = lambda key, fn=lambda v: v: np.array([fn(float(f.get(key, 0) or 0)) for f in F])
+    zc = lambda key: np.array([z.get(key, 0.0) for z in Z])
+    sq, lg = np.sqrt, np.log1p
+    spec = {
+        "people": ([col("faces", lg), col("face_max", sq), col("face_sum", sq), col("big_faces"), col("faces_touch"), col("embrace"),
+                    col("face_y_spread"), col("person_max", sq), col("persons", lg), col("subj_cx"), col("subj_area", sq),
+                    zc("face_close"), zc("people")], []),
+        "type": ([col("text_area", sq), col("title_h"), col("title_cx"), col("title_cy"), col("title_w"), col("text_share"),
+                  col("figure_share")], [("text", 10)]),
+        "composition": ([col("long_h", lg), col("long_v", lg), col("img_sym"), col("lr_sym"), col("mirror_iou"), col("sal_cx"), col("sal_cy"),
+                         col("sal_spread"), col("diag"), col("empty_share"), col("figure_share"), col("subj_cx"), col("subj_area", sq),
+                         *[zc(k) for k in ("Close crop", "Wide scene", "Silhouette", "Busy frame", "Collage", "Centered subject", "Off-center subject")]],
+                        [("lines", 8)]),
+        "medium": ([*[zc(k) for k in ("Photo", "Illustration", "Painting", "Graphic", "Typographic")], col("ink"), col("gray")],
+                   [("strokes", 8)]),
+    }
+    for fam, (cols, vecs) in spec.items():
+        X = np.stack(cols, 1)
+        for name, k in vecs:
+            if ax.get(name):
+                X = np.concatenate([X, pca(ax[name], ids, k)], 1)
+        X = (X - X.mean(0)) / (X.std(0) + 1e-9)
+        X = np.clip(X, -3, 3)
+        u = umap.UMAP(n_neighbors=20, min_dist=0.35, random_state=0).fit_transform(X)
+        u = (u - u.mean(0)) / (u.std(0) + 1e-9)
+        # 화면 비율(가로로 조금 긴)에 맞춰 늘이고, 넓이 ≈ 커버 수 × 1.6 칸
+        span = u.max(0) - u.min(0)
+        u = u / span * np.array([1.5, 1.0])
+        area = len(ids) * CELL_X * CELL_Y * 1.6
+        u = u * np.sqrt(area / 1.5)
+        pos, size = pack(ids, u, margin=1)
+        groups = {c: [i for i in ids if tropes[items[i]["file"]].get(fam) == c] for c in TROPE_ORDER[fam]}
+        out[fam] = (pos, size, centroid_labels(pos, groups))
     return out
 
 
@@ -1145,10 +1186,12 @@ def main() -> None:
         nb[k] = ring_neighbors(rr)
     glabels: dict[str, list] = {}
     gbg: dict[str, str] = {}
-    for k, (pos, size, labs, *bg) in free_layouts(items, tropes, ax["look"], u_look).items():
+    for k, (pos, size, labs, *bg) in free_layouts(items, tropes, ax["look"], u_look, ax).items():
         gpos[k], grids[k], glabels[k] = pos, size, labs
-        if bg and bg[0]:
-            gbg[k] = bg[0]
+        if bg and bg[0]:   # 배경 그림은 따로 둔다(그 축을 열 때만 받는다)
+            (WEB / "map").mkdir(exist_ok=True)
+            (WEB / "map" / f"{k}.js").write_text(f"(window.GRIDBG=window.GRIDBG||{{}})[{json.dumps(k)}]={json.dumps(bg[0])};\n")
+            gbg[k] = len(bg[0])
     print("  rings " + ", ".join(f"{k} {len(r)}x~{round(sum(len(x) for x in r) / len(r))}" for k, r in rings.items()), flush=True)
     for i, it in enumerate(items):
         it["g"] = {k: gpos[k][i] for k in gpos if i in gpos[k]}

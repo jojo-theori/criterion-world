@@ -47,6 +47,21 @@ for (const s of steps) {
     await send('Emulation.setDeviceMetricsOverride', { width, height, deviceScaleFactor: mobile ? 2 : 1, mobile });
     if (mobile) await send('Emulation.setTouchEmulationEnabled', { enabled: true });
   }
+  if (s.drag) {   // {drag: [x0, y0, x1, y1]} 마우스로 끌기
+    const [x0, y0, x1, y1] = s.drag;
+    await send('Input.dispatchMouseEvent', { type: 'mouseMoved', x: x0, y: y0 });
+    await send('Input.dispatchMouseEvent', { type: 'mousePressed', x: x0, y: y0, button: 'left', clickCount: 1 });
+    for (let k = 1; k <= 10; k++) { await send('Input.dispatchMouseEvent', { type: 'mouseMoved', x: x0 + (x1 - x0) * k / 10, y: y0 + (y1 - y0) * k / 10, button: 'left', buttons: 1 }); await sleep(16); }
+    await send('Input.dispatchMouseEvent', { type: 'mouseReleased', x: x1, y: y1, button: 'left', clickCount: 1 });
+  }
+  if (s.wheel) {   // {wheel: [x, y, dx, dy, ctrl]} 휠·트랙패드 핀치(ctrl)
+    const [x, y, dx, dy, ctrl] = s.wheel;
+    await send('Input.dispatchMouseEvent', { type: 'mouseWheel', x, y, deltaX: dx, deltaY: dy, modifiers: ctrl ? 2 : 0 });
+  }
+  if (s.code) {   // {code: "Equal", key: "="} 물리 키
+    await send('Input.dispatchKeyEvent', { type: 'keyDown', code: s.code, key: s.keyName || s.code });
+    await send('Input.dispatchKeyEvent', { type: 'keyUp', code: s.code, key: s.keyName || s.code });
+  }
   if (s.navigate) { await send('Page.navigate', { url: s.navigate }); }
   if (s.wait) await sleep(s.wait);
   if (s.shot) { const r = await send('Page.captureScreenshot', { format: 'png' }); writeFileSync(join(outdir, s.shot + '.png'), Buffer.from(r.result.data, 'base64')); }

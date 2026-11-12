@@ -226,9 +226,17 @@
   }
   /* 첫 로딩 */
   /* 자유 배치 이름표: 덩어리 위 가운데, 커버 위에 얹혀도 읽히게 */
+  /* 줌 버튼: 격자 오른쪽 아래. 세 폭 보기에서는 숨긴다 */
+  #zoom { position: fixed; right: 32px; bottom: 66px; z-index: 30; display: flex; flex-direction: row; gap: 2px; background: #111; border-radius: 999px; padding: 4px; transition: opacity .3s; }
+  #zoom button { width: 28px; height: 28px; border: 0; border-radius: 50%; background: none; color: var(--dim); font-size: 17px; line-height: 1; cursor: pointer; padding: 0; }
+  #zoom button:hover { background: #222; color: var(--fg); }
+  body.tri-open #zoom { opacity: 0; pointer-events: none; }
+  #stage { overflow: hidden; }
+  #stage.zoomed #grid { cursor: grab; }
+  #grid.grabbing { cursor: grabbing !important; }
   #gridbg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0; transition: opacity .8s var(--out); overflow: visible; }
   #gridbg.on { opacity: 1; }
-  #gridbg path { fill: #0d0d0d; stroke: #262626; stroke-width: 1; }
+  #gridbg path { fill: #101010; stroke: #333; stroke-width: 1; stroke-linejoin: round; }
   .axis.free { transform: translateX(-50%); white-space: nowrap; background: rgba(0,0,0,.7); padding: 0 4px; border-radius: 2px; }
   #boot { position: fixed; inset: 0; z-index: 100; background: #000; display: none; flex-direction: column; align-items: center;
     justify-content: center; gap: 14px; transition: opacity .6s var(--out); }
@@ -276,6 +284,7 @@
   #panels { touch-action: none; }
   .info { touch-action: pan-y; }
   @media (max-width: 720px) {
+    #zoom { right: 16px; bottom: calc(126px + env(safe-area-inset-bottom)); }
     header { height: 56px; padding: 0 16px; gap: 8px; }
     /* 축 버튼은 가로로 밀어 본다. 오른쪽 끝을 흐려 더 있다는 것을 알린다 */
     #axes { flex: 1 1 auto; min-width: 0; overflow-x: auto; scrollbar-width: none;
@@ -356,6 +365,7 @@
   <button class="close" id="close" aria-label="Close" data-key="esc" data-tip="Close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7 7 17"/></svg></button>
 </header>
 <div id="stage"><canvas id="grid" tabindex="0" aria-label="Cover grid. Arrow keys move, Enter opens"></canvas></div>
+<div id="zoom"><button id="zoomIn" aria-label="Zoom in" data-key="+" data-tip="Zoom in">+</button><button id="zoomOut" aria-label="Zoom out" data-key="−" data-tip="Zoom out">−</button></div>
 <footer>
   <div class="k">Arranged by</div>
   <div class="v" id="gridName"></div>
@@ -392,7 +402,7 @@
 /* 빌드마다 바뀌는 값(data.js 크기)을 data.js 와 아틀라스 주소에 붙인다. 커버가 늘면 아틀라스 칸 순서가 바뀌는데,
    브라우저가 이전 아틀라스를 캐시에서 쓰면 칸마다 엉뚱한 커버가 그려진다 */
 window.BUILD = '';
-const SIZES = /*SIZES*/{"data.js": 1691998, "atlas/cover_s.webp": 780562}/*END*/;
+const SIZES = /*SIZES*/{"data.js": 1662428, "atlas/cover_s.webp": 780562}/*END*/;
 window.PRELOAD = {};
 window.BUILD = '?v=' + (SIZES['data.js'] || 0);
 (() => {
@@ -439,7 +449,7 @@ window.BUILD = '?v=' + (SIZES['data.js'] || 0);
 <script type="text/plain" id="main">
 const M = window.META, C = window.COVERS, N = C.length;
 // 버전: 화면·동작이 바뀌면 올린다. 데이터 날짜는 build_web.py 가 META.built 에 적는다
-const VERSION = '0.6.0';
+const VERSION = '0.7.0';
 document.getElementById('ver').textContent = `v${VERSION}`;
 document.getElementById('ver').title = M.built ? `data ${M.built}` : '';
 const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -625,6 +635,7 @@ const G = (() => {
   layout(location=4) in vec3 color;    // 아틀라스가 오기 전 대표색
   layout(location=5) in vec2 hl;       // 검색 강조: 이전 값, 새 값 (1 = 맞음)
   uniform vec2 uRes, uGrid, uInset;
+  uniform vec3 uView;                  // 줌: 배율, 가로·세로 이동(CSS px)
   uniform float uT, uDur, uMixT, uMixFrom, uMixTo, uAspect, uHlT, uSwapT;
   uniform int uHidden, uHover;
   out vec2 vUV, vLocal, vSize; out float vA, vMix, vHl, vSwap; out vec3 vColor; flat out int vHover;
@@ -635,7 +646,7 @@ const G = (() => {
     float p = uDur > 0. ? clamp((uT - delays.x) / max(delays.z, 1.), 0., 1.) : 1.;
     vec4 s = mix(from, to, io(p));
     vec2 size = vec2(s.z, s.z / uAspect);
-    vec2 pos = s.xy + corner * size;
+    vec2 pos = (s.xy + corner * size) * uView.x + uView.yz;
     gl_Position = vec4(pos / uRes * 2. - 1., 0., 1.);
     gl_Position.y = -gl_Position.y;
     int id = gl_InstanceID, cols = int(uGrid.x);
@@ -643,7 +654,7 @@ const G = (() => {
     vUV = (cell + uInset + corner * (1. - 2. * uInset)) / uGrid;   // 밉맵 번짐을 막으려고 조금 안쪽에서 읽는다
     vA = id == uHidden ? 0. : s.w;
     vMix = mix(uMixFrom, uMixTo, oc(clamp((uMixT - delays.y) / 450., 0., 1.)));
-    vLocal = corner * size; vSize = size; vColor = color; vHover = id == uHover ? 1 : 0;
+    vLocal = corner * size * uView.x; vSize = size * uView.x; vColor = color; vHover = id == uHover ? 1 : 0;
     vHl = mix(hl.x, hl.y, oc(clamp(uHlT / 300., 0., 1.)));
     vSwap = clamp((uSwapT - delays.y * .6) / 320., 0., 1.);   // 축을 바꿀 때 이전 흔적 → 새 흔적
   }`;
@@ -676,7 +687,7 @@ const G = (() => {
   if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog));
   gl.useProgram(prog);
   const U = {};
-  ['uRes', 'uGrid', 'uInset', 'uT', 'uDur', 'uMixT', 'uMixFrom', 'uMixTo', 'uAspect', 'uHidden', 'uHover', 'uCover', 'uTrace', 'uCoverOk', 'uTraceOk', 'uHlT', 'uSwapT', 'uPrev', 'uPrevOk']
+  ['uRes', 'uView', 'uGrid', 'uInset', 'uT', 'uDur', 'uMixT', 'uMixFrom', 'uMixTo', 'uAspect', 'uHidden', 'uHover', 'uCover', 'uTrace', 'uCoverOk', 'uTraceOk', 'uHlT', 'uSwapT', 'uPrev', 'uPrevOk']
     .forEach(n => U[n] = gl.getUniformLocation(prog, n));
 
   const from = new Float32Array(N * 4), to = new Float32Array(N * 4), delays = new Float32Array(N * 3), col = new Float32Array(N * 3);
@@ -698,6 +709,9 @@ const G = (() => {
   gl.uniform1f(U.uAspect, ASPECT);
   gl.uniform1i(U.uCover, 0); gl.uniform1i(U.uTrace, 1); gl.uniform1i(U.uPrev, 2);
   gl.uniform1i(U.uHidden, -1); gl.uniform1i(U.uHover, -1);
+  gl.uniform3f(U.uView, 1, 0, 0);
+  // 줌 상태: 화면 = 배치 좌표 × vs + (vx, vy)
+  let vs = 1, vx = 0, vy = 0, curLabels = [], viewAnim = 0;
 
   // 텍스처: 원본은 늘, 흔적은 최근 3개만 GPU 에 둔다
   const tex = {}, lru = [];
@@ -812,6 +826,7 @@ const G = (() => {
 
   function go(k, animate = true, boot = false) {
     const anim = animate && !RM;
+    if (vs > 1.001 && !boot) setView(1, 0, 0, anim ? 420 : 0);   // 축을 바꾸면 전체 보기로
     let shift = 0;
     pendingK = k;
     if (mixTo && anim && !boot && traceName && traceName !== k) {
@@ -859,19 +874,34 @@ const G = (() => {
   // 배경 그림(지금은 Country 의 육지 윤곽): 격자와 같은 칸 좌표, 축이 바뀌면 서서히 나타나고 사라진다
   const bgSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   bgSvg.id = 'gridbg'; stage.insertBefore(bgSvg, cv);
-  const bgG = document.createElementNS('http://www.w3.org/2000/svg', 'g'), bgP = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-  bgP.setAttribute('vector-effect', 'non-scaling-stroke'); bgG.appendChild(bgP); bgSvg.appendChild(bgG);
+  const bgV = document.createElementNS('http://www.w3.org/2000/svg', 'g'), bgG = document.createElementNS('http://www.w3.org/2000/svg', 'g'), bgP = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  bgP.setAttribute('vector-effect', 'non-scaling-stroke'); bgG.appendChild(bgP); bgV.appendChild(bgG); bgSvg.appendChild(bgV);
+  const bgReq = {};
+  function loadBg(k) {   // 배경 그림은 그 축을 처음 열 때 받는다(map/<축>.js)
+    return bgReq[k] ??= new Promise(res => {
+      if (window.GRIDBG?.[k]) return res(window.GRIDBG[k]);
+      const s = document.createElement('script'); s.src = `map/${k}.js${BUILD}`;
+      s.onload = () => res(window.GRIDBG?.[k] || ''); s.onerror = () => res('');
+      document.head.appendChild(s);
+    });
+  }
   function placeBg(k, L) {
-    const d = M.gridBg?.[k];
-    bgSvg.classList.toggle('on', !!d);
-    if (!d) return;
-    if (bgP._k !== k) { bgP.setAttribute('d', d); bgP._k = k; }
+    const on = !!M.gridBg?.[k];
+    bgSvg.classList.toggle('on', false);
+    if (!on) return;
+    loadBg(k).then(d => {
+      if (axis !== k || !d) return;
+      if (bgP._k !== k) { bgP.setAttribute('d', d); bgP._k = k; }
+      bgSvg.classList.add('on');
+    });
     const [ox, oy, sx, sy] = L.bg;
     bgG.setAttribute('transform', `translate(${ox} ${oy}) scale(${sx} ${sy})`);
   }
   function placeLabels(labels) {
+    curLabels = labels;
     stage.querySelectorAll('.axis').forEach(a => a.remove());
     labels.forEach(([lx, ly, t, align]) => {
+      lx = lx * vs + vx; ly = ly * vs + vy;
       const a = document.createElement('div');
       a.className = 'axis'; a.textContent = t; a.style.top = (ly - 6) + 'px';
       if (align === 'right') a.style.right = `calc(100% - ${lx}px)`; else a.style.left = lx + 'px';
@@ -903,6 +933,7 @@ const G = (() => {
     if (moving || mixing || swapping) kick();
   }
   function hit(mx, my) {
+    mx = (mx - vx) / vs; my = (my - vy) / vs;
     const now = performance.now();
     for (let i = N - 1; i >= 0; i--) {
       const s = stateAt(i, now, tmp);
@@ -913,6 +944,7 @@ const G = (() => {
   }
   // 손가락용: 정확히 닿지 않아도 r px 안에서 가장 가까운 타일
   function near(mx, my, r) {
+    mx = (mx - vx) / vs; my = (my - vy) / vs; r /= vs;
     const now = performance.now();
     let best = -1, bd = r;
     for (let i = 0; i < N; i++) {
@@ -927,7 +959,8 @@ const G = (() => {
   function rect(i, target = true) {
     const r = stage.getBoundingClientRect();
     const s = target ? to.subarray(i * 4, i * 4 + 4) : stateAt(i, performance.now(), new Float32Array(4));
-    return { left: r.left + s[0], top: r.top + s[1], width: s[2], height: s[2] / ASPECT, right: r.left + s[0] + s[2] };
+    const x = s[0] * vs + vx, y = s[1] * vs + vy, w = s[2] * vs;
+    return { left: r.left + x, top: r.top + y, width: w, height: w / ASPECT, right: r.left + x + w };
   }
   // 첫 화면이 뜬 뒤 쉬는 시간에 흔적 아틀라스를 미리 받아 디코드해 둔다
   function prefetch() {
@@ -936,8 +969,39 @@ const G = (() => {
     // 큰 원본 아틀라스를 다 받은 뒤에 시작한다(배포에서 첫 화면과 대역폭을 다투지 않게)
     loadAtlas('cover').then(() => (window.requestIdleCallback || setTimeout)(next, { timeout: 3000 }));
   }
+  // 줌·이동. 배율 1 이면 처음 배치 그대로, 그 위로는 화면 밖으로 너무 나가지 않게 이동을 막는다
+  function clampView(s, x, y) {
+    if (s <= 1.001) return [1, 0, 0];
+    return [s, Math.min(Wc * .25, Math.max(Wc * (1 - s) - Wc * .25, x)), Math.min(Hc * .25, Math.max(Hc * (1 - s) - Hc * .25, y))];
+  }
+  function applyView(s, x, y) {
+    [vs, vx, vy] = clampView(s, x, y);
+    gl.uniform3f(U.uView, vs, vx, vy);
+    bgV.setAttribute('transform', `translate(${vx} ${vy}) scale(${vs})`);
+    placeLabels(curLabels);
+    stage.classList.toggle('zoomed', vs > 1.001);
+    kick();
+  }
+  function setView(s, x, y, ms = 0) {
+    cancelAnimationFrame(viewAnim);
+    [s, x, y] = clampView(s, x, y);
+    if (!ms || RM) return applyView(s, x, y);
+    const a = [vs, vx, vy], t0v = performance.now();
+    const step = now => {
+      const p = Math.min(1, (now - t0v) / ms), e = 1 - Math.pow(1 - p, 3);
+      applyView(a[0] + (s - a[0]) * e, a[1] + (x - a[1]) * e, a[2] + (y - a[2]) * e);
+      if (p < 1) viewAnim = requestAnimationFrame(step);
+    };
+    viewAnim = requestAnimationFrame(step);
+  }
+  // (cx, cy) 를 제자리에 두고 배율을 s 로
+  function zoomAt(s, cx, cy, ms = 0) {
+    const k = s / vs;
+    setView(s, cx - (cx - vx) * k, cy - (cy - vy) * k, ms);
+  }
   return {
-    size, go, mix, hit, near, rect, kick, layout, dirty, prefetch,
+    size, go, mix, hit, near, rect, kick, layout, dirty, prefetch, setView, zoomAt,
+    view: () => [vs, vx, vy], stageSize: () => [Wc, Hc],
     visible: i => to[i * 4 + 3] > .5,
     setHover(i) { if (i !== hover) { hover = i; gl.uniform1i(U.uHover, i); kick(); } },
     setHidden(i) { hidden = i; gl.uniform1i(U.uHidden, i); kick(); },
@@ -968,7 +1032,7 @@ function sprite(el, name, i) {
 function showLens(i, touch = false) {
   const c = C[i], r = G.rect(i, false);
   // 손가락으로는 타일이 작아 더 크게, 손가락에 가리지 않게 위에 띄운다(위에 자리가 없으면 아래)
-  const k = 2.4, w = touch ? Math.max(r.width * k, 132) : r.width * k, h = touch ? w / ASPECT : r.height * k;
+  const k = Math.max(1.3, 2.4 / Math.pow(G.view()[0], .7)), w = touch ? Math.max(r.width * k, 132) : r.width * k, h = touch ? w / ASPECT : r.height * k;
   const x = Math.max(4, Math.min(innerWidth - w - 4, r.left + r.width / 2 - w / 2));
   let y = Math.max(60, Math.min(innerHeight - h - 4, r.top + r.height / 2 - h / 2));
   if (touch) y = r.top - h - 28 >= 60 ? r.top - h - 28 : Math.min(innerHeight - h - 4, r.bottom + 28);
@@ -1003,7 +1067,7 @@ function openFromGrid(i) {
 let lastTouch = -1e9;
 const fromTouch = () => performance.now() - lastTouch < 800;
 cv.addEventListener('mousemove', e => {
-  if (fromTouch()) return;
+  if (fromTouch() || panning) return;
   const r = stage.getBoundingClientRect(), i = G.hit(e.clientX - r.left, e.clientY - r.top);
   if (i < 0) { tip.classList.remove('show'); hideLens(); return; }
   G.setHover(i); cv.classList.add('hover');
@@ -1043,6 +1107,90 @@ cv.addEventListener('pointerup', e => {
   if (i >= 0 && i === downOn) openFromGrid(i);
 });
 lens.addEventListener('click', () => { if (lensOn !== null && cur === null) openFromGrid(lensOn); });
+
+/* ---------- 줌: 전체 → 2.2배 → 4.5배, 그보다 더 들어가면 그 자리 커버의 상세 화면 ----------
+   트랙패드 핀치(ctrl+휠, Safari 는 gesture), 터치 두 손가락, +/− 버튼과 키. 확대한 채 끌거나 두 손가락으로 밀면 이동 */
+const ZOOMS = [1, 2.2, 4.5], ZMAX = ZOOMS[ZOOMS.length - 1];
+let panning = false;
+const stagePt = e => { const r = stage.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
+function openAt(cx, cy) { const i = G.near(cx, cy, 60); if (i >= 0) { G.setHover(i); openFromGrid(i); } }
+function zoomStep(dir, cx, cy) {
+  const [s] = G.view(), [W, H] = G.stageSize();
+  if (cx === undefined) { cx = W / 2; cy = H / 2; }
+  if (dir > 0 && s >= ZMAX - .01) return openAt(cx, cy);
+  const next = dir > 0 ? (ZOOMS.find(z => z > s + .05) ?? ZMAX) : ([...ZOOMS].reverse().find(z => z < s - .05) ?? 1);
+  hideLens(); tip.classList.remove('show');
+  G.zoomAt(next, cx, cy, 380);
+}
+document.getElementById('zoomIn').addEventListener('click', () => zoomStep(1));
+document.getElementById('zoomOut').addEventListener('click', () => zoomStep(-1));
+let over = 0, overT = 0;
+function pinchBy(factor, cx, cy) {
+  const [s] = G.view(), ns = s * factor;
+  if (ns > ZMAX && s >= ZMAX - .01) {          // 끝까지 확대한 뒤 더 벌리면 상세 화면
+    over += Math.log(factor); clearTimeout(overT); overT = setTimeout(() => { over = 0; }, 350);
+    if (over > .35) { over = 0; openAt(cx, cy); }
+    return;
+  }
+  hideLens(); tip.classList.remove('show');
+  G.zoomAt(Math.min(ZMAX, Math.max(1, ns)), cx, cy);
+}
+cv.addEventListener('wheel', e => {
+  if (cur !== null) return;
+  e.preventDefault();
+  const [cx, cy] = stagePt(e), [s, x, y] = G.view();
+  if (e.ctrlKey) pinchBy(Math.exp(-e.deltaY * .012), cx, cy);
+  else if (s > 1.001) { hideLens(); tip.classList.remove('show'); G.setView(s, x - e.deltaX, y - e.deltaY); }
+}, { passive: false });
+let gs0 = 1;   // Safari 트랙패드 핀치
+cv.addEventListener('gesturestart', e => { e.preventDefault(); gs0 = 1; });
+cv.addEventListener('gesturechange', e => { e.preventDefault(); const [cx, cy] = stagePt(e); pinchBy(e.scale / gs0, cx, cy); gs0 = e.scale; });
+// 포인터: 확대한 채 끌면 이동, 두 손가락은 핀치. 기존 훑기·클릭보다 먼저 받는다(capture)
+const pts = new Map();
+let pan = null, pinch = null, dragged = false;
+cv.addEventListener('pointerdown', e => {
+  if (cur !== null) return;
+  pts.set(e.pointerId, stagePt(e));
+  if (pts.size === 1) dragged = false;
+  if (pts.size === 2) {
+    const [a, b] = [...pts.values()], [s, x, y] = G.view();
+    pinch = { d: Math.hypot(a[0] - b[0], a[1] - b[1]) || 1, s, x, y, c: [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2] };
+    pan = null; dragged = true; hideLens(); tip.classList.remove('show');
+    e.stopImmediatePropagation(); return;
+  }
+  const [s, x, y] = G.view();
+  pan = { p: stagePt(e), x, y, on: false, id: e.pointerId, zoomed: s > 1.001 };
+}, true);
+cv.addEventListener('pointermove', e => {
+  if (!pts.has(e.pointerId)) return;
+  pts.set(e.pointerId, stagePt(e));
+  if (pinch && pts.size >= 2) {
+    const [a, b] = [...pts.values()], d = Math.hypot(a[0] - b[0], a[1] - b[1]), c = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
+    let ns = pinch.s * d / pinch.d;
+    if (ns > ZMAX * 1.3) { pinch = null; pts.clear(); openAt(c[0], c[1]); e.stopImmediatePropagation(); return; }
+    ns = Math.min(ZMAX, Math.max(1, ns));
+    const k = ns / pinch.s;
+    G.setView(ns, c[0] - (pinch.c[0] - pinch.x) * k, c[1] - (pinch.c[1] - pinch.y) * k);
+    e.stopImmediatePropagation(); return;
+  }
+  if (pan && pan.zoomed && e.pointerId === pan.id) {
+    const q = stagePt(e), dx = q[0] - pan.p[0], dy = q[1] - pan.p[1];
+    if (!pan.on && Math.hypot(dx, dy) > 5) {
+      pan.on = panning = dragged = true; hideLens(); tip.classList.remove('show');
+      cv.classList.add('grabbing'); try { cv.setPointerCapture(e.pointerId); } catch {}
+    }
+    if (pan.on) { G.setView(G.view()[0], pan.x + dx, pan.y + dy); e.stopImmediatePropagation(); }
+  }
+}, true);
+function endPt(e) {
+  pts.delete(e.pointerId);
+  if (pts.size < 2) pinch = null;
+  if (pan && pan.id === e.pointerId) { pan = null; panning = false; cv.classList.remove('grabbing'); }
+  if (dragged) e.stopImmediatePropagation();
+}
+cv.addEventListener('pointerup', endPt, true);
+cv.addEventListener('pointercancel', endPt, true);
+cv.addEventListener('click', e => { if (dragged) { e.stopImmediatePropagation(); dragged = false; } }, true);
 
 /* ---------- 흔적: 세 폭 보기의 큰 캔버스 ---------- */
 window.TRACE = window.TRACE || {};
@@ -1575,6 +1723,9 @@ addEventListener('keydown', e => {
     }
     if (c === 'Enter' || c === 'Space') return;   // 포커스된 항목 버튼에 맡긴다
   }
+  if (cur === null && (c === 'Equal' || c === 'NumpadAdd')) { e.preventDefault(); zoomStep(1); return; }
+  if (cur === null && (c === 'Minus' || c === 'NumpadSubtract')) { e.preventDefault(); zoomStep(-1); return; }
+  if (cur === null && c === 'Escape' && G.view()[0] > 1.001) { G.setView(1, 0, 0, 380); return; }
   if (c === 'KeyF' || c === 'Slash') { e.preventDefault(); qEl.focus(); qEl.select(); return; }
   if (c === 'Space') { e.preventDefault(); setTrace(!traceOn); return; }
   const dm = c.match(/^(?:Digit|Numpad)(\d)$/);
