@@ -227,6 +227,18 @@ VIRTUAL_ENV=.venv-ml uv pip install torch torchvision transformers sentencepiece
 - 레이아웃: 커버를 40×50 칸으로 나눠 글자 / 그림 / 빈 공간 / 틀. 그림 = 바탕색(가장자리 중앙값, Lab 거리 18 초과)과 다르거나 선화 밀도가 있는 곳. 지표는 구역별 면적, 무게중심, 제목 위치(top/middle/bottom), 좌우 균형.
 - 선화는 web/strokes/ 에 PNG(로컬용)와 WebP(배포용)로 둔다.
 
+## 얼굴과 범주 (tropes, 작업 중)
+
+```
+.venv-ml/bin/python scripts/detect_faces.py      # 새 커버만, data/analysis/faces.json
+.venv-ml/bin/python scripts/build_tropes.py      # data/analysis/tropes.json, out/tropes/ (접촉 인화지, index.html)
+open out/tropes/index.html                        # 범주별 전체 커버 확인
+```
+
+- 얼굴: OpenCV YuNet(opencv_zoo, data/models 에 자동으로 받음). 긴 변 960px 로 키워 찾고, 좌표는 커버 대비 비율.
+- 범주: 묶음(People · Type · Composition · Medium)마다 우선순위 규칙으로 커버당 한 범주. 재료는 얼굴, OWLv2 상자, 글자 영역, 레이아웃 칸, 구도선·대칭·현저성, 획, SigLIP 2 제로샷(커버 전체에 대해 z-점수). 기준값은 480px 에서 맞춘 첫 시안이라 원본으로 다시 맞춘다.
+- .venv-ml 에는 opencv-python-headless 와 scipy 를 더 넣는다. mediapipe 최신판은 controlnet_aux 와 충돌하므로 넣지 않는다.
+
 ## 웹 뷰어
 
 ```
