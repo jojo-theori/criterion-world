@@ -158,11 +158,13 @@
   .info a { color: var(--dim); text-decoration: none; border-bottom: 1px solid #333; transition: color .2s, border-color .2s; }
   .info a:hover { color: var(--fg); border-color: var(--fg); }
   /* 제목이 criterion.com 링크. 평소엔 제목 그대로, 가리키면 밑줄과 화살표 */
-  .info a.t { display: block; color: var(--fg); border: 0; text-decoration: underline; text-decoration-color: transparent;
-    text-decoration-thickness: 1px; text-underline-offset: .12em; transition: text-decoration-color .2s; }
+  .info a.t { display: block; color: var(--fg); border: 0; text-decoration: underline dotted; text-decoration-color: transparent;
+    text-decoration-thickness: 1.5px; text-underline-offset: .14em; transition: text-decoration-color .2s; }
   .info a.t:hover, .info a.t:focus-visible { color: var(--fg); text-decoration-color: currentColor; outline: none; }
-  .info a.t .out { width: .36em; height: .36em; margin-left: .18em; vertical-align: .55em; opacity: 0; stroke-width: 1.4;
+  /* 화살표는 대문자 높이(약 .72em)로 그리고, 굵기는 글자 크기와 무관하게 1.2px */
+  .info a.t .out { width: .84em; height: .84em; margin-left: .14em; vertical-align: -.06em; opacity: 0; stroke-width: 1.2;
     transition: opacity .2s; }
+  .info a.t .out path { vector-effect: non-scaling-stroke; }
   .info a.t:hover .out, .info a.t:focus-visible .out { opacity: 1; }
   @media (hover: none) { .info a.t .out { opacity: .5; } }
   /* 바깥 링크 표시: 대각선은 짧게, 꺾인 두 끝은 길게(글꼴의 ↗ 는 비율이 반대) */
@@ -1158,7 +1160,7 @@ function infoHTML(c) {
   const rows = [kv('Country', c.countries), kv('Runtime', c.rt ? `${c.rt} min` : ''), kv('Aspect ratio', c.ar), kv('Language', c.language)].filter(Boolean);
   const extra = [kv('Color', c.clr), kv('Cinematography', c.dop), kv('Music', c.music), kv('Written by', c.writer)].filter(Boolean);
   return `<div class="no">#${c.spine}</div>
-    ${url ? `<a class="t" href="${url}" target="_blank" rel="noopener" aria-label="${esc(c.title)} on criterion.com">${esc(c.title)}<svg class="out" viewBox="0 0 9 9" aria-hidden="true"><path d="M3.5 1.5h4v4M7.5 1.5 3.5 5.5"/></svg></a>` : `<div class="t">${esc(c.title)}</div>`}
+    ${url ? `<a class="t" href="${url}" target="_blank" rel="noopener" aria-label="${esc(c.title)} on criterion.com">${esc(c.title)}<svg class="out" viewBox="1.5 .5 7 7" aria-hidden="true"><path d="M2 1h6v6M8 1 3.3 5.7"/></svg></a>` : `<div class="t">${esc(c.title)}</div>`}
     ${c.orig ? `<div class="o">${esc(c.orig)}</div>` : ''}
     <div>${[c.directors, c.year].filter(Boolean).map(esc).join(' · ')}</div>
     <div class="body">${rows.length || extra.length ? '<div class="sp"></div>' + rows.join('') : ''}
