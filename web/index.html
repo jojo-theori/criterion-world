@@ -239,6 +239,17 @@
   #hires img.hov { outline: 1px solid #ebebeb; outline-offset: -1px; }
   #stage.zoomed #grid { cursor: grab; }
   #grid.grabbing { cursor: grabbing !important; }
+  /* 영역 네모(People 의 Couple): 평소엔 거의 보이지 않고, 호버하면 밝아지며 이름이 뜬다 */
+  #gridbg rect.region { fill: rgba(235,235,235,.025); stroke: rgba(235,235,235,.07); stroke-width: 1; transition: fill .35s var(--out), stroke .35s var(--out); }
+  #gridbg rect.region.hot { fill: rgba(235,235,235,.09); stroke: rgba(235,235,235,.35); }
+  .rlabel { position: absolute; transform: translateX(-50%); font-size: var(--t1); color: var(--fg); opacity: 0; pointer-events: none;
+    background: rgba(0,0,0,.7); padding: 0 4px; border-radius: 2px; transition: opacity .3s var(--out); white-space: nowrap; }
+  .rlabel.hot { opacity: 1; }
+  /* 좌표 뜻: 가로는 아래 가운데, 세로는 왼쪽 가운데(아래에서 위로 읽는다) */
+  .gaxis { position: absolute; font-size: var(--t1); color: var(--dim); pointer-events: none; opacity: 0; transition: opacity .5s var(--out); white-space: nowrap; }
+  #stage.has-axes .gaxis { opacity: 1; }
+  .gaxis.x { left: 50%; bottom: -20px; transform: translateX(-50%); }
+  .gaxis.y { left: 0; top: 50%; transform: translate(-50%, -50%) rotate(-90deg) translateY(-50%); transform-origin: center; left: 10px; }
   #gridbg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0; transition: opacity .8s var(--out); overflow: visible; }
   #gridbg.on { opacity: 1; }
   #gridbg path { fill: #101010; stroke: #333; stroke-width: 1; stroke-linejoin: round; }
@@ -407,7 +418,7 @@
 /* 빌드마다 바뀌는 값(data.js 크기)을 data.js 와 아틀라스 주소에 붙인다. 커버가 늘면 아틀라스 칸 순서가 바뀌는데,
    브라우저가 이전 아틀라스를 캐시에서 쓰면 칸마다 엉뚱한 커버가 그려진다 */
 window.BUILD = '';
-const SIZES = /*SIZES*/{"data.js": 1662428, "atlas/cover_s.webp": 780562}/*END*/;
+const SIZES = /*SIZES*/{"data.js": 1662752, "atlas/cover_s.webp": 780562}/*END*/;
 window.PRELOAD = {};
 window.BUILD = '?v=' + (SIZES['data.js'] || 0);
 (() => {
@@ -454,7 +465,7 @@ window.BUILD = '?v=' + (SIZES['data.js'] || 0);
 <script type="text/plain" id="main">
 const M = window.META, C = window.COVERS, N = C.length;
 // 버전: 화면·동작이 바뀌면 올린다. 데이터 날짜는 build_web.py 가 META.built 에 적는다
-const VERSION = '0.7.3';
+const VERSION = '0.8.1';
 document.getElementById('ver').textContent = `v${VERSION}`;
 document.getElementById('ver').title = M.built ? `data ${M.built}` : '';
 const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -917,9 +928,49 @@ const G = (() => {
       document.head.appendChild(s);
     });
   }
+  // 영역(예: People 의 Couple): 배경의 은은한 네모, 호버하면 밝아지고 이름이 뜬다
+  let regions = [], hotR = -1;
+  const axX = document.createElement('div'), axY = document.createElement('div');
+  axX.className = 'gaxis x'; axY.className = 'gaxis y'; stage.append(axX, axY);
+  function placeRegions(k, L) {
+    bgG.querySelectorAll('rect').forEach(r => r.remove());
+    stage.querySelectorAll('.rlabel').forEach(r => r.remove());
+    regions = (M.gridExtra?.[k]?.regions || []).map(([x0, y0, x1, y1, name]) => {
+      const r = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      r.setAttribute('x', x0); r.setAttribute('y', y0); r.setAttribute('width', x1 - x0); r.setAttribute('height', y1 - y0);
+      r.setAttribute('rx', .4); r.setAttribute('vector-effect', 'non-scaling-stroke'); r.classList.add('region');
+      bgG.appendChild(r);
+      const lab = document.createElement('div'); lab.className = 'rlabel'; lab.textContent = name; stage.appendChild(lab);
+      return { x0, y0, x1, y1, r, lab };
+    });
+    hotR = -1;
+    const ax = M.gridExtra?.[k]?.axes;
+    axX.textContent = ax ? `${ax[0]} →` : ''; axY.textContent = ax ? `${ax[1]} →` : '';
+    stage.classList.toggle('has-axes', !!ax);
+    if (regions.length) { const [ox, oy, sx, sy] = L.bg; bgG.setAttribute('transform', `translate(${ox} ${oy}) scale(${sx} ${sy})`); bgSvg.classList.add('on'); }
+    placeRegionLabels();
+  }
+  function placeRegionLabels() {
+    const L = cache[axis]; if (!L) return;
+    const [ox, oy, sx, sy] = L.bg;
+    regions.forEach(g => {
+      g.lab.style.left = ((ox + (g.x0 + g.x1) / 2 * sx) * vs + vx) + 'px';
+      g.lab.style.top = ((oy + g.y0 * sy) * vs + vy - 18) + 'px';
+    });
+  }
+  // 화면 좌표 → 지금 축의 칸 좌표
+  function hotAt(mx, my) {
+    const L = cache[axis]; if (!L || !regions.length) return;
+    const [ox, oy, sx, sy] = L.bg, cx = ((mx - vx) / vs - ox) / sx, cy = ((my - vy) / vs - oy) / sy;
+    const n = regions.findIndex(g => cx >= g.x0 && cx <= g.x1 && cy >= g.y0 && cy <= g.y1);
+    if (n === hotR) return;
+    regions.forEach((g, k) => { g.r.classList.toggle('hot', k === n); g.lab.classList.toggle('hot', k === n); });
+    hotR = n;
+  }
   function placeBg(k, L) {
+    placeRegions(k, L);
     const on = !!M.gridBg?.[k];
-    bgSvg.classList.toggle('on', false);
+    if (!regions.length) bgSvg.classList.toggle('on', false);
     if (!on) return;
     loadBg(k).then(d => {
       if (axis !== k || !d) return;
@@ -1010,7 +1061,7 @@ const G = (() => {
     [vs, vx, vy] = clampView(s, x, y);
     gl.uniform3f(U.uView, vs, vx, vy);
     bgV.setAttribute('transform', `translate(${vx} ${vy}) scale(${vs})`);
-    placeLabels(curLabels);
+    placeLabels(curLabels); placeRegionLabels();
     stage.classList.toggle('zoomed', vs > 1.001);
     updateHi();
     kick();
@@ -1033,28 +1084,46 @@ const G = (() => {
     setView(s, cx - (cx - vx) * k, cy - (cy - vy) * k, ms);
   }
   // 줌한 채로 커버 i 를 화면 가운데로(상세 화면을 닫을 때 그 커버 자리로 돌아온다)
-  // 이동이 끝난 자리(px, py 만큼 더 간다고 보고)에서 화면 가운데에 가장 가까운 커버로 맞춰 선다
-  function snap(px = 0, py = 0, ms = 520) {
-    if (vs <= 1.001) return;
-    const [s, x, y] = clampView(vs, vx + px, vy + py);
-    const cx = (Wc / 2 - x) / s, cy = (Hc / 2 - y) / s;
+  // 관성 + 맞춰 서기(애플 UI 처럼): 놓을 때 속도 v(px/ms)로 마찰을 받으며 갈 자리를 셈하고(감속 시간 상수 TAU),
+  // 그 자리에서 화면 가운데에 가장 가까운 커버를 목적지로 삼아, 지금 속도를 이어받는 임계 감쇠 스프링으로 들어간다
+  const TAU = 325, OMEGA = 9.5;              // ms, 1/s
+  function nearestCenter(x, y) {
+    const cx = (Wc / 2 - x) / vs, cy = (Hc / 2 - y) / vs;
     let best = -1, bd = Infinity;
     for (let i = 0; i < N; i++) {
       const b = i * 4; if (to[b + 3] < .5) continue;
       const d = (to[b] + to[b + 2] / 2 - cx) ** 2 + (to[b + 1] + to[b + 2] / ASPECT / 2 - cy) ** 2;
       if (d < bd) { bd = d; best = i; }
     }
-    if (best < 0) return setView(s, x, y, ms);
+    if (best < 0) return [x, y];
     const b = best * 4;
-    setView(s, Wc / 2 - (to[b] + to[b + 2] / 2) * s, Hc / 2 - (to[b + 1] + to[b + 2] / ASPECT / 2) * s, ms);
+    return [Wc / 2 - (to[b] + to[b + 2] / 2) * vs, Hc / 2 - (to[b + 1] + to[b + 2] / ASPECT / 2) * vs];
   }
+  function release(vxm = 0, vym = 0) {
+    if (vs <= 1.001) return;
+    cancelAnimationFrame(viewAnim);
+    const [, px, py] = clampView(vs, vx + vxm * TAU, vy + vym * TAU);
+    const [tx, ty] = nearestCenter(px, py);
+    const [, gx, gy] = clampView(vs, tx, ty);
+    const x0 = vx - gx, y0 = vy - gy, v0x = vxm * 1000, v0y = vym * 1000, w = OMEGA, s = vs, t0v = performance.now();
+    const step = now => {
+      const tt = (now - t0v) / 1000, e = Math.exp(-w * tt);
+      const x = gx + (x0 + (v0x + w * x0) * tt) * e, y = gy + (y0 + (v0y + w * y0) * tt) * e;
+      applyView(s, x, y);
+      if (tt < 1.4 && (Math.abs(x - gx) > .3 || Math.abs(y - gy) > .3)) viewAnim = requestAnimationFrame(step);
+      else applyView(s, gx, gy);
+    };
+    viewAnim = requestAnimationFrame(step);
+  }
+  const snap = () => release(0, 0);
+  const stopView = () => cancelAnimationFrame(viewAnim);
   function centerOn(i, ms = 0) {
     if (vs <= 1.001) return;
     const b = i * 4, cx = to[b] + to[b + 2] / 2, cy = to[b + 1] + to[b + 2] / ASPECT / 2;
     setView(vs, Wc / 2 - cx * vs, Hc / 2 - cy * vs, ms);
   }
   return {
-    size, go, mix, hit, near, rect, kick, layout, dirty, prefetch, setView, zoomAt, centerOn, snap,
+    size, go, mix, hit, near, rect, kick, layout, dirty, prefetch, setView, zoomAt, centerOn, snap, release, stopView, hotAt,
     view: () => [vs, vx, vy], stageSize: () => [Wc, Hc],
     visible: i => to[i * 4 + 3] > .5,
     setHover(i) { if (i !== hover) { hiImgs.get(hover)?.classList.remove('hov'); hover = i; hiImgs.get(i)?.classList.add('hov'); gl.uniform1i(U.uHover, i); kick(); } },
@@ -1129,6 +1198,7 @@ const fromTouch = () => performance.now() - lastTouch < 800;
 cv.addEventListener('mousemove', e => {
   if (fromTouch() || panning) return;
   const r = stage.getBoundingClientRect(), i = G.hit(e.clientX - r.left, e.clientY - r.top);
+  G.hotAt(e.clientX - r.left, e.clientY - r.top);
   if (i < 0) { tip.classList.remove('show'); hideLens(); return; }
   G.setHover(i); cv.classList.add('hover');
   if (i !== lensOn) showLens(i);
@@ -1190,12 +1260,13 @@ function zoomStep(dir, cx, cy) {
   const next = dir > 0 ? (ZOOMS.find(z => z > s + .05) ?? ZMAX) : ([...ZOOMS].reverse().find(z => z < s - .05) ?? 1);
   hideLens(); tip.classList.remove('show');
   G.zoomAt(next, cx, cy, 380);
-  if (next > 1) setTimeout(() => G.snap(0, 0, 360), 400);
+  if (next > 1) setTimeout(() => G.snap(), 390);
 }
 document.getElementById('zoomIn').addEventListener('click', () => zoomStep(1));
 document.getElementById('zoomOut').addEventListener('click', () => zoomStep(-1));
 // 핀치는 연속으로 따라가지 않고 단계로 끊는다: 한 번 벌리거나 오므리면 한 단계. 제스처가 끝날 때까지(200ms 조용) 다음 단계를 막는다
 let pinchAcc = 0, pinchLock = false, pinchT = 0, wheelSnap = 0;
+const wheelV = { x: 0, y: 0, t: 0 };
 function pinchBy(factor, cx, cy) {
   clearTimeout(pinchT); pinchT = setTimeout(() => { pinchAcc = 0; pinchLock = false; }, 200);
   if (pinchLock) return;
@@ -1209,7 +1280,10 @@ cv.addEventListener('wheel', e => {
   if (e.ctrlKey) pinchBy(Math.exp(-e.deltaY * .012), cx, cy);   // 트랙패드 핀치
   else if (s > 1.001) {
     hideLens(); tip.classList.remove('show'); G.setView(s, x - e.deltaX, y - e.deltaY);
-    clearTimeout(wheelSnap); wheelSnap = setTimeout(() => G.snap(0, 0, 560), 140);
+    const now = performance.now(), dt = Math.max(8, now - (wheelV.t || 0));
+    if (now - (wheelV.t || 0) > 120) { wheelV.x = 0; wheelV.y = 0; }
+    wheelV.x = .6 * wheelV.x + .4 * (-e.deltaX / dt); wheelV.y = .6 * wheelV.y + .4 * (-e.deltaY / dt); wheelV.t = now;
+    clearTimeout(wheelSnap); wheelSnap = setTimeout(() => G.release(wheelV.x * .5, wheelV.y * .5), 80);
   }
 }, { passive: false });
 let gs0 = 1;   // Safari 트랙패드 핀치
@@ -1228,6 +1302,7 @@ cv.addEventListener('pointerdown', e => {
     pan = null; dragged = true; hideLens(); tip.classList.remove('show');
     e.stopImmediatePropagation(); return;
   }
+  G.stopView();
   const [s, x, y] = G.view();
   pan = { p: stagePt(e), x, y, on: false, id: e.pointerId, zoomed: s > 1.001 };
 }, true);
@@ -1252,7 +1327,7 @@ cv.addEventListener('pointermove', e => {
     }
     if (pan.on) {
       const now = performance.now();
-      if (pan.lt) { const dt = Math.max(8, now - pan.lt); pan.vx = .7 * (pan.vx || 0) + .3 * (q[0] - pan.lq[0]) / dt; pan.vy = .7 * (pan.vy || 0) + .3 * (q[1] - pan.lq[1]) / dt; }
+      if (pan.lt) { const dt = Math.max(8, now - pan.lt); pan.vx = .6 * (pan.vx || 0) + .4 * (q[0] - pan.lq[0]) / dt; pan.vy = .6 * (pan.vy || 0) + .4 * (q[1] - pan.lq[1]) / dt; }
       pan.lt = now; pan.lq = q;
       G.setView(G.view()[0], pan.x + dx, pan.y + dy); e.stopImmediatePropagation();
     }
@@ -1262,7 +1337,10 @@ function endPt(e) {
   pts.delete(e.pointerId);
   if (pts.size < 2) pinch = null;
   if (pan && pan.id === e.pointerId) {
-    if (pan.on) { const k = 260; G.snap((pan.vx || 0) * k, (pan.vy || 0) * k, 620); }   // 관성 + 가장 가까운 커버로
+    if (pan.on) {   // 손을 뗀 직전 80ms 안에 움직였으면 그 속도로 미끄러진다
+      const fresh = performance.now() - (pan.lt || 0) < 80;
+      G.release(fresh ? pan.vx || 0 : 0, fresh ? pan.vy || 0 : 0);
+    }
     pan = null; panning = false; cv.classList.remove('grabbing');
   }
   if (dragged) e.stopImmediatePropagation();

@@ -996,6 +996,36 @@ def free_layouts(items: list[dict], tropes: dict, look: dict[int, np.ndarray], u
         pos, size = pack(ids, u, margin=1)
         groups = {c: [i for i in ids if tropes[items[i]["file"]].get(fam) == c] for c in TROPE_ORDER[fam]}
         out[fam] = (pos, size, centroid_labels(pos, groups))
+
+    # People 은 뜻이 분명한 두 좌표로: 가로 = 사람 수(로그), 세로 = 사람이 화면을 차지하는 비율(위로 클수록).
+    # 같은 값끼리는 겉모습 지도 순으로 조금 흩어 둔다. 딱 두 사람이 적당히 큰 자리에 Couple 영역(배경 네모)을 둔다
+    cnt = np.array([max(f.get("faces", 0) or 0, f.get("persons", 0) or 0) for f in F], float)
+    occ = np.array([min(1.0, max(f.get("person_max", 0) or 0, 2.5 * (f.get("face_max", 0) or 0), 2 * (f.get("face_sum", 0) or 0))) for f in F])
+    XMAX = np.log1p(12)
+    xn = np.minimum(np.log1p(cnt), XMAX) / XMAX
+    yn = np.sqrt(occ)
+    jit = np.array([u_look.get(i, (0.5, 0.5)) for i in ids]); jit = (jit - jit.mean(0)) / (jit.std(0) + 1e-9)
+    xn = xn + 0.025 * jit[:, 0]; yn = yn + 0.025 * jit[:, 1]
+    Wv = np.sqrt(len(ids) * CELL_X * CELL_Y * 1.9 * 1.7); Hv = Wv / 1.7
+    tg = np.stack([xn * Wv, (1 - yn) * Hv], 1)
+    pos, size = pack(ids, tg, margin=1)
+    off = pack.offset
+    cell = lambda vx, vy: (vx / CELL_X - off[0], vy / CELL_Y - off[1])
+    bottom = max(v[1] for v in pos.values()) + 1.6
+    labels = []
+    for c in (0, 1, 2, 3, 5, 10):
+        x, _ = cell(np.log1p(c) / XMAX * Wv, 0)
+        labels.append([float(round(x + .5, 2)), float(bottom), "10+" if c == 10 else str(c), "center"])
+    left = min(v[0] for v in pos.values()) - 0.8
+    for share in (0.05, 0.2, 0.5, 1.0):
+        _, y = cell(0, (1 - np.sqrt(share)) * Hv)
+        labels.append([float(left), float(round(y + .5, 2)), f"{round(share * 100)}%", "right"])
+    cp = np.array([pos[i] for i in ids if tropes[items[i]["file"]].get("people") == "Couple"], float)
+    regions = []
+    if len(cp) >= 8:
+        x0, y0 = np.percentile(cp, 10, axis=0); x1, y1 = np.percentile(cp, 90, axis=0)
+        regions.append([float(x0 - .6), float(y0 - .6), float(x1 + 1.6), float(y1 + 1.6), "Couple"])
+    out["people"] = (pos, size, labels, "", {"axes": ["Number of people", "Share of the frame"], "regions": regions})
     return out
 
 
@@ -1186,8 +1216,12 @@ def main() -> None:
         nb[k] = ring_neighbors(rr)
     glabels: dict[str, list] = {}
     gbg: dict[str, str] = {}
+    gextra: dict[str, dict] = {}
     for k, (pos, size, labs, *bg) in free_layouts(items, tropes, ax["look"], u_look, ax).items():
         gpos[k], grids[k], glabels[k] = pos, size, labs
+        if len(bg) > 1 and bg[1]:
+            gextra[k] = bg[1]
+        bg = bg[:1]
         if bg and bg[0]:   # 배경 그림은 따로 둔다(그 축을 열 때만 받는다)
             (WEB / "map").mkdir(exist_ok=True)
             (WEB / "map" / f"{k}.js").write_text(f"(window.GRIDBG=window.GRIDBG||{{}})[{json.dumps(k)}]={json.dumps(bg[0])};\n")
@@ -1207,7 +1241,7 @@ def main() -> None:
                 im.convert("L").save(wp, "WEBP", quality=80, method=6)
 
     meta = {"count": len(items), "films": len(films), "maxSpine": max(films),
-            "grids": grids, "gridLabels": glabels, "gridBg": gbg, "atlas": atlas, "rings": rings, "rowNames": shorten_all(names),
+            "grids": grids, "gridLabels": glabels, "gridBg": gbg, "gridExtra": gextra, "atlas": atlas, "rings": rings, "rowNames": shorten_all(names),
             "built": __import__("datetime").date.today().isoformat(),
             "yearMin": min(f[1] for f in films.values()), "yearMax": max(f[1] for f in films.values()),
             "axes": {k: sum(len(r) for r in v) for k, v in rings.items()}}
