@@ -227,6 +227,30 @@
   #boot .pct { display: flex; gap: 12px; font-size: 11px; color: #555; font-variant-numeric: tabular-nums; }
   #boot #bootPct { color: var(--fg); }
 
+  /* 축 드롭다운: 축 버튼 묶음이 머리줄에 다 들어가지 않으면(body.axcompact, fitAxes 가 잰다) 지금 축 버튼 하나 + 세로 목록 */
+  .axmenu { display: none; position: relative; flex: none; }
+  body.axcompact #axes { display: none; }
+  header.measure > * { flex-shrink: 0 !important; min-width: auto !important; }
+  header.measure #axes { overflow: visible; }
+  .count { white-space: nowrap; }
+  body.axcompact .axmenu { display: block; margin-right: auto; }   /* 검색·닫기는 오른쪽 끝에 */
+  .axbtn { height: 36px; display: inline-flex; align-items: center; gap: 8px; padding: 0 14px 0 16px; border: 0; border-radius: 999px;
+    background: #111; color: var(--fg); font: inherit; font-size: 13px; cursor: pointer; white-space: nowrap; }
+  .axbtn:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
+  .axbtn svg { width: 10px; height: 10px; fill: none; stroke: var(--dim); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round;
+    transition: transform .3s var(--out); }
+  .axmenu.open .axbtn svg { transform: rotate(180deg); }
+  .axlist { position: absolute; left: 0; top: 44px; min-width: 200px; margin: 0; padding: 6px; list-style: none; z-index: 40;
+    background: #0e0e0e; border: 1px solid var(--line); border-radius: 14px;
+    opacity: 0; transform: translateY(-6px); pointer-events: none; transition: opacity .2s var(--out), transform .25s var(--out); }
+  .axmenu.open .axlist { opacity: 1; transform: none; pointer-events: auto; }
+  .axlist .axg { padding: 8px 10px 4px; font-size: 11px; color: #555; }
+  .axlist button { display: block; width: 100%; text-align: left; padding: 9px 10px; border: 0; border-radius: 9px; background: none;
+    color: var(--dim); font: inherit; font-size: 14px; cursor: pointer; }
+  .axlist button:not(:disabled):hover { color: var(--fg); }
+  .axlist button.on { color: var(--fg); background: #1d1d1d; }
+  .axlist button:disabled { opacity: .3; cursor: default; }
+
   .nogl { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; text-align: center;
     padding: 0 16px; font-size: 14px; color: var(--dim); }
   #grid:focus { outline: none; }
@@ -294,6 +318,10 @@
     </svg>
   </button>
   <div class="group" id="axes" role="group" aria-label="Axes"></div>
+  <div class="axmenu" id="axmenu">
+    <button class="axbtn" id="axbtn" aria-haspopup="true" aria-expanded="false" aria-controls="axlist"><span id="axcur"></span><svg viewBox="0 0 10 10" aria-hidden="true"><path d="M2 3.5 5 6.5 8 3.5"/></svg></button>
+    <div class="axlist" id="axlist" role="menu" aria-label="Axes"></div>
+  </div>
   <div class="count" id="count"></div>
   <div class="search" id="search">
     <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.2"/><path d="M15.2 15.2 20 20"/></svg>
@@ -451,10 +479,39 @@ KEYS.forEach((k, n) => {
   axesEl.appendChild(b);
 });
 axesEl.addEventListener('click', e => { const b = e.target.closest('button'); if (b && !b.disabled) setAxis(b.dataset.axis); });
+
+/* 축 드롭다운(2단): Film(Spine, Year) · Cover(나머지). 머리줄 구분선과 같은 나눔 */
+const axMenu = document.getElementById('axmenu'), axBtn = document.getElementById('axbtn'), axList = document.getElementById('axlist');
+[['Film', KEYS.slice(0, 2)], ['Cover', KEYS.slice(2)]].forEach(([g, ks]) => {
+  const h = document.createElement('div'); h.className = 'axg'; h.textContent = g; axList.appendChild(h);
+  ks.forEach(k => { const b = document.createElement('button'); b.dataset.axis = k; b.textContent = AXES[k].label; b.setAttribute('role', 'menuitemradio'); axList.appendChild(b); });
+});
+function axOpen(on) {
+  axMenu.classList.toggle('open', on); axBtn.setAttribute('aria-expanded', on);
+  if (on) (axList.querySelector('button.on') || axList.querySelector('button:not(:disabled)'))?.focus({ preventScroll: true });
+}
+axBtn.addEventListener('click', () => axOpen(!axMenu.classList.contains('open')));
+axList.addEventListener('click', e => { const b = e.target.closest('button'); if (b && !b.disabled) { axOpen(false); setAxis(b.dataset.axis); axBtn.focus({ preventScroll: true }); } });
+document.addEventListener('pointerdown', e => { if (axMenu.classList.contains('open') && !axMenu.contains(e.target)) axOpen(false); });
+// 축 버튼 묶음이 머리줄에 다 들어가는지 잰다(넘치면 드롭다운)
+function fitAxes() {
+  // 잴 때만 머리줄 요소들이 줄어들지 않게 두고, 머리줄 전체가 넘치는지 본다(넘치면 요소들이 찌그러지거나 화면 밖으로 밀린다)
+  const hd = document.querySelector('header');
+  document.body.classList.remove('axcompact'); hd.classList.add('measure');
+  const tight = hd.scrollWidth > hd.clientWidth + 1;
+  hd.classList.remove('measure');
+  document.body.classList.toggle('axcompact', tight);
+  if (!tight) { axOpen(false); movePill(axesEl, true); }
+}
 eyeEl.addEventListener('click', () => setTrace(!traceOn));
 document.getElementById('count').textContent = `${M.count} / ${M.films}`;   // 검색 중에는 setCount 가 바꾼다
 
 function syncAxisButtons() {
+  document.getElementById('axcur').textContent = AXES[axis].label;
+  axList.querySelectorAll('button').forEach(b => {
+    b.classList.toggle('on', b.dataset.axis === axis); b.setAttribute('aria-checked', b.dataset.axis === axis);
+    b.disabled = cur !== null && !has(cur, b.dataset.axis);
+  });
   axesEl.querySelectorAll('button').forEach(b => {
     b.classList.toggle('on', b.dataset.axis === axis);
     b.disabled = cur !== null && !has(cur, b.dataset.axis);
@@ -1410,6 +1467,16 @@ addEventListener('keydown', e => {
   const c = e.code;
   hideKbd();
   if ((c === 'Enter' || c === 'Space') && e.target.closest?.('button, a') && !e.target.closest('header')) return;
+  if (axMenu.classList.contains('open')) {
+    if (c === 'Escape') { axOpen(false); axBtn.focus({ preventScroll: true }); return; }
+    if (c === 'ArrowDown' || c === 'ArrowUp') {
+      e.preventDefault();
+      const bs = [...axList.querySelectorAll('button:not(:disabled)')], i = bs.indexOf(document.activeElement);
+      bs[(i + (c === 'ArrowDown' ? 1 : -1) + bs.length) % bs.length]?.focus();
+      return;
+    }
+    if (c === 'Enter' || c === 'Space') return;   // 포커스된 항목 버튼에 맡긴다
+  }
   if (c === 'KeyF' || c === 'Slash') { e.preventDefault(); qEl.focus(); qEl.select(); return; }
   if (c === 'Space') { e.preventDefault(); setTrace(!traceOn); return; }
   const dm = c.match(/^(?:Digit|Numpad)(\d)$/);
@@ -1580,12 +1647,13 @@ let rz, wasNarrow = narrow();
 addEventListener('resize', () => {
   clearTimeout(rz);
   rz = setTimeout(() => {
-    G.size(); G.go(axis, false); movePill(axesEl, true);
+    G.size(); G.go(axis, false); movePill(axesEl, true); fitAxes();
     if (cur !== null) { if (narrow() !== wasNarrow) showTri({ kind: 'axis' }); else { triSize(); const info = panels.querySelector('.info'); if (info) fitInfo(info, C[cur]); } }
     wasNarrow = narrow();
   }, 60);
 });
 start();
+fitAxes();
 </script>
 </body>
 </html>
