@@ -206,7 +206,7 @@ def trace_tile(axis: str, it: dict, tr: dict, big: Image.Image | None) -> Image.
     if axis == "cover" and big is not None:          # 원본 썸네일 (격자 캔버스가 쓴다)
         return big.resize((W, H), Image.LANCZOS)
     if axis in ("spine", "year", "country", "runtime", "aspect"):
-        txt = str({"spine": it["spine"], "year": it["year"], "country": it.get("country", ""),
+        txt = str({"spine": it["spine"], "year": it["year"], "country": it.get("cc") or it.get("country", ""),
                    "runtime": f"{it['rt']}′" if it.get("rt") else "",
                    "aspect": (it.get("ar") or [""])[0].split(" ")[0].split(",")[0].split("/")[0]}[axis])
         f = ImageFont.truetype(FONT, int(h * (0.34 if len(txt) <= 3 else 0.28 if len(txt) <= 4 else min(0.2, 1.7 / max(len(txt), 1)))))
@@ -541,6 +541,21 @@ REGION = {   # 나라 → 지역(줄 묶음). 순서가 줄 순서
     "Southeast Asia & Oceania": ["Philippines", "Thailand", "Indonesia", "Australia", "New Zealand"],
 }
 COUNTRY_REGION = {c: r for r, cs in REGION.items() for c in cs}
+
+
+OLD_CODES = {"Soviet Union": "SU", "Czechoslovakia": "CS", "Yugoslavia": "YU", "West Germany": "DE", "Taiwan": "TW"}
+_CODES: dict[str, str] = {}
+
+
+def country_code(name: str) -> str:
+    """두 글자 국가 코드(Natural Earth 의 ISO_A2, 없으면 WB_A2). 지금은 없는 나라는 옛 ISO 코드."""
+    if not _CODES and BORDERS.exists():
+        for f in json.loads(BORDERS.read_text())["features"]:
+            pr = f["properties"]
+            code = next((pr.get(k) for k in ("ISO_A2", "ISO_A2_EH", "WB_A2") if pr.get(k) and pr.get(k) != "-99"), "")
+            _CODES[pr["NAME"]] = code
+        _CODES["United States"] = _CODES.get("United States of America", "US")
+    return OLD_CODES.get(name) or _CODES.get(name) or name[:2].upper()
 
 
 def first_country(s: str | None) -> str:
@@ -1292,12 +1307,15 @@ def free_layouts(items: list[dict], tropes: dict, look: dict[int, np.ndarray], u
             lab = next(l for lim, l in ASPECT_BUCKETS if v < lim)
             buckets.setdefault(lab, []).append(i)
             ratio.setdefault(lab, []).append(v)
+        else:
+            buckets.setdefault("Unknown", []).append(i)
+            ratio.setdefault("Unknown", []).append(1.5)
     # 블록(액자)의 바깥 비율이 실제 화면비와 정확히 같도록 칸 간격을 정수가 아닌 값으로 조율한다.
     # 남는 자리는 마지막 줄에 몰지 않고 고르게 흩어 액자 모양을 지킨다. 액자는 배경에 가는 선으로 그린다
     TW_, TH_ = 1 / CELL_X, (CELL_Y - (CELL_X - 1)) / CELL_Y      # 타일이 칸에서 차지하는 비율(가로, 세로)
     PAD = 0.45
     pos, labels, x0, blocks = {}, [], 0.0, []
-    for _, lab in ASPECT_BUCKETS:
+    for lab in [l for _, l in ASPECT_BUCKETS] + ["Unknown"]:
         if lab not in buckets:
             continue
         mem = sorted(buckets[lab], key=lambda i: (items[i].get("year") or 0, items[i]["spine"]))
@@ -1333,7 +1351,8 @@ def free_layouts(items: list[dict], tropes: dict, look: dict[int, np.ndarray], u
             pos[i] = [round(x0 + PAD + (k % cols) * sx, 3), round(top + (k // cols) * sy, 3)]
         fx0, fy0 = x0, Hmax - hb
         fx1, fy1 = x0 + (cols - 1) * sx + TW_ + 2 * PAD, Hmax
-        frames.append(f"M{fx0:.2f} {fy0:.2f}L{fx1:.2f} {fy0:.2f}L{fx1:.2f} {fy1:.2f}L{fx0:.2f} {fy1:.2f}Z")
+        if lab != "Unknown":
+            frames.append(f"M{fx0:.2f} {fy0:.2f}L{fx1:.2f} {fy0:.2f}L{fx1:.2f} {fy1:.2f}L{fx0:.2f} {fy1:.2f}Z")
         labels.append([round((fx0 + fx1) / 2, 2), round(Hmax + 0.9, 2), f"{lab}", "center"])
         x0 = fx1 + 1.6
     out["aspect"] = (pos, [int(np.ceil(x0)), int(np.ceil(Hmax + 1.5))], labels, {"world": "", "films": "".join(frames)})
@@ -1350,7 +1369,14 @@ def free_layouts(items: list[dict], tropes: dict, look: dict[int, np.ndarray], u
     pos = {i: [xb(b) + k % BW, Hc - 1 - k // BW] for b, v in bars.items() for k, i in enumerate(v)}
     labels = [[xb(0) + 1, Hc + 0.6, "< 60′", "center"], [xb(NB - 1) + 1, Hc + 0.6, "200′ +", "center"]]
     labels += [[xb(1 + (m - 60) // 3), Hc + 0.6, f"{m}′", "center"] for m in (90, 120, 150, 180)]
-    out["runtime"] = (pos, [xb(NB - 1) + BW, Hc + 1], labels)
+    # 상영 시간을 모르는 커버도 자리를(축을 바꿀 때 제자리에서 사라지거나 생기지 않게): 오른쪽 끝 '?' 막대
+    unk = sorted((i for i, it in enumerate(items) if not it.get("rt")), key=lambda i: (items[i].get("year") or 0, items[i]["spine"]))
+    UW, ux0 = 4, xb(NB - 1) + BW + 2
+    for k, i in enumerate(unk):
+        pos[i] = [ux0 + k % UW, Hc - 1 - k // UW]
+    if unk:
+        labels.append([ux0 + UW / 2, Hc + 0.6, "?", "center"])
+    out["runtime"] = (pos, [ux0 + UW if unk else xb(NB - 1) + BW, Hc + 1], labels)
 
     # 그림 범주: 축마다 그 축의 모델 신호(검출기 수치 + SigLIP 문장 점수 + 분포 벡터)를 모은 벡터를 UMAP 으로 펼친 연속 지도.
     # 가까이 놓인 커버는 그 축에서 실제로 비슷하다. 범주(판정 결과)는 지도 위 그 범주가 모인 자리에 이름표로만 붙는다
@@ -1367,7 +1393,10 @@ def free_layouts(items: list[dict], tropes: dict, look: dict[int, np.ndarray], u
     zc = lambda key: np.array([z.get(key, 0.0) for z in Z])
     sq, lg = np.sqrt, np.log1p
     spec = {
-        "people": ([col("faces", lg), col("face_max", sq), col("face_sum", sq), col("big_faces"), col("hand"), zc("body_part"),
+        "people": ([col("faces", lg), col("faces", lg), col("faces", lg),          # 사람 수에 세 배 무게
+                    col("face_max", sq), col("face_sum", sq), col("big_faces"), col("hand"), zc("body_part"),
+                    col("faces_touch"), col("embrace"),                                # 커플(맞닿은 두 얼굴, 포옹)
+                    np.array([np.log1p(f.get("faces", 0) or 0) * (1 - min(1, 8 * (f.get("face_max", 0) or 0))) for f in F]),   # 작은 얼굴이 아주 많음
                     col("face_y_spread"), col("person_max", sq), col("persons", lg), col("subj_cx"), col("subj_area", sq),
                     zc("face_close"), zc("people")], []),
         "type": ([col("text_area", sq), col("title_h"), col("title_cx"), col("title_cy"), col("title_w"), col("text_share"),
@@ -1407,15 +1436,15 @@ def free_layouts(items: list[dict], tropes: dict, look: dict[int, np.ndarray], u
     zf = np.array([z.get("face_close", 0.0) for z in Z])
     cnt = np.where((cnt == 0) & np.isin(cat, ["Big face", "Lone figure", "Figures", "Couple", "Talking heads", "Crowd"]), 1, cnt)
     occ = np.where(np.array(cat) == "Big face", np.maximum(occ, np.clip(0.35 + 0.4 * zf, 0.35, 1.0)), occ)
-    XMAX = np.log1p(12)
-    xn = np.minimum(np.log1p(cnt), XMAX) / XMAX
+    XMAX = np.log1p(max(cnt.max(), 12))                 # 12 명에서 자르지 않는다
+    xn = np.log1p(cnt) / XMAX
     yn = np.sqrt(occ)
     jit = np.array([u_look.get(i, (0.5, 0.5)) for i in ids]); jit = (jit - jit.mean(0)) / (jit.std(0) + 1e-9)
     # 느슨한 축: 사람 수·비율은 방향만, 실제 자리는 얼굴·사람 신호 전체 + 겉모습이 비슷한 것끼리
     Xp = np.stack(spec["people"][0], 1)
     Xp = np.concatenate([Xp, 0.6 * pca(look, ids, 6)], 1)
     Xp = np.clip((Xp - Xp.mean(0)) / (Xp.std(0) + 1e-9), -3, 3)
-    P2 = soft_axes(Xp, np.stack([xn, yn], 1))
+    P2 = soft_axes(Xp, np.stack([xn, yn], 1), pull=0.5)   # 사람 수·크기 쪽으로 반쯤 붙잡는다
     span = P2.max(0) - P2.min(0)
     Wv = np.sqrt(len(ids) * CELL_X * CELL_Y * 1.9 * 1.7); Hv = Wv / 1.7
     tg = np.stack([(P2[:, 0] - P2[:, 0].min()) / span[0] * Wv, (1 - (P2[:, 1] - P2[:, 1].min()) / span[1]) * Hv], 1)
@@ -1424,7 +1453,8 @@ def free_layouts(items: list[dict], tropes: dict, look: dict[int, np.ndarray], u
     cp = np.array([pos[i] for i in ids if tropes[items[i]["file"]].get("people") == "Couple"], float)
     pcat = lambda i: tropes[items[i]["file"]].get("people")
     regions = partition_regions(pos, {"No people": [i for i in ids if pcat(i) == "No one"],
-                                      "Big face": [i for i in ids if pcat(i) in ("Big face", "Couple")],   # 커플(큰 얼굴 둘)도 함께
+                                      "One big face": [i for i in ids if pcat(i) == "Big face"],
+                                      "Couples": [i for i in ids if pcat(i) == "Couple"],
                                       "Crowd": [i for i in ids if pcat(i) == "Crowd"],
                                       "Some human": [i for i in ids if pcat(i) == "Some human"]})   # Couple 은 따로 두지 않는다(사용자: 억지스럽다)
     out["people"] = (pos, size, labels, "", {"axes": ["More people", "Larger in the frame"], "regions": regions})
@@ -1434,15 +1464,26 @@ def free_layouts(items: list[dict], tropes: dict, look: dict[int, np.ndarray], u
     diag = np.clip(np.minimum(deg - 8, 82 - deg) / 20, 0, 1)        # 15–75° 쯤이 1(대각선 글자)
     vert = np.clip((deg - 70) / 15, 0, 1)                           # 세로쓰기
     big = np.sqrt(col("title_h") + 0.5 * col("text_area"))
-    Xt = np.stack([*spec["type"][0], diag, diag, vert, big, big, big], 1)   # 대각선은 두 번, 제목 크기는 세 번 넣어 무게를 준다
+    Xt = np.stack([*spec["type"][0], diag, diag, vert, big, big, col("title_cx"), col("title_cx")], 1)   # 대각선·크기·좌우 위치에 두 배 무게
     Xt = np.concatenate([Xt, pca(ax["text"], ids, 10), 0.5 * pca(look, ids, 6)], 1)
     Xt = np.clip((Xt - Xt.mean(0)) / (Xt.std(0) + 1e-9), -3, 3)
     tx_ = col("title_cx"); ty_ = 1 - col("title_cy")          # 격자를 포스터 한 장처럼: 제목이 놓인 자리
-    P2 = soft_axes(Xt, np.stack([tx_, ty_], 1))
+    P2 = soft_axes(Xt, np.stack([tx_, ty_], 1), pull=0.5)
     span = P2.max(0) - P2.min(0)
     tg = np.stack([(P2[:, 0] - P2[:, 0].min()) / span[0] * Wv, (1 - (P2[:, 1] - P2[:, 1].min()) / span[1]) * Hv], 1)
     pos, size = relax(ids, tg)
-    groups = {c: [i for i in ids if tropes[items[i]["file"]].get("type") == c] for c in TROPE_ORDER["type"]}
+    # 클러스터 라벨은 제목이 놓인 자리로: 왼쪽·오른쪽, 가운데면 위·가운데·아래. 큰 가운데 제목·조용한 글자·글자만은 그대로
+    tcat = lambda i: tropes[items[i]["file"]].get("type")
+    keep_ = ("Type only", "Quiet type", "Big centered title")
+    cxv = dict(zip(ids, col("title_cx"))); cyv = dict(zip(ids, col("title_cy")))
+    groups = {c: [i for i in ids if tcat(i) == c] for c in keep_}
+    rest = [i for i in ids if tcat(i) not in keep_]
+    groups["Left title"] = [i for i in rest if cxv[i] < 0.38]
+    groups["Right title"] = [i for i in rest if cxv[i] > 0.62]
+    mid = [i for i in rest if 0.38 <= cxv[i] <= 0.62]
+    groups["Title on top"] = [i for i in mid if cyv[i] < 0.38]
+    groups["Title in the middle"] = [i for i in mid if 0.38 <= cyv[i] <= 0.62]
+    groups["Title at the bottom"] = [i for i in mid if cyv[i] > 0.62]
     groups["Diagonal type"] = [i for i, d in zip(ids, diag) if d >= .8]
     groups["Vertical type"] = [i for i, v in zip(ids, vert) if v >= .8]
     tregions = partition_regions(pos, groups)
@@ -1549,6 +1590,7 @@ def main() -> None:
         if ppl:
             trace["people"] = [[round(v, 4) for v in b[:4]] + [b[4]] for b in ppl]
         it["country"] = first_country(countries)
+        it["cc"] = country_code(it["country"])
         if r:
             TEXT_TILT[i] = text_tilt(r, frame_rects)
             ax["text"][i] = text_vector(r, frame_rects)
