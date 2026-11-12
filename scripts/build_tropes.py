@@ -3,7 +3,8 @@
 묶음과 범주(우선순위 순, 앞의 조건을 먼저 본다)
   People       Crowd · Couple · Talking heads · Big face · Lone figure · Figures · No one
   Type         Type only · Big centered title · Big title · Quiet type · Title on top · Title in the middle · Title at the bottom
-  Composition  Grid / collage · Symmetric · Single object · Open space · Diagonal · Full-bleed image · Other
+  Composition  Grid / collage · Symmetric · Off-center subject · Silhouette · Busy frame · Close crop · Single object · Open space · Diagonal · Wide scene
+               (기하 신호로 확실한 것을 먼저, 남은 커버는 SigLIP 구도 문장 z-점수가 가장 높은 범주. Other 는 두지 않는다)
   Medium       Photo · Illustration · Painting · Graphic · Typographic   (SigLIP 2 제로샷, 확신이 낮으면 둘째 신호로)
 
 재료(모두 커버 크기 대비 비율이라 해상도와 무관하다)
@@ -46,7 +47,8 @@ SIGLIP = "google/siglip2-base-patch16-384"
 FAMILIES = {
     "people": ["Crowd", "Couple", "Talking heads", "Big face", "Lone figure", "Figures", "No one"],
     "type": ["Type only", "Big centered title", "Big title", "Quiet type", "Title on top", "Title in the middle", "Title at the bottom"],
-    "composition": ["Grid / collage", "Symmetric", "Single object", "Open space", "Diagonal", "Full-bleed image", "Other"],
+    "composition": ["Grid / collage", "Symmetric", "Off-center subject", "Silhouette", "Busy frame", "Close crop",
+                    "Single object", "Open space", "Diagonal", "Wide scene"],
     "medium": ["Photo", "Illustration", "Painting", "Graphic", "Typographic"],
 }
 PERSON_LABELS = {"person", "silhouette of a person", "couple embracing", "child"}
@@ -56,6 +58,17 @@ MEDIUM_PROMPTS = {
     "Painting": ["a painting", "an oil painting", "a watercolor painting"],
     "Graphic": ["a minimal graphic design poster with flat shapes", "an abstract geometric poster", "a screen print with flat colors"],
     "Typographic": ["a poster made only of large typography", "a text-only design with big letters"],
+}
+# 구도 문장(2026-11-12 Other 630편을 보고 정함). 판정은 composition() 에서 기하 신호와 함께 쓴다
+COMP_PROMPTS = {
+    "Close crop": ["an extreme close-up, tightly cropped", "a face cropped by the edges of the frame", "a detail filling the whole frame"],
+    "Wide scene": ["a wide shot of a landscape with small figures", "a long shot of a street or a room", "a view of a city or a field from far away"],
+    "Silhouette": ["a black silhouette against a plain background", "a figure seen in profile as a dark shape", "a shadow of a person"],
+    "Busy frame": ["a repeating pattern of many similar shapes", "many repeated small figures in rows", "a dense texture of repeated elements"],
+    "Collage": ["a collage of several photographs", "a grid of multiple film stills", "several images arranged side by side"],
+    "Centered subject": ["a single subject in the center of the frame", "one object centered on a plain background"],
+    "Off-center subject": ["a person placed on one side of the frame with empty space beside",
+                           "a subject on the left edge of the picture", "a subject on the right edge of the picture"],
 }
 # 얼굴·사람 검출을 보완하는 신호(검출기가 놓친 극단적 클로즈업, 그림 얼굴)
 CUE_PROMPTS = {
@@ -146,6 +159,10 @@ def features(name: str, faces: dict, objects: dict) -> dict:
     pb = [o["box"] for o in objects.get(name, []) if o["label"] in PERSON_LABELS and o["score"] >= 0.25]
     f["person_max"] = max((area(b) for b in pb), default=0.0)
     f["persons"] = len(pb)
+    # 주인공: 가장 큰 얼굴 또는 사람 상자의 가로 중심과 넓이(치우친 구도 판정)
+    sb = max(fb + pb, key=area, default=None)
+    f["subj_cx"] = (sb[0] + sb[2]) / 2 if sb else 0.5
+    f["subj_area"] = area(sb) if sb else 0.0
 
     # 글자
     tb = text_boxes(stem)
@@ -198,7 +215,7 @@ def medium_scores(names: list[str]) -> dict[str, dict[str, float]]:
     proc = AutoProcessor.from_pretrained(SIGLIP)
     cls = {}
     with torch.no_grad():
-        for k, ps in {**MEDIUM_PROMPTS, **CUE_PROMPTS}.items():
+        for k, ps in {**MEDIUM_PROMPTS, **CUE_PROMPTS, **COMP_PROMPTS}.items():
             t = proc(text=[f"this is {p}." for p in ps], padding="max_length", max_length=64, return_tensors="pt")
             o = model.get_text_features(**t)
             e = o if isinstance(o, torch.Tensor) else o.pooler_output
@@ -241,20 +258,30 @@ def typ(f: dict) -> str:
     return {"top": "Title on top", "middle": "Title in the middle", "bottom": "Title at the bottom"}.get(f["title_band"], "Title in the middle")
 
 
-def composition(f: dict) -> str:
-    if f["long_h"] + f["long_v"] >= 5 and f["long_h"] >= 1 and f["long_v"] >= 1:
+def composition(f: dict, s: dict[str, float] | None = None) -> str:
+    z = {k: (s or {}).get(k, 0.0) for k in COMP_PROMPTS}
+    if (f["long_h"] + f["long_v"] >= 5 and f["long_h"] >= 1 and f["long_v"] >= 1) or z["Collage"] > 1.9:
         return "Grid / collage"
     if f["img_sym"] >= 0.55:
         return "Symmetric"
+    if 0.04 < f["subj_area"] < 0.5 and abs(f["subj_cx"] - 0.5) > 0.17:
+        return "Off-center subject"
+    if z["Silhouette"] > 1.5:
+        return "Silhouette"
+    if z["Busy frame"] > 1.5:
+        return "Busy frame"
+    if f["face_max"] >= 0.12 or z["Close crop"] > 1.5:
+        return "Close crop"
     if abs(f["sal_cx"] - 0.5) < 0.08 and f["sal_spread"] < 0.27 and f["empty_share"] > 0.35:
         return "Single object"
     if f["empty_share"] >= 0.5:
         return "Open space"
     if f["diag"] >= 0.6:
         return "Diagonal"
-    if f["figure_share"] >= 0.7:
-        return "Full-bleed image"
-    return "Other"
+    if z["Wide scene"] > 0.8:
+        return "Wide scene"
+    best = max(["Close crop", "Wide scene", "Silhouette", "Busy frame", "Centered subject", "Off-center subject"], key=lambda k: z[k])
+    return "Single object" if best == "Centered subject" else best
 
 
 def medium(f: dict, s: dict[str, float] | None) -> str:
@@ -339,7 +366,7 @@ def main() -> None:
     res = {}
     for n in names:
         f = feats[n]
-        res[n] = {"people": people(f, ms.get(n)), "type": typ(f), "composition": composition(f), "medium": medium(f, ms.get(n)),
+        res[n] = {"people": people(f, ms.get(n)), "type": typ(f), "composition": composition(f, ms.get(n)), "medium": medium(f, ms.get(n)),
                   "f": f, "medium_scores": {k: round(v, 4) for k, v in (ms.get(n) or {}).items()}}
     if OUT.exists():
         old = json.loads(OUT.read_text())
