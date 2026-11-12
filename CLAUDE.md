@@ -65,6 +65,23 @@
 - 틀 판정 실패: 틀 안 작은 글자를 못 읽은 경우. 상단 띠(RoboCop, Alphaville, Nanook, Henry V, Most Dangerous Game, Il Posto, Tout va bien), 세로 띠(Spartacus, Grey Gardens, Made in U.S.A., Boyhood, Election, Now, Voyager 등). 글자 대신 띠 위치·모양으로 찾는 보조 판정을 넣을 것.
 - 1, 8, 9번 커버는 옛 DVD 디자인. 절판이라 최신판일 가능성이 높지만 확인 안 됨.
 
+## 진행 중: 범주 축(tropes 브랜치, 2026-11-12)
+
+사용자 방향: 축마다 모델 하나가 순서를 정하는 대신, 여러 모델과 단순 처리기의 신호로 사람이 아는 범주(대칭, 가운데 큰 제목, Talking heads …)를 판정한다. "묶음(family) 하나 = 축 하나, 한 축 안에서 커버는 정확히 한 범주(줄)" — 격자 자리 하나, 세 폭 보기 위아래 이동, 줄 이름이 모두 이 전제 위에 있어서 여러 범주 소속은 쓰지 않는다. 한 커버가 여러 범주에 해당하는 효과는 축을 바꿀 때 드러난다.
+
+- 축 구성(사용자 동의): Spine · Year | Color | People · Type · Composition · Medium (10개 → 7개). Contrast 는 Color 에(흑백·듀오톤·포인트 컬러 같은 범주로), Layout 은 Type·Composition 에, Lines 는 Composition 에, Strokes 는 Medium 에, Objects 는 People·Composition 에 흡수. Look 은 축에서 빼고 신호로만(사용자: 아깝지 않다). 빠지는 축의 흔적 그림은 새 축으로 옮긴다(People = 얼굴·인물 상자, Type = 글자 다각형, Composition = 구도선·대칭축·무게중심, Medium = 선화, Color = 팔레트 띠).
+- 묶음 안 판정: 우선순위 규칙으로 하나만. 애매하면 점수 높은 쪽, 어디에도 확실하지 않으면 그 묶음의 Other. 둘째 후보는 데이터에만.
+- 근거 데이터(이전 축들): 축별 최근접 이웃 6개 겹침은 대부분 1–4%(우연 0.5%), Type ↔ Layout 17.6%(중복), Color ↔ Contrast 7.8%.
+- 만든 것: scripts/detect_faces.py(OpenCV YuNet, 모델은 data/models 에 자동으로 받음. mediapipe 는 최신판이 controlnet_aux 와 충돌해 쓰지 않음), scripts/build_tropes.py(판정 → data/analysis/tropes.json, out/tropes/<묶음>.jpg 접촉 인화지, out/tropes/index.html 범주별 전체 확인 페이지).
+- 첫 시안은 원본이 없는 다른 Mac 에서 web/large(480px)를 posters/ 로 복사해 전체 파이프라인을 다시 돌려 만들었다. 사용자 평: "방향은 나쁘지 않은데 완성도는 아직", 고화질로 다시 하기로 함. 480px 에서 보인 한계: 크라이테리온 띠 글씨를 못 읽어 frame 판정이 비고(띠가 글자로 섞임, build_tropes 가 가장자리 세로 띠·맨 위 띠 상자를 따로 거름), 여러 줄 제목이 한 덩어리로 잡혀 title_h 가 덩어리 높이가 됨, 작은 얼굴을 놓침.
+- 첫 시안 품질(내 판단): People 이 가장 좋음(Crowd·Big face 잘 맞음, Talking heads 에 두 사람 키스 장면 섞임 → Couple 로 나눌 것, Lone figure 들쭉날쭉). Type 괜찮음(Quiet type·Type only 좋음). Composition 가장 약함(대칭·대각선 납득 안 됨, Left/Right-weighted 는 사람이 쓰는 범주가 아님). Medium 은 Photo 정확, Painting 에 사진이 섞임(제로샷 한계, 코사인을 그대로 비교하면 늘 Photo 가 이겨 z-점수로 바꿈).
+- 다음 할 일(원래 컴퓨터에서)
+  1. 원본 posters/ 로 run_text_regions → analyze_visual → embed_siglip → detect_objects → analyze_strokes_layout → detect_faces → build_tropes. build_tropes 가 이전 결과와 바뀐 편수를 출력한다.
+  2. Composition 재설계: 레이아웃 칸 대신 그림 자체를 좌우로 뒤집어 비교하는 대칭, 범주는 가운데 하나의 물체 · 프레임 속 프레임 · 격자/콜라주 · 넓은 여백 · 대각선처럼 사람이 쓰는 말로.
+  3. Medium 은 범주당 대표 커버 10–20장을 사용자에게 골라 받아 SigLIP 임베딩 위 소수 예시 분류(프로토타입 또는 로지스틱 회귀).
+  4. People: Couple 분리, Lone figure 기준. Color 에 Contrast 흡수.
+  5. 범주가 사용자 눈에 맞으면 build_web.py 를 새 7개 축으로 바꾸고(격자 배치 = 범주별 묶음, 줄 = 범주, 줄 이름 = 범주 이름) 흔적을 옮긴다.
+
 ## 다음 할 일
 
 1. 색, 대비, 구도선 분석은 끝났다(scripts/analyze_visual.py, 결과와 판단은 README). 사용자가 확인용 이미지(out/visual/)를 보고 판단할 것:

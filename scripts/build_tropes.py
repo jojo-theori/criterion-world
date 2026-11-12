@@ -16,6 +16,7 @@
 출력
   data/analysis/tropes.json   {파일: {"people": 범주, "type": …, "composition": …, "medium": …, "f": {판정에 쓴 값}}}
   out/tropes/<묶음>.jpg        범주별 접촉 인화지(확인용)
+  out/tropes/index.html       범주별 전체 커버 확인 페이지(브라우저로 연다, web/thumbs 를 읽는다)
 
 사용
   .venv-ml/bin/python scripts/build_tropes.py            # 판정 + 접촉 인화지
@@ -252,6 +253,35 @@ def sheet(family: str, assign: dict[str, str], per: int = 16) -> Path:
     return out
 
 
+def review_page(res: dict) -> Path:
+    """범주별 전체 커버를 spine 순으로 늘어놓은 확인 페이지. 커버에 마우스를 올리면 번호와 제목."""
+    import html
+    import re
+    src = (ROOT / "web" / "data.js").read_text(encoding="utf-8")
+    info = {c["file"]: c for c in json.loads(re.search(r"window\.COVERS = (\[.*\]);", src, re.S).group(1))}
+    body = []
+    for fam, cats in FAMILIES.items():
+        body.append(f'<h2 id="{fam}">{fam.capitalize()}</h2>')
+        for c in cats:
+            names = sorted((n for n, v in res.items() if v[fam] == c), key=lambda n: info.get(n, {}).get("spine", 0))
+            imgs = "".join(f'<img loading="lazy" src="../../web/thumbs/{html.escape(n)}" '
+                           f'title="#{info.get(n, {}).get("spine", "")} {html.escape(info.get(n, {}).get("title", n))}">' for n in names)
+            body.append(f'<h3>{c} <span>{len(names)}</span></h3><div class="g">{imgs}</div>')
+    nav = " ".join(f'<a href="#{f}">{f.capitalize()}</a>' for f in FAMILIES)
+    page = ('<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Tropes review</title>'
+            '<meta name="viewport" content="width=device-width, initial-scale=1"><style>'
+            'body{margin:0;padding:24px 32px 80px;background:#000;color:#ebebeb;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif}'
+            'nav{position:sticky;top:0;padding:12px 0;background:#000;z-index:2;display:flex;gap:18px;font-size:14px}'
+            'nav a{color:#8a8a8a;text-decoration:none}nav a:hover{color:#ebebeb}'
+            'h2{font-weight:400;font-size:30px;margin:40px 0 8px}h3{font-weight:400;font-size:15px;margin:22px 0 8px}h3 span{color:#8a8a8a;margin-left:8px}'
+            '.g{display:flex;flex-wrap:wrap;gap:4px}.g img{width:56px;height:70px;object-fit:cover}'
+            f'</style></head><body><nav>{nav}</nav>{"".join(body)}</body></html>')
+    SHEETS.mkdir(parents=True, exist_ok=True)
+    out = SHEETS / "index.html"
+    out.write_text(page, encoding="utf-8")
+    return out
+
+
 def main() -> None:
     faces = json.loads((A / "faces.json").read_text())
     objects = json.loads((A / "objects" / "owlv2.json").read_text())
@@ -274,6 +304,8 @@ def main() -> None:
         print(f"{fam:12s} " + " · ".join(f"{c} {k}" for c, k in cnt.items()))
         if "--no-sheet" not in sys.argv:
             print("   ->", sheet(fam, {n: r[fam] for n, r in res.items()}))
+    if "--no-sheet" not in sys.argv:
+        print("review ->", review_page(res))
     print("->", OUT)
 
 
