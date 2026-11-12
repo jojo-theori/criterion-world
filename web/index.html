@@ -137,8 +137,11 @@
   .box canvas { pointer-events: none; opacity: 0; transition: opacity .5s var(--out); }
   body.trace .box canvas { opacity: 1; }
   /* 3번째 칸: 지금 커버의 상세 정보 */
-  .info { grid-row: 2; grid-column: 3; display: flex; flex-direction: column; gap: 6px; min-height: 0; overflow: hidden;
-    padding: 0 4px 2px; font-size: 14px; line-height: 1.45; color: var(--dim); }
+  /* 정보 칸은 3열 전체(위 띠 ~ 아래 띠)를 차지하고, 위아래 padding 으로 평소엔 커버 높이만 쓴다.
+     넘치면 fillInfo 가 padding 을 넘치는 만큼만 위아래 반씩 줄여 가운데를 중심으로 늘어난다 */
+  .info { grid-row: 1 / 4; grid-column: 3; display: flex; flex-direction: column; gap: 6px; min-height: 0; overflow: hidden;
+    padding: 0 4px 2px; font-size: 14px; line-height: 1.45; color: var(--dim);
+    transition: padding-top .42s var(--out), padding-bottom .42s var(--out); }
   .info > * { flex: none; }
   /* 번호·제목·감독 줄은 커버 윗변에, 표와 링크(.body)는 아랫변에 붙인다. justify-content 로 나누면 넘친 높이를 잴 수 없다 */
   .info .body { margin-top: auto; display: flex; flex-direction: column; gap: 6px; }
@@ -161,7 +164,8 @@
   .info .extra { display: none; flex-direction: column; gap: 6px; overflow: hidden; }
   .info .m { font-size: 12px; margin-top: 2px; }
   .info.open .extra { display: flex; }
-  .info.tall { grid-row: 2 / 4; }   /* 펼쳐 넘치면 아래 띠 줄까지 쓴다(3열은 위아래 띠가 비어 있다) */
+  .info.compact, .info.compact .body, .info.compact .extra { gap: 3px; }   /* 넘칠 때 마지막으로 줄 간격을 좁힌다 */
+  .info.compact .kv { font-size: 12px; line-height: 1.35; }
   .info .more { border: 0; background: none; padding: 0; font: inherit; color: var(--dim); cursor: pointer;
     border-bottom: 1px solid #333; transition: color .2s, border-color .2s; }
   .info .more:hover { color: var(--fg); border-color: var(--fg); }
@@ -260,7 +264,7 @@
     .box.side img, .box.side canvas { inset: auto; top: 0; left: 0; width: var(--bw); height: var(--bh); }
     .box.side[data-role="left"] img, .box.side[data-role="left"] canvas { left: auto; right: 0; }
     .peek[data-col="1"] img, .peek[data-col="1"] canvas { left: auto; right: 0; }
-    .info { grid-row: 4; grid-column: 1 / -1; padding: 6px 16px 12px; }
+    .info { grid-row: 4; grid-column: 1 / -1; padding: 6px 16px 12px; transition: none; }
     .info .body { margin-top: 0; }
     .info .t { font-size: 22px; margin-bottom: 6px; }
     .rowname { grid-column: 1 / -1 !important; }
@@ -1111,7 +1115,7 @@ function triSize() {
   if (narrow()) {
     // 폭의 62%. 정보 칸에 적어도 190px 를 남긴다. 양옆(--sw)은 남는 폭을 반씩
     const W = panels.clientWidth, H = panels.clientHeight;
-    const bw = Math.max(80, Math.floor(Math.min(W * .62, (H - 2 * edge - 3 * gap - narrowReserve) * ASPECT)));
+    const bw = Math.max(80, Math.floor(Math.min(W * .62, (H - 2 * edge - 3 * gap - NARROW_INFO) * ASPECT)));
     panels.style.setProperty('--bw', bw + 'px');
     panels.style.setProperty('--bh', Math.round(bw / ASPECT) + 'px');
     panels.style.setProperty('--sw', Math.max(0, Math.floor((W - bw - 2 * gap) / 2)) + 'px');
@@ -1151,38 +1155,53 @@ function infoHTML(c) {
     <div>${[c.directors, c.year].filter(Boolean).map(esc).join(' · ')}</div>
     <div class="body">${rows.length || extra.length ? '<div class="sp"></div>' + rows.join('') : ''}
     ${extra.length ? `<div class="extra" id="infoExtra">${extra.join('')}</div>` : ''}
-    ${extra.length ? `<div class="m"><button class="more" aria-expanded="${infoOpen}" aria-controls="infoExtra">${infoOpen ? 'Show Less' : 'Show More'}</button></div>` : ''}
+    ${extra.length || infoOpen ? `<div class="m"><button class="more" aria-expanded="${infoOpen}" aria-controls="infoExtra">${infoOpen ? 'Show Less' : 'Show More'}</button></div>` : ''}
     <div class="n">${url ? `<a href="${url}" target="_blank" rel="noopener">criterion.com<svg class="out" viewBox="0 0 9 9" aria-hidden="true"><path d="M3.5 1.5h4v4M7.5 1.5 3.5 5.5"/></svg></a>` : ''}</div></div>`;
 }
-/* 정보 칸은 스크롤하지 않는다. 넘치면: (펼쳤을 때) 아래 띠 줄까지 늘리고 → 값을 한 줄로 → 제목을 줄이고 → 그래도 넘치면 아래 줄부터 뺀다.
-   좁은 화면은 펼칠 때 triSize 가 커버를 줄여 자리를 낸다 */
+/* 정보 칸은 스크롤하지 않고 크기도 바꾸지 않는다(넓은 화면 = 커버 높이, 좁은 화면 = NARROW_INFO).
+   넘치면 칸 안에서만 줄인다: 값을 한 줄로 → 제목을 줄이고 → 줄 간격을 좁히고 → 그래도 넘치면 아래 줄부터 뺀다 */
 const INFO_DROP = ['Written by', 'Music', 'Cinematography', 'Color', 'Language', 'Aspect ratio', 'Runtime', 'Country'];
 let infoOpen = false;   // More 를 펼친 상태는 다른 커버로 옮겨 가도 유지한다
-let narrowReserve = 190;   // 좁은 화면에서 정보 칸에 남기는 높이(px). fitInfo 가 내용에 맞춰 늘린다
-function fillInfo(info, c) {
+const NARROW_INFO = 300;   // 좁은 화면에서 정보 칸 높이(px). 펼친 내용까지 들어가게 처음부터 잡아 열고 닫을 때 커버 크기가 바뀌지 않는다
+// 평소 padding: 가운데 커버의 윗변·아랫변까지(offsetTop 은 날아오는 중의 transform 과 무관)
+function infoPads(info) {
+  const mid = panels.querySelector('.box.mid');
+  if (!mid) return [0, 2];
+  return [Math.max(0, mid.offsetTop - info.offsetTop),
+    Math.max(2, info.offsetTop + info.offsetHeight - mid.offsetTop - mid.offsetHeight + 2)];
+}
+/* 넓은 화면: 넘치는 만큼만 가운데를 중심으로 위아래 반씩 늘리고(한쪽이 모자라면 다른 쪽에서), 그래도 넘치면 줄인다.
+   계산은 transition 을 끈 채 끝낸 뒤, animate 면 이전 padding 에서 새 padding 으로 옮겨 간다 */
+function fillInfo(info, c, animate = false) {
+  const wide = !narrow(), from = [info.style.paddingTop, info.style.paddingBottom];
+  info.style.transition = 'none';
   info.className = 'info' + (infoOpen ? ' open' : ''); info.innerHTML = infoHTML(c);
-  const over = () => info.scrollHeight > info.clientHeight + 1;
+  const over = () => info.scrollHeight - info.clientHeight > 1;
+  const setPad = p => { info.style.paddingTop = p[0] + 'px'; info.style.paddingBottom = p[1] + 'px'; };
   const drop = keys => { for (const k of keys) { if (!over()) return; info.querySelector(`.kv[data-k="${k}"]`)?.remove(); } };
+  let pad = null;
+  if (wide) { pad = infoPads(info); setPad(pad); } else info.style.paddingTop = info.style.paddingBottom = '';
   info._over = over();
-  if (!info._over) return;
-  if (infoOpen && !narrow()) { info.classList.add('tall'); if (!over()) return; }
-  info.classList.add('tight');
-  if (!over()) return;
-  info.classList.add('small');
-  if (!over()) return;
-  drop(INFO_DROP);
-  if (over()) info.querySelector('.sp')?.remove();
-}
-/* 좁은 화면: 줄이거나 빼지 않고 다 들어갈 때까지 커버를 30px 씩 줄인다(정보 칸이 화면의 65% 를 넘지 않게) */
-function fitInfo(info, c) {
-  if (!narrow()) { fillInfo(info, c); return; }
-  narrowReserve = 190;
-  for (let k = 0; k < 20; k++) {
-    triSize(); fillInfo(info, c);
-    if (!info._over || narrowReserve > panels.clientHeight * .65) break;
-    narrowReserve += 30;
+  if (info._over && wide) {
+    const need = info.scrollHeight - info.clientHeight;
+    let down = Math.min(pad[1] - 2, need / 2), up = Math.min(pad[0], need - down);
+    down = Math.min(pad[1] - 2, need - up);
+    setPad([pad[0] - up, pad[1] - down]);
   }
+  if (over()) {
+    let done = false;
+    for (const k of ['tight', 'small', 'compact']) { info.classList.add(k); if (!over()) { done = true; break; } }
+    if (!done) { drop(INFO_DROP); if (over()) info.querySelector('.sp')?.remove(); }
+  }
+  if (wide && animate && from[0]) {
+    const to = [info.style.paddingTop, info.style.paddingBottom];
+    info.style.paddingTop = from[0]; info.style.paddingBottom = from[1];
+    void info.offsetHeight;
+    info.style.transition = '';
+    info.style.paddingTop = to[0]; info.style.paddingBottom = to[1];
+  } else { void info.offsetHeight; info.style.transition = ''; }
 }
+function fitInfo(info, c) { fillInfo(info, c); }
 function showTri({ kind = 'axis', from = null } = {}) {
   const c = C[cur], [l, r] = pair(cur, axis);
   swapText(document.getElementById('triName'), AXES[axis].name);
@@ -1306,32 +1325,23 @@ panels.addEventListener('click', e => {
   const refocus = () => info.querySelector('.more')?.focus({ preventScroll: true });
   infoOpen = !infoOpen;
   if (RM) { fillInfo(info, c); refocus(); return; }
-  const bottom = () => info.querySelector('.body').getBoundingClientRect().bottom;
-  if (narrow()) {   // 폰: 커버 크기가 바뀌므로 다시 짠다
-    fitInfo(info, c); refocus();
-    if (infoOpen) [...info.querySelectorAll('.extra > *')].forEach((r, n) => r.animate([{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }],
-      { duration: 420, delay: 40 + n * 45, easing: OUT, fill: 'backwards' }));
-    return;
-  }
   if (infoOpen) {
-    const b0 = bottom();
-    fillInfo(info, c); refocus();
-    const ex = info.querySelector('.extra'), h = ex.scrollHeight, shift = b0 - bottom();
+    fillInfo(info, c, true); refocus();
+    const ex = info.querySelector('.extra');
+    if (!ex) return;
+    const h = ex.scrollHeight;
     ex.animate([{ height: '0px', marginTop: '-6px', opacity: 0 }, { height: h + 'px', marginTop: '0px', opacity: 1 }], { duration: 420, easing: OUT });
-    if (shift) info.querySelector('.body').animate([{ transform: `translateY(${shift}px)` }, { transform: 'none' }], { duration: 420, easing: OUT });
     [...ex.children].forEach((r, n) => r.animate([{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }],
       { duration: 420, delay: 40 + n * 45, easing: OUT, fill: 'backwards' }));
   } else {
     const ex = info.querySelector('.extra'), btn = info.querySelector('.more');
+    if (!ex) { fillInfo(info, c, true); refocus(); return; }
     btn.textContent = 'Show More'; btn.setAttribute('aria-expanded', 'false');
-    // 접힌 뒤 body 아랫변(아래 띠 줄을 쓰지 않을 때)까지 같이 옮긴다
-    const b1 = bottom(), tall = info.classList.contains('tall');
-    info.classList.remove('tall'); const b0 = info.getBoundingClientRect().bottom - parseFloat(getComputedStyle(info).paddingBottom);
-    if (tall) info.classList.add('tall');
-    if (tall) info.querySelector('.body').animate([{ transform: 'none' }, { transform: `translateY(${b0 - b1}px)` }], { duration: 320, easing: OUT, fill: 'forwards' });
+    // 접히는 동안 칸도 커버 높이로 돌아간다(같은 시간). 끝나면 다시 그려 맞춘다
+    if (!narrow()) { const p = infoPads(info); info.style.paddingTop = p[0] + 'px'; info.style.paddingBottom = p[1] + 'px'; }
     const a = ex.animate([{ height: ex.offsetHeight + 'px', marginTop: '0px', opacity: 1 }, { height: '0px', marginTop: '-6px', opacity: 0 }],
-      { duration: 320, easing: OUT, fill: 'forwards' });
-    a.onfinish = () => { if (!infoOpen && cur !== null && C[cur] === c) { fillInfo(info, c); refocus(); } };
+      { duration: 420, easing: OUT, fill: 'forwards' });
+    a.onfinish = () => { if (!infoOpen && cur !== null && C[cur] === c) { fillInfo(info, c, true); refocus(); } };
   }
 });
 
