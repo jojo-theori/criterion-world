@@ -157,7 +157,8 @@
   .info a .out { width: 9px; height: 9px; margin-left: 4px; vertical-align: 0; fill: none; stroke: currentColor;
     stroke-width: 1; stroke-linecap: square; stroke-linejoin: miter; shape-rendering: geometricPrecision; }
   /* 더보기: 덜 중요한 줄은 접어 둔다. 링크와 같은 줄, 같은 결 */
-  .info .extra { display: none; flex-direction: column; gap: 6px; }
+  .info .extra { display: none; flex-direction: column; gap: 6px; overflow: hidden; }
+  .info .m { font-size: 12px; margin-top: 2px; }
   .info.open .extra { display: flex; }
   .info.open { overflow-y: auto; }
   .info .more { border: 0; background: none; padding: 0; font: inherit; color: var(--dim); cursor: pointer;
@@ -1149,8 +1150,8 @@ function infoHTML(c) {
     <div>${[c.directors, c.year].filter(Boolean).map(esc).join(' · ')}</div>
     <div class="body">${rows.length || extra.length ? '<div class="sp"></div>' + rows.join('') : ''}
     ${extra.length ? `<div class="extra" id="infoExtra">${extra.join('')}</div>` : ''}
-    <div class="n">${extra.length ? `<button class="more" aria-expanded="${infoOpen}" aria-controls="infoExtra">${infoOpen ? 'Less' : 'More'}</button>` : ''}
-    ${url ? `<a href="${url}" target="_blank" rel="noopener">criterion.com<svg class="out" viewBox="0 0 9 9" aria-hidden="true"><path d="M3.5 1.5h4v4M7.5 1.5 3.5 5.5"/></svg></a>` : ''}</div></div>`;
+    ${extra.length ? `<div class="m"><button class="more" aria-expanded="${infoOpen}" aria-controls="infoExtra">${infoOpen ? 'Less' : 'More'}</button></div>` : ''}
+    <div class="n">${url ? `<a href="${url}" target="_blank" rel="noopener">criterion.com<svg class="out" viewBox="0 0 9 9" aria-hidden="true"><path d="M3.5 1.5h4v4M7.5 1.5 3.5 5.5"/></svg></a>` : ''}</div></div>`;
 }
 /* 정보가 칸(커버 높이)을 넘으면: 값을 한 줄로 줄이고, 그래도 넘치면 제목을 줄인 뒤 아래 줄부터 뺀다.
    좁은 화면은 정보 칸이 스크롤되므로 그대로 둔다 */
@@ -1283,11 +1284,27 @@ function closeTri(fromPop = false) {
   focusBack = null;
 }
 document.getElementById('close').addEventListener('click', () => closeTri());
+/* More: 펼칠 때는 다시 그린 뒤(줄인 줄을 되살린다) 높이 0 에서 키우며 줄마다 떠오르게, 접을 때는 높이를 줄인 뒤 다시 그린다.
+   gap(6px)까지 함께 줄이려고 margin-top 을 -6px 로 보낸다 */
 panels.addEventListener('click', e => {
   if (!e.target.closest('.info .more') || cur === null) return;
+  const info = panels.querySelector('.info'), c = C[cur];
+  const refocus = () => info.querySelector('.more')?.focus({ preventScroll: true });
   infoOpen = !infoOpen;
-  fillInfo(panels.querySelector('.info'), C[cur]);
-  panels.querySelector('.info .more')?.focus({ preventScroll: true });
+  if (RM) { fillInfo(info, c); refocus(); return; }
+  if (infoOpen) {
+    fillInfo(info, c); refocus();
+    const ex = info.querySelector('.extra'), h = ex.scrollHeight;
+    ex.animate([{ height: '0px', marginTop: '-6px', opacity: 0 }, { height: h + 'px', marginTop: '0px', opacity: 1 }], { duration: 420, easing: OUT });
+    [...ex.children].forEach((r, n) => r.animate([{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }],
+      { duration: 420, delay: 40 + n * 45, easing: OUT, fill: 'backwards' }));
+  } else {
+    const ex = info.querySelector('.extra'), btn = info.querySelector('.more');
+    btn.textContent = 'More'; btn.setAttribute('aria-expanded', 'false');
+    const a = ex.animate([{ height: ex.offsetHeight + 'px', marginTop: '0px', opacity: 1 }, { height: '0px', marginTop: '-6px', opacity: 0 }],
+      { duration: 320, easing: OUT, fill: 'forwards' });
+    a.onfinish = () => { if (!infoOpen && cur !== null && C[cur] === c) { fillInfo(info, c); refocus(); } };
+  }
 });
 
 /* 세 폭 보기 스와이프: 좌우 = 이전·다음, 위아래 = 아래·위 줄로(밀어 올리면 아래 줄이 온다). 정보 칸은 스크롤에 쓴다 */
