@@ -469,7 +469,7 @@ window.BUILD = '?v=' + (SIZES['data.js'] || 0);
 <script type="text/plain" id="main">
 const M = window.META, C = window.COVERS, N = C.length;
 // 버전: 화면·동작이 바뀌면 올린다. 데이터 날짜는 build_web.py 가 META.built 에 적는다
-const VERSION = '1.1.2';
+const VERSION = '1.1.3';
 document.getElementById('ver').textContent = `v${VERSION}`;
 document.getElementById('ver').title = M.built ? `data ${M.built}` : '';
 const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -968,7 +968,7 @@ const G = (() => {
         const x0 = Math.min(...P.map(p => p[0])) - .2, x1 = Math.max(...P.map(p => p[0])) + w + .2;
         const y0 = Math.min(...P.map(p => p[1])) - .2, y1 = Math.max(...P.map(p => p[1])) + h + .2;
         const r = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        r.setAttribute('d', P.map(([x, y]) => `M${x - .2} ${y - .2}h${w + .4}v${h + .4}h${-(w + .4)}Z`).join(''));
+        r.setAttribute('d', `M${x0} ${y0}H${x1}V${y1}H${x0}Z`);   // 10 년 단위는 그 10 년을 감싸는 직사각형
         r.classList.add('region'); bgG.appendChild(r);
         const lab = document.createElement('div'); lab.className = 'rlabel'; lab.textContent = `${d}s`; stage.appendChild(lab);
         regions.push({ ids: new Set(mem), at: [(x0 + x1) / 2, y0 - .4], r, lab, hit: (x, y) => x >= x0 && x <= x1 && y >= y0 && y <= y1 });
