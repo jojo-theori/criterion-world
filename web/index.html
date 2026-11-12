@@ -17,6 +17,10 @@
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <style>
+  /* 가변 글자 크기: 폰(390px)의 값과 1440px 의 값을 잇는 직선(clamp 로 위아래를 막는다). 구간마다 끊지 않는다 */
+  :root { --t1: clamp(10px, 9.6px + .095vw, 11.5px); --t2: clamp(11px, 10.6px + .095vw, 12.5px);
+    --t3: clamp(12px, 11.6px + .095vw, 13.5px); --t4: clamp(13px, 12.6px + .095vw, 14.5px);
+    --t5s: clamp(18px, 16.5px + .38vw, 23px); --t5: clamp(22px, 19px + .76vw, 32px); --t6: clamp(24px, 20.3px + .95vw, 36px); }
   :root { --fg: #ebebeb; --dim: #8a8a8a; --line: #2a2a2a; --out: cubic-bezier(.22,1,.36,1); }
   * { box-sizing: border-box; }
   html, body { margin: 0; height: 100%; background: #000; color: var(--fg);
@@ -27,7 +31,7 @@
   header { position: fixed; top: 0; left: 0; right: 0; height: 56px; display: flex; align-items: center;
     gap: 14px; padding: 0 32px; z-index: 30; }
   .group { position: relative; display: flex; gap: 2px; background: #111; border-radius: 999px; padding: 4px; }
-  .group button { position: relative; z-index: 1; border: 0; background: transparent; color: var(--dim); font-size: 13px;
+  .group button { position: relative; z-index: 1; border: 0; background: transparent; color: var(--dim); font-size: var(--t3);
     height: 28px; padding: 0 14px; border-radius: 999px; cursor: pointer; white-space: nowrap; transition: color .3s var(--out); }
   .group button:not(:disabled):not(.on):hover { color: var(--fg); }
   .group button.on { color: #000; }
@@ -36,7 +40,7 @@
   .group .sep { width: 1px; margin: 6px 4px; background: #333; }
   .pill { position: absolute; top: 4px; bottom: 4px; left: 0; width: 0; border-radius: 999px; background: var(--fg);
     transition: transform .45s var(--out), width .45s var(--out); pointer-events: none; }
-  .count { font-size: 12px; color: var(--dim); margin-left: auto; transition: opacity .3s; }
+  .count { font-size: var(--t2); color: var(--dim); margin-left: auto; transition: opacity .3s; }
   /* 눈: 누르면 기계가 본 흔적이 보인다 */
   .eye { width: 36px; height: 36px; border: 0; border-radius: 50%; background: #111; color: var(--dim); padding: 0;
     cursor: pointer; display: grid; place-items: center; transition: background .35s var(--out), color .35s var(--out); }
@@ -52,7 +56,7 @@
   .search { position: relative; }
   /* 쓰지 않을 때는 돋보기만 있는 동그라미로 접힌다 */
   #q { width: 36px; height: 36px; border: 0; border-radius: 999px; background: #111; color: var(--fg); cursor: pointer;
-    font: inherit; font-size: 13px; padding: 0 0 0 36px; outline: none; transition: width .45s var(--out), background .2s, padding .45s var(--out); }
+    font: inherit; font-size: var(--t3); padding: 0 0 0 36px; outline: none; transition: width .45s var(--out), background .2s, padding .45s var(--out); }
   #q:hover { background: #1a1a1a; }
   #q::placeholder { color: transparent; transition: color .2s; }
   .search:focus-within #q::placeholder { color: #666; }
@@ -75,10 +79,10 @@
   #results li { display: flex; gap: 10px; align-items: center; padding: 6px; border-radius: 9px; cursor: pointer; }
   #results li.on { background: #1d1d1d; }
   #results img { width: 34px; height: 42px; object-fit: cover; flex: none; background: #222; }
-  #results .t { font-size: 13px; }
-  #results .s { font-size: 11px; color: var(--dim); }
+  #results .t { font-size: var(--t3); }
+  #results .s { font-size: var(--t1); color: var(--dim); }
   #results .none { height: 120px; display: flex; align-items: center; justify-content: center; text-align: center;
-    color: var(--dim); font-size: 13px; cursor: default; }
+    color: var(--dim); font-size: var(--t3); cursor: default; }
   .close { border: 0; background: #111; color: var(--fg); width: 36px; height: 36px; border-radius: 50%;
     cursor: pointer; display: grid; place-items: center; padding: 0; opacity: 0; pointer-events: none; transform: scale(.6);
     transition: opacity .3s var(--out), transform .4s var(--out), background .2s; }
@@ -91,12 +95,12 @@
   #stage { position: fixed; top: 64px; left: 32px; right: 32px; bottom: 112px; }
   #grid { position: absolute; inset: 0; width: 100%; height: 100%; cursor: default; }
   #grid.hover { cursor: pointer; }
-  .axis { position: absolute; font-size: 10px; color: var(--dim); white-space: nowrap; pointer-events: none;
+  .axis { position: absolute; font-size: var(--t1); color: var(--dim); white-space: nowrap; pointer-events: none;
     animation: fadeIn .6s var(--out) .45s both; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
   footer { position: fixed; left: 32px; bottom: 40px; right: 32px; pointer-events: none; }
-  .k { font-size: 13px; color: var(--dim); }
-  .v { font-size: 34px; margin-top: 2px; }
+  .k { font-size: var(--t3); color: var(--dim); }
+  .v { font-size: var(--t6); margin-top: 2px; }
 
   #lens { position: fixed; left: 0; top: 0; pointer-events: none; z-index: 9; opacity: 0;
     background-size: cover; background-position: center; outline: 1px solid var(--fg); box-shadow: 0 10px 30px rgba(0,0,0,.8);
@@ -104,10 +108,10 @@
   #lens.show { opacity: 1; }
   #lens.jump { transition: opacity .18s var(--out); }
   #tip { position: fixed; left: 0; top: 0; pointer-events: none; background: #111; border: 1px solid var(--line);
-    padding: 10px 12px; font-size: 12px; line-height: 1.5; max-width: 280px; z-index: 10;
+    padding: 10px 12px; font-size: var(--t2); line-height: 1.5; max-width: 280px; z-index: 10;
     opacity: 0; transform: translateY(6px); transition: opacity .18s var(--out), transform .18s var(--out); }
   #tip.show { opacity: 1; transform: none; }
-  #tip b { font-size: 14px; font-weight: 500; }
+  #tip b { font-size: var(--t4); font-weight: 500; }
 
   /* 화면 사이를 나는 이미지 한 장 */
   #flyer { position: fixed; left: 0; top: 0; z-index: 25; pointer-events: none; display: none;
@@ -140,19 +144,19 @@
   /* 정보 칸은 3열 전체(위 띠 ~ 아래 띠)를 차지하고, 위아래 padding 으로 평소엔 커버 높이만 쓴다.
      넘치면 fillInfo 가 padding 을 넘치는 만큼만 위아래 반씩 줄여 가운데를 중심으로 늘어난다 */
   .info { grid-row: 1 / 4; grid-column: 3; display: flex; flex-direction: column; gap: 6px; min-height: 0; overflow: hidden;
-    padding: 0 4px 2px; font-size: 14px; line-height: 1.45; color: var(--dim);
+    padding: 0 4px 2px; font-size: var(--t4); line-height: 1.45; color: var(--dim);
     transition: padding-top .42s var(--out), padding-bottom .42s var(--out); }
   .info > * { flex: none; }
   /* 번호·제목·감독 줄은 커버 윗변에, 표와 링크(.body)는 아랫변에 붙인다. justify-content 로 나누면 넘친 높이를 잴 수 없다 */
   .info .body { margin-top: auto; display: flex; flex-direction: column; gap: 6px; }
-  .info .no { font-size: 13px; margin-bottom: -2px; }
-  .info .t { font-size: 30px; line-height: 1.12; color: var(--fg); margin-bottom: 10px; }
-  .info.small .t { font-size: 22px; }
+  .info .no { font-size: var(--t3); margin-bottom: -2px; }
+  .info .t { font-size: var(--t5); line-height: 1.12; color: var(--fg); margin-bottom: 10px; }
+  .info.small .t { font-size: var(--t5s); }
   .info.tight .kv span:last-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .info .n { font-size: 12px; margin-top: 10px; display: flex; gap: 14px; align-items: baseline; }
+  .info .n { font-size: var(--t2); margin-top: 10px; display: flex; gap: 14px; align-items: baseline; }
   .info .o { margin-top: -8px; margin-bottom: 4px; font-style: italic; }
   .info .sp { height: 10px; }
-  .info .kv { display: grid; grid-template-columns: 7.5em 1fr; column-gap: 10px; font-size: 13px; line-height: 1.4; }
+  .info .kv { display: grid; grid-template-columns: 7.5em 1fr; column-gap: 10px; font-size: var(--t3); line-height: 1.4; }
   .info .kv span:first-child { color: #555; }
   .info .kv span:last-child { color: #b5b5b5; }
   .info a { color: var(--dim); text-decoration: none; border-bottom: 1px solid #333; transition: color .2s, border-color .2s; }
@@ -168,10 +172,10 @@
     stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
   /* 더보기: 덜 중요한 줄은 접어 둔다 */
   .info .extra { display: none; flex-direction: column; gap: 6px; overflow: hidden; }
-  .info .m { font-size: 12px; margin-top: 2px; }
+  .info .m { font-size: var(--t2); margin-top: 2px; }
   .info.open .extra { display: flex; }
   .info.compact, .info.compact .body, .info.compact .extra { gap: 3px; }   /* 넘칠 때 마지막으로 줄 간격을 좁힌다 */
-  .info.compact .kv { font-size: 12px; line-height: 1.35; }
+  .info.compact .kv { font-size: var(--t2); line-height: 1.35; }
   .info .more { border: 0; background: none; padding: 0; font: inherit; color: var(--dim); cursor: pointer;
     border-bottom: 1px solid #333; transition: color .2s, border-color .2s; }
   .info .more:hover { color: var(--fg); border-color: var(--fg); }
@@ -179,14 +183,14 @@
   /* 줄 이름: 1열 왼쪽 여백에 세로로. 가운데 줄은 위 끝, 위 줄은 아래 끝, 아래 줄은 위 끝에 붙인다 */
   .rowname { grid-column: 1; position: relative; pointer-events: none; z-index: 2; }
   .rowname span { position: absolute; right: 100%; margin-right: 9px; writing-mode: vertical-rl; transform: rotate(180deg);
-    font-size: 11px; letter-spacing: .02em; white-space: nowrap; color: #555; max-height: 100%; overflow: hidden; text-overflow: ellipsis; }
+    font-size: var(--t1); letter-spacing: .02em; white-space: nowrap; color: #555; max-height: 100%; overflow: hidden; text-overflow: ellipsis; }
   .rowname[data-row="mid"] span { bottom: auto; top: 0; color: var(--dim); }
   .rowname[data-row="up"] span { bottom: 0; }
   .rowname[data-row="down"] span { top: 0; }
   /* 오른쪽 아래 만든 이 */
   /* 만든 이: 왼쪽 아래 축 이름 밑에 한 줄 */
-  #credit2 { position: fixed; right: 32px; bottom: 16px; z-index: 30; font-size: 11px; line-height: 1.6; color: #4a4a4a; white-space: nowrap; text-align: right; }
-  #credit { position: fixed; left: 32px; bottom: 16px; z-index: 30; font-size: 11px; color: #4a4a4a; white-space: nowrap; }
+  #credit2 { position: fixed; right: 32px; bottom: 16px; z-index: 30; font-size: var(--t1); line-height: 1.6; color: #4a4a4a; white-space: nowrap; text-align: right; }
+  #credit { position: fixed; left: 32px; bottom: 16px; z-index: 30; font-size: var(--t1); color: #4a4a4a; white-space: nowrap; }
   #credit i, #credit2 i { font-style: normal; margin: 0 7px; color: #333; }
   #credit a, #credit2 a { color: #6a6a6a; text-decoration: none; transition: color .2s; }
   #credit a:hover, #credit2 a:hover { color: var(--fg); }
@@ -207,11 +211,11 @@
 
   /* 단축키 팝오버 */
   #kbd { position: fixed; left: 0; top: 0; z-index: 60; pointer-events: none; display: flex; align-items: center; gap: 6px;
-    padding: 5px 7px 5px 10px; background: #1a1a1a; border: 1px solid #2c2c2c; border-radius: 9px; font-size: 11px;
+    padding: 5px 7px 5px 10px; background: #1a1a1a; border: 1px solid #2c2c2c; border-radius: 9px; font-size: var(--t1);
     color: var(--dim); white-space: nowrap; opacity: 0; transform: translateY(3px); transition: opacity .15s var(--out), transform .2s var(--out); }
   #kbd.show { opacity: 1; transform: none; }
   #kbd span { margin-right: 2px; }
-  #kbd kbd { font: inherit; font-size: 11px; color: var(--fg); background: #2a2a2a; border-radius: 5px; padding: 1px 6px; min-width: 18px; text-align: center; }
+  #kbd kbd { font: inherit; font-size: var(--t1); color: var(--fg); background: #2a2a2a; border-radius: 5px; padding: 1px 6px; min-width: 18px; text-align: center; }
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { transition-duration: 0s !important; transition-delay: 0s !important;
       animation-duration: 0s !important; animation-delay: 0s !important; }
@@ -221,10 +225,10 @@
     justify-content: center; gap: 14px; transition: opacity .6s var(--out); }
   #boot.on { display: flex; }
   #boot.done { opacity: 0; pointer-events: none; }
-  #boot .name { font-size: 13px; color: var(--dim); letter-spacing: .02em; }
+  #boot .name { font-size: var(--t3); color: var(--dim); letter-spacing: .02em; }
   #boot .bar { width: 180px; height: 1px; background: #222; overflow: hidden; }
   #boot .bar i { display: block; height: 100%; background: var(--fg); transform: scaleX(0); transform-origin: 0 50%; transition: transform .2s linear; }
-  #boot .pct { display: flex; gap: 12px; font-size: 11px; color: #555; font-variant-numeric: tabular-nums; }
+  #boot .pct { display: flex; gap: 12px; font-size: var(--t1); color: #555; font-variant-numeric: tabular-nums; }
   #boot #bootPct { color: var(--fg); }
 
   /* 축 드롭다운: 축 버튼 묶음이 머리줄에 다 들어가지 않으면(body.axcompact, fitAxes 가 잰다) 지금 축 버튼 하나 + 세로 목록 */
@@ -235,7 +239,7 @@
   .count { white-space: nowrap; }
   body.axcompact .axmenu { display: block; margin-right: auto; }   /* 검색·닫기는 오른쪽 끝에 */
   .axbtn { height: 36px; display: inline-flex; align-items: center; gap: 8px; padding: 0 14px 0 16px; border: 0; border-radius: 999px;
-    background: #111; color: var(--fg); font: inherit; font-size: 13px; cursor: pointer; white-space: nowrap; }
+    background: #111; color: var(--fg); font: inherit; font-size: var(--t3); cursor: pointer; white-space: nowrap; }
   .axbtn:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
   .axbtn svg { width: 10px; height: 10px; fill: none; stroke: var(--dim); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round;
     transition: transform .3s var(--out); }
@@ -247,14 +251,14 @@
   .axmenu.open .axlist { opacity: 1; transform: none; pointer-events: auto; }
   .axlist .sep { height: 1px; margin: 4px 10px; background: #333; }
   .axlist button { height: 28px; padding: 0 14px; border: 0; border-radius: 999px; background: transparent; text-align: left;
-    color: var(--dim); font: inherit; font-size: 13px; white-space: nowrap; cursor: pointer; transition: color .3s var(--out), background .3s var(--out); }
+    color: var(--dim); font: inherit; font-size: var(--t3); white-space: nowrap; cursor: pointer; transition: color .3s var(--out), background .3s var(--out); }
   .axlist button:not(:disabled):not(.on):hover { color: var(--fg); }
   .axlist button.on { color: #000; background: var(--fg); }
   .axlist button:disabled { opacity: .3; cursor: default; }
   .axlist button:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
 
   .nogl { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; text-align: center;
-    padding: 0 16px; font-size: 14px; color: var(--dim); }
+    padding: 0 16px; font-size: var(--t4); color: var(--dim); }
   #grid:focus { outline: none; }
   #tri:focus { outline: none; }
 
@@ -283,8 +287,6 @@
 
     #stage { top: 60px; left: 16px; right: 16px; bottom: calc(124px + env(safe-area-inset-bottom)); }
     footer { left: 16px; right: 16px; bottom: calc(64px + env(safe-area-inset-bottom)); }
-    .k { font-size: 12px; }
-    .v { font-size: 24px; }
     #credit { left: 16px; bottom: calc(43px + env(safe-area-inset-bottom)); }
     #credit2 { left: 16px; right: auto; bottom: calc(8px + env(safe-area-inset-bottom)); text-align: left; }
 
@@ -298,7 +300,7 @@
     .peek[data-col="1"] img, .peek[data-col="1"] canvas { left: auto; right: 0; }
     .info { grid-row: 4; grid-column: 1 / -1; padding: 6px 16px 12px; transition: none; }
     .info .body { margin-top: 0; }
-    .info .t { font-size: 22px; margin-bottom: 6px; }
+    .info .t { margin-bottom: 6px; }
     .rowname { grid-column: 1 / -1 !important; }
     .rowname span { right: auto; left: 8px; margin: 0; writing-mode: horizontal-tb; transform: none; max-height: none;
       max-width: calc(100% - 16px); text-shadow: 0 0 6px #000, 0 0 2px #000; }
@@ -417,7 +419,10 @@ const VERSION = '0.3.1';
 document.getElementById('ver').textContent = `v${VERSION}`;
 document.getElementById('ver').title = M.built ? `data ${M.built}` : '';
 const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
-const narrow = () => innerWidth <= 720;                        // CSS 의 max-width: 720px 와 같은 기준
+/* 화면 구간 세 개: S(폰) ≤ 720 · M 721–1024 · L ≥ 1025. S 는 CSS 의 max-width: 720px 와 같은 기준.
+   M 까지는 축을 드롭다운으로, L 은 가로 세그먼트(그래도 머리줄이 넘치면 드롭다운) */
+const BP_S = 720, BP_M = 1024;
+const narrow = () => innerWidth <= BP_S;
 const NOHOVER = matchMedia('(hover: none)');
 const OUT = 'cubic-bezier(.22,1,.36,1)';
 const GAP = 0.18, ASPECT = 1288 / 1600;
@@ -500,7 +505,7 @@ function fitAxes() {
   // 잴 때만 머리줄 요소들이 줄어들지 않게 두고, 머리줄 전체가 넘치는지 본다(넘치면 요소들이 찌그러지거나 화면 밖으로 밀린다)
   const hd = document.querySelector('header');
   document.body.classList.remove('axcompact'); hd.classList.add('measure');
-  const tight = hd.scrollWidth > hd.clientWidth + 1;
+  const tight = innerWidth <= BP_M || hd.scrollWidth > hd.clientWidth + 1;
   hd.classList.remove('measure');
   document.body.classList.toggle('axcompact', tight);
   if (!tight) { axOpen(false); movePill(axesEl, true); }
