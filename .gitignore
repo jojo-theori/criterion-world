@@ -1,5 +1,6 @@
 # 가상환경
 .venv/
+.venv
 .venv-ml/
 __pycache__/
 .DS_Store
@@ -20,3 +21,6 @@ data/regions/
 web/atlas/*.js
 web/atlas/*.jpg
 web/strokes/*.png
+
+# 내려받는 모델 파일(스크립트가 없으면 받는다)
+data/models/
