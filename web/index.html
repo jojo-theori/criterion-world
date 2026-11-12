@@ -5,7 +5,7 @@
 <script>if (location.hostname === 'cc.umjo.me') location.replace('https://ccw.umjo.me' + location.pathname + location.search + location.hash);</script>
 <link rel="canonical" href="https://ccw.umjo.me/">
 <title>The Criterion Collection World</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <meta name="description" content="Explore Criterion Collection covers through what a machine sees: color, lines, type, contrast, strokes, layout and objects.">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <meta name="theme-color" content="#000000">
@@ -107,9 +107,9 @@
 
   #lens { position: fixed; left: 0; top: 0; pointer-events: none; z-index: 9; opacity: 0;
     background-size: cover; background-position: center; outline: 1px solid var(--fg); box-shadow: 0 10px 30px rgba(0,0,0,.8);
-    transition: opacity .18s var(--out), transform .22s var(--out), width .22s var(--out), height .22s var(--out); }
+    transition: opacity .25s var(--out), transform .34s var(--out), width .34s var(--out), height .34s var(--out); }
   #lens.show { opacity: 1; }
-  #lens.jump { transition: opacity .18s var(--out); }
+  #lens.jump { transition: none; }
   #tip { position: fixed; left: 0; top: 0; pointer-events: none; background: #111; border: 1px solid var(--line);
     padding: 10px 12px; font-size: var(--t2); line-height: 1.5; max-width: 280px; z-index: 10;
     opacity: 0; transform: translateY(6px); transition: opacity .18s var(--out), transform .18s var(--out); }
@@ -232,6 +232,11 @@
   #zoom button:hover { background: #222; color: var(--fg); }
   body.tri-open #zoom { opacity: 0; pointer-events: none; }
   #stage { overflow: hidden; }
+  html, body { touch-action: pan-x pan-y; }   /* 폰: 페이지 핀치·두 번 탭 확대 금지 */
+  #hires { position: absolute; inset: 0; pointer-events: none; }
+  #hires img { position: absolute; left: 0; top: 0; object-fit: cover; opacity: 0; transition: opacity .25s; }
+  #hires img.ok { opacity: 1; }
+  #hires img.hov { outline: 1px solid #ebebeb; outline-offset: -1px; }
   #stage.zoomed #grid { cursor: grab; }
   #grid.grabbing { cursor: grabbing !important; }
   #gridbg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0; transition: opacity .8s var(--out); overflow: visible; }
@@ -449,7 +454,7 @@ window.BUILD = '?v=' + (SIZES['data.js'] || 0);
 <script type="text/plain" id="main">
 const M = window.META, C = window.COVERS, N = C.length;
 // 버전: 화면·동작이 바뀌면 올린다. 데이터 날짜는 build_web.py 가 META.built 에 적는다
-const VERSION = '0.7.0';
+const VERSION = '0.7.3';
 document.getElementById('ver').textContent = `v${VERSION}`;
 document.getElementById('ver').title = M.built ? `data ${M.built}` : '';
 const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -576,6 +581,7 @@ function setAxis(k) {
 function setTrace(on) {
   traceOn = on;
   document.body.classList.toggle('trace', on);
+  G.refreshHi();
   eyeEl.setAttribute('aria-pressed', on);
   G.mix(on ? 1 : 0);
   // 미뤄 둔 흔적을 그린다(가운데부터, 한 프레임에 하나씩)
@@ -711,7 +717,32 @@ const G = (() => {
   gl.uniform1i(U.uHidden, -1); gl.uniform1i(U.uHover, -1);
   gl.uniform3f(U.uView, 1, 0, 0);
   // 줌 상태: 화면 = 배치 좌표 × vs + (vx, vy)
-  let vs = 1, vx = 0, vy = 0, curLabels = [], viewAnim = 0;
+  let vs = 1, vx = 0, vy = 0, curLabels = [], viewAnim = 0, hlOn = false, hiT = 0;
+  // 4배 이상: 화면에 보이는 커버만 큰 이미지(large/ 480px)로 덮어 선명하게. 흔적·검색 중에는 덮지 않는다
+  const hiEl = document.createElement('div'); hiEl.id = 'hires'; stage.appendChild(hiEl);
+  const hiImgs = new Map();
+  function updateHi() {
+    const on = vs >= 3.9 && !traceOn && !hlOn && !(dur > 0 && performance.now() - t0 < maxEnd + 20);
+    const want = new Set();
+    if (on) for (let i = 0; i < N; i++) {
+      const b = i * 4; if (to[b + 3] < .5 || i === hidden) continue;
+      const x = to[b] * vs + vx, y = to[b + 1] * vs + vy, w = to[b + 2] * vs, h = w / ASPECT;
+      if (x + w < 0 || y + h < 0 || x > Wc || y > Hc) continue;
+      want.add(i);
+      let im = hiImgs.get(i);
+      const src = `${vs >= 7 ? 'large' : 'thumbs'}/${encodeURIComponent(C[i].file)}`;
+      if (!im) { im = document.createElement('img'); im.alt = ''; im.onload = () => im.classList.add('ok'); hiEl.appendChild(im); hiImgs.set(i, im); }
+      if (im._src !== src) {   // 썸네일 → 큰 이미지: 받는 동안은 앞의 것을 그대로 보인다
+        const nx = new Image(); nx.onload = () => { if (im._src === src) { im.src = src; im.classList.add('ok'); } }; nx.src = src;
+        if (!im._src) im.src = src;
+        im._src = src;
+      }
+      im.style.transform = `translate(${x}px, ${y}px)`; im.style.width = w + 'px'; im.style.height = h + 'px';
+      im.classList.toggle('hov', i === hover);
+    }
+    for (const [i, im] of hiImgs) if (!want.has(i)) { im.remove(); hiImgs.delete(i); }
+  }
+  const hiSoon = (ms = 0) => { clearTimeout(hiT); hiT = setTimeout(updateHi, ms); };
 
   // 텍스처: 원본은 늘, 흔적은 최근 3개만 GPU 에 둔다
   const tex = {}, lru = [];
@@ -826,7 +857,7 @@ const G = (() => {
 
   function go(k, animate = true, boot = false) {
     const anim = animate && !RM;
-    if (vs > 1.001 && !boot) setView(1, 0, 0, anim ? 420 : 0);   // 축을 바꾸면 전체 보기로
+    if (vs > 1.001 && !boot && cur === null) setView(1, 0, 0, anim ? 420 : 0);   // 격자에서 축을 바꾸면 전체 보기로
     let shift = 0;
     pendingK = k;
     if (mixTo && anim && !boot && traceName && traceName !== k) {
@@ -857,6 +888,7 @@ const G = (() => {
     gl.bindBuffer(gl.ARRAY_BUFFER, bTo); gl.bufferSubData(gl.ARRAY_BUFFER, 0, to);
     gl.bindBuffer(gl.ARRAY_BUFFER, bDelay); gl.bufferSubData(gl.ARRAY_BUFFER, 0, delays);
     t0 = now; dur = anim ? 1 : 0;   // dur 은 '애니메이션 켬' 표시. 실제 시간은 타일마다 delays.z
+    updateHi(); hiSoon(anim ? maxEnd + 60 : 0);
     placeLabels(L.labels);
     placeBg(k, L);
     kick();
@@ -980,6 +1012,7 @@ const G = (() => {
     bgV.setAttribute('transform', `translate(${vx} ${vy}) scale(${vs})`);
     placeLabels(curLabels);
     stage.classList.toggle('zoomed', vs > 1.001);
+    updateHi();
     kick();
   }
   function setView(s, x, y, ms = 0) {
@@ -999,12 +1032,34 @@ const G = (() => {
     const k = s / vs;
     setView(s, cx - (cx - vx) * k, cy - (cy - vy) * k, ms);
   }
+  // 줌한 채로 커버 i 를 화면 가운데로(상세 화면을 닫을 때 그 커버 자리로 돌아온다)
+  // 이동이 끝난 자리(px, py 만큼 더 간다고 보고)에서 화면 가운데에 가장 가까운 커버로 맞춰 선다
+  function snap(px = 0, py = 0, ms = 520) {
+    if (vs <= 1.001) return;
+    const [s, x, y] = clampView(vs, vx + px, vy + py);
+    const cx = (Wc / 2 - x) / s, cy = (Hc / 2 - y) / s;
+    let best = -1, bd = Infinity;
+    for (let i = 0; i < N; i++) {
+      const b = i * 4; if (to[b + 3] < .5) continue;
+      const d = (to[b] + to[b + 2] / 2 - cx) ** 2 + (to[b + 1] + to[b + 2] / ASPECT / 2 - cy) ** 2;
+      if (d < bd) { bd = d; best = i; }
+    }
+    if (best < 0) return setView(s, x, y, ms);
+    const b = best * 4;
+    setView(s, Wc / 2 - (to[b] + to[b + 2] / 2) * s, Hc / 2 - (to[b + 1] + to[b + 2] / ASPECT / 2) * s, ms);
+  }
+  function centerOn(i, ms = 0) {
+    if (vs <= 1.001) return;
+    const b = i * 4, cx = to[b] + to[b + 2] / 2, cy = to[b + 1] + to[b + 2] / ASPECT / 2;
+    setView(vs, Wc / 2 - cx * vs, Hc / 2 - cy * vs, ms);
+  }
   return {
-    size, go, mix, hit, near, rect, kick, layout, dirty, prefetch, setView, zoomAt,
+    size, go, mix, hit, near, rect, kick, layout, dirty, prefetch, setView, zoomAt, centerOn, snap,
     view: () => [vs, vx, vy], stageSize: () => [Wc, Hc],
     visible: i => to[i * 4 + 3] > .5,
-    setHover(i) { if (i !== hover) { hover = i; gl.uniform1i(U.uHover, i); kick(); } },
-    setHidden(i) { hidden = i; gl.uniform1i(U.uHidden, i); kick(); },
+    setHover(i) { if (i !== hover) { hiImgs.get(hover)?.classList.remove('hov'); hover = i; hiImgs.get(i)?.classList.add('hov'); gl.uniform1i(U.uHover, i); kick(); } },
+    refreshHi: () => updateHi(),
+    setHidden(i) { hidden = i; gl.uniform1i(U.uHidden, i); updateHi(); kick(); },
     // 검색 강조: match = Set 이나 null(모두 밝게). 이전 값에서 300ms 동안 옮겨 간다
     highlight(match) {
       const now = performance.now(), p = Math.min(1, (now - hlT0) / 300), e = 1 - Math.pow(1 - p, 3);
@@ -1013,6 +1068,7 @@ const G = (() => {
         hlArr[i * 2 + 1] = !match || match.has(i) ? 1 : 0;
       }
       gl.bindBuffer(gl.ARRAY_BUFFER, bHl); gl.bufferSubData(gl.ARRAY_BUFFER, 0, hlArr);
+      hlOn = !!match; updateHi();
       hlT0 = now; kick();
     },
   };
@@ -1042,6 +1098,10 @@ function showLens(i, touch = false) {
   if (traceOn) sprite(lens, axis, i);
   else lens.style.background = `${c.color} url("thumbs/${encodeURIComponent(c.file)}") center / cover`;
   lens.classList.add('show');
+  if (lensOn === null && !RM) {   // 처음 뜰 때: 타일 크기·자리에서 커진다
+    lens.animate([{ transform: `translate(${r.left}px, ${r.top}px)`, width: r.width + 'px', height: r.height + 'px', opacity: .3 },
+                  { transform: `translate(${x}px, ${y}px)`, width: w + 'px', height: h + 'px', opacity: 1 }], { duration: 300, easing: OUT });
+  }
   lensOn = i; lensBox = { left: x, top: y, right: x + w, width: w, height: h };
 }
 function hideLens() { lens.classList.remove('show'); lensOn = null; G.setHover(-1); cv.classList.remove('hover'); }
@@ -1110,7 +1170,16 @@ lens.addEventListener('click', () => { if (lensOn !== null && cur === null) open
 
 /* ---------- 줌: 전체 → 2.2배 → 4.5배, 그보다 더 들어가면 그 자리 커버의 상세 화면 ----------
    트랙패드 핀치(ctrl+휠, Safari 는 gesture), 터치 두 손가락, +/− 버튼과 키. 확대한 채 끌거나 두 손가락으로 밀면 이동 */
-const ZOOMS = [1, 2.2, 4.5], ZMAX = ZOOMS[ZOOMS.length - 1];
+const ZOOMS = [1, 2, 4, 8], ZMAX = ZOOMS[ZOOMS.length - 1];
+// 브라우저 자체 줌은 막는다: ctrl+휠(트랙패드 핀치), ⌘/ctrl + = - 0, Safari 제스처. 격자 위의 핀치는 아래에서 단계 줌으로 받는다
+addEventListener('wheel', e => { if (e.ctrlKey) e.preventDefault(); }, { passive: false });
+['gesturestart', 'gesturechange', 'gestureend'].forEach(n => document.addEventListener(n, e => e.preventDefault(), { passive: false }));
+addEventListener('keydown', e => {
+  if (!(e.metaKey || e.ctrlKey) || !['Equal', 'Minus', 'Digit0', 'NumpadAdd', 'NumpadSubtract', 'Numpad0'].includes(e.code)) return;
+  e.preventDefault();
+  if (cur !== null) return;
+  if (e.code === 'Digit0' || e.code === 'Numpad0') G.setView(1, 0, 0, 380); else zoomStep(e.code.endsWith('Add') || e.code === 'Equal' ? 1 : -1);
+}, true);
 let panning = false;
 const stagePt = e => { const r = stage.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
 function openAt(cx, cy) { const i = G.near(cx, cy, 60); if (i >= 0) { G.setHover(i); openFromGrid(i); } }
@@ -1121,26 +1190,27 @@ function zoomStep(dir, cx, cy) {
   const next = dir > 0 ? (ZOOMS.find(z => z > s + .05) ?? ZMAX) : ([...ZOOMS].reverse().find(z => z < s - .05) ?? 1);
   hideLens(); tip.classList.remove('show');
   G.zoomAt(next, cx, cy, 380);
+  if (next > 1) setTimeout(() => G.snap(0, 0, 360), 400);
 }
 document.getElementById('zoomIn').addEventListener('click', () => zoomStep(1));
 document.getElementById('zoomOut').addEventListener('click', () => zoomStep(-1));
-let over = 0, overT = 0;
+// 핀치는 연속으로 따라가지 않고 단계로 끊는다: 한 번 벌리거나 오므리면 한 단계. 제스처가 끝날 때까지(200ms 조용) 다음 단계를 막는다
+let pinchAcc = 0, pinchLock = false, pinchT = 0, wheelSnap = 0;
 function pinchBy(factor, cx, cy) {
-  const [s] = G.view(), ns = s * factor;
-  if (ns > ZMAX && s >= ZMAX - .01) {          // 끝까지 확대한 뒤 더 벌리면 상세 화면
-    over += Math.log(factor); clearTimeout(overT); overT = setTimeout(() => { over = 0; }, 350);
-    if (over > .35) { over = 0; openAt(cx, cy); }
-    return;
-  }
-  hideLens(); tip.classList.remove('show');
-  G.zoomAt(Math.min(ZMAX, Math.max(1, ns)), cx, cy);
+  clearTimeout(pinchT); pinchT = setTimeout(() => { pinchAcc = 0; pinchLock = false; }, 200);
+  if (pinchLock) return;
+  pinchAcc += Math.log(factor);
+  if (Math.abs(pinchAcc) > .18) { zoomStep(pinchAcc > 0 ? 1 : -1, cx, cy); pinchAcc = 0; pinchLock = true; }
 }
 cv.addEventListener('wheel', e => {
   if (cur !== null) return;
   e.preventDefault();
   const [cx, cy] = stagePt(e), [s, x, y] = G.view();
-  if (e.ctrlKey) pinchBy(Math.exp(-e.deltaY * .012), cx, cy);
-  else if (s > 1.001) { hideLens(); tip.classList.remove('show'); G.setView(s, x - e.deltaX, y - e.deltaY); }
+  if (e.ctrlKey) pinchBy(Math.exp(-e.deltaY * .012), cx, cy);   // 트랙패드 핀치
+  else if (s > 1.001) {
+    hideLens(); tip.classList.remove('show'); G.setView(s, x - e.deltaX, y - e.deltaY);
+    clearTimeout(wheelSnap); wheelSnap = setTimeout(() => G.snap(0, 0, 560), 140);
+  }
 }, { passive: false });
 let gs0 = 1;   // Safari 트랙패드 핀치
 cv.addEventListener('gesturestart', e => { e.preventDefault(); gs0 = 1; });
@@ -1166,11 +1236,12 @@ cv.addEventListener('pointermove', e => {
   pts.set(e.pointerId, stagePt(e));
   if (pinch && pts.size >= 2) {
     const [a, b] = [...pts.values()], d = Math.hypot(a[0] - b[0], a[1] - b[1]), c = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
-    let ns = pinch.s * d / pinch.d;
-    if (ns > ZMAX * 1.3) { pinch = null; pts.clear(); openAt(c[0], c[1]); e.stopImmediatePropagation(); return; }
-    ns = Math.min(ZMAX, Math.max(1, ns));
-    const k = ns / pinch.s;
-    G.setView(ns, c[0] - (pinch.c[0] - pinch.x) * k, c[1] - (pinch.c[1] - pinch.y) * k);
+    // 두 손가락 거리가 1.35배 벌어지거나 줄면 한 단계, 기준을 지금 거리로 옮긴다
+    const r = d / pinch.d;
+    if (r > 1.35 || r < 1 / 1.35) {
+      if (r > 1 && G.view()[0] >= ZMAX - .01) { pinch = null; pts.clear(); openAt(c[0], c[1]); e.stopImmediatePropagation(); return; }
+      zoomStep(r > 1 ? 1 : -1, c[0], c[1]); pinch.d = d;
+    }
     e.stopImmediatePropagation(); return;
   }
   if (pan && pan.zoomed && e.pointerId === pan.id) {
@@ -1179,13 +1250,21 @@ cv.addEventListener('pointermove', e => {
       pan.on = panning = dragged = true; hideLens(); tip.classList.remove('show');
       cv.classList.add('grabbing'); try { cv.setPointerCapture(e.pointerId); } catch {}
     }
-    if (pan.on) { G.setView(G.view()[0], pan.x + dx, pan.y + dy); e.stopImmediatePropagation(); }
+    if (pan.on) {
+      const now = performance.now();
+      if (pan.lt) { const dt = Math.max(8, now - pan.lt); pan.vx = .7 * (pan.vx || 0) + .3 * (q[0] - pan.lq[0]) / dt; pan.vy = .7 * (pan.vy || 0) + .3 * (q[1] - pan.lq[1]) / dt; }
+      pan.lt = now; pan.lq = q;
+      G.setView(G.view()[0], pan.x + dx, pan.y + dy); e.stopImmediatePropagation();
+    }
   }
 }, true);
 function endPt(e) {
   pts.delete(e.pointerId);
   if (pts.size < 2) pinch = null;
-  if (pan && pan.id === e.pointerId) { pan = null; panning = false; cv.classList.remove('grabbing'); }
+  if (pan && pan.id === e.pointerId) {
+    if (pan.on) { const k = 260; G.snap((pan.vx || 0) * k, (pan.vy || 0) * k, 620); }   // 관성 + 가장 가까운 커버로
+    pan = null; panning = false; cv.classList.remove('grabbing');
+  }
   if (dragged) e.stopImmediatePropagation();
 }
 cv.addEventListener('pointerup', endPt, true);
@@ -1608,6 +1687,7 @@ function closeTri(fromPop = false) {
   const goBack = pushed && !fromPop;   // 돌아간 기록의 주소는 popstate 에서 지금 상태로 고친다
   if (goBack) { pushed = false; history.back(); }
   const i = cur, box = panels.querySelector('.box.mid');
+  if (G.visible(i)) G.centerOn(i);   // 줌한 상태면 마지막 커버가 가운데 오게 옮긴 뒤 그 자리로 내려앉는다
   const land = !RM && box && G.visible(i);
   if (land) {
     // 큰 이미지에서 격자 타일로: 위층에서 날아가고, 도착하면 타일이 이어받는다
