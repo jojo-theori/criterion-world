@@ -1,9 +1,9 @@
 """커버를 사람이 아는 범주로 나눈다. 묶음(family) 하나가 뷰어의 축 하나이고, 한 묶음 안에서 커버는 정확히 한 범주에 든다.
 
 묶음과 범주(우선순위 순, 앞의 조건을 먼저 본다)
-  People       Crowd · Talking heads · Big face · Lone figure · Figures · No one
+  People       Crowd · Couple · Talking heads · Big face · Lone figure · Figures · No one
   Type         Type only · Big centered title · Big title · Quiet type · Title on top · Title in the middle · Title at the bottom
-  Composition  Symmetric · Centered · Diagonal · Left-weighted · Right-weighted
+  Composition  Grid / collage · Symmetric · Single object · Open space · Diagonal · Full-bleed image · Other
   Medium       Photo · Illustration · Painting · Graphic · Typographic   (SigLIP 2 제로샷, 확신이 낮으면 둘째 신호로)
 
 재료(모두 커버 크기 대비 비율이라 해상도와 무관하다)
@@ -44,9 +44,9 @@ EMBED = A / "embed" / "siglip2-base-patch16-384.npz"
 SIGLIP = "google/siglip2-base-patch16-384"
 
 FAMILIES = {
-    "people": ["Crowd", "Talking heads", "Big face", "Lone figure", "Figures", "No one"],
+    "people": ["Crowd", "Couple", "Talking heads", "Big face", "Lone figure", "Figures", "No one"],
     "type": ["Type only", "Big centered title", "Big title", "Quiet type", "Title on top", "Title in the middle", "Title at the bottom"],
-    "composition": ["Symmetric", "Centered", "Diagonal", "Left-weighted", "Right-weighted"],
+    "composition": ["Grid / collage", "Symmetric", "Single object", "Open space", "Diagonal", "Full-bleed image", "Other"],
     "medium": ["Photo", "Illustration", "Painting", "Graphic", "Typographic"],
 }
 PERSON_LABELS = {"person", "silhouette of a person", "couple embracing", "child"}
@@ -97,6 +97,25 @@ def text_boxes(stem: str) -> list[list[float]]:
     return out
 
 
+def image_symmetry(path: Path, tboxes: list[list[float]]) -> float:
+    """글자 영역을 가린 윤곽(Sobel) 지도와 그 좌우 거울의 상관(-1–1). 레이아웃 칸보다 그림 자체의 대칭을 본다."""
+    import cv2
+    g = cv2.imread(str(path), cv2.IMREAD_GRAYSCALE)
+    g = cv2.resize(g, (160, 200), interpolation=cv2.INTER_AREA).astype(np.float32)
+    g = cv2.GaussianBlur(g, (0, 0), 1.2)
+    e = np.hypot(cv2.Sobel(g, cv2.CV_32F, 1, 0), cv2.Sobel(g, cv2.CV_32F, 0, 1))
+    m = np.ones_like(e, bool)
+    for b in tboxes:
+        m[int(b[1] * 200):int(np.ceil(b[3] * 200)), int(b[0] * 160):int(np.ceil(b[2] * 160))] = False
+    m[:, :12] = False                                   # 왼쪽 띠 자리
+    mm = m & m[:, ::-1]
+    if mm.sum() < 2000:
+        return 0.0
+    a, b = e[mm], e[:, ::-1][mm]
+    a, b = a - a.mean(), b - b.mean()
+    return float((a * b).sum() / (np.sqrt((a * a).sum() * (b * b).sum()) + 1e-9))
+
+
 def features(name: str, faces: dict, objects: dict) -> dict:
     stem = name[:-4]
     vis = json.loads((A / "visual" / f"{stem}.json").read_text())
@@ -114,6 +133,14 @@ def features(name: str, faces: dict, objects: dict) -> dict:
     f["face_sum"] = sum(fa)
     big = [b for b in fb if area(b) >= 0.006]
     f["big_faces"] = len(big)
+    # 두 얼굴이 맞닿거나 겹치면(얼굴 너비의 1.3배 이내) 연인·두 사람 장면으로 본다
+    if len(big) == 2:
+        (a0, a1), wv = big, max(big[0][2] - big[0][0], big[1][2] - big[1][0])
+        d = np.hypot((a0[0] + a0[2] - a1[0] - a1[2]) / 2, (a0[1] + a0[3] - a1[1] - a1[3]) / 2)
+        f["faces_touch"] = bool(d < 1.3 * wv)
+    else:
+        f["faces_touch"] = False
+    f["embrace"] = max((o["score"] for o in objects.get(name, []) if o["label"] == "couple embracing"), default=0.0)
     ys = [(b[1] + b[3]) / 2 for b in big]
     f["face_y_spread"] = (max(ys) - min(ys)) if len(ys) > 1 else 0.0
     pb = [o["box"] for o in objects.get(name, []) if o["label"] in PERSON_LABELS and o["score"] >= 0.25]
@@ -147,6 +174,11 @@ def features(name: str, faces: dict, objects: dict) -> dict:
     # 구도선·대칭·현저성(글자 가린 그림 부분)
     art = vis["art"]
     f["diag"] = art["lines"]["diagonal_share"]
+    # 길게 뻗은 가로·세로 선(칸 나눔): 폭·높이의 40% 넘는 선분 수
+    segs = vis["full"]["lines"]["segments"]
+    f["long_h"] = sum(1 for x0, y0, x1, y1 in segs if abs(y1 - y0) < 0.01 and abs(x1 - x0) > 0.4)
+    f["long_v"] = sum(1 for x0, y0, x1, y1 in segs if abs(x1 - x0) < 0.01 and abs(y1 - y0) > 0.4 and min(x0, x1) > 0.1)
+    f["img_sym"] = image_symmetry(POSTERS / name, tb)
     f["lr_sym"] = vis["full"]["lr_symmetry"]
     f["sal_cx"], f["sal_cy"] = art["saliency"]["centroid"]
     f["sal_spread"] = art["saliency"]["spread"]
@@ -186,6 +218,8 @@ def people(f: dict, s: dict[str, float] | None = None) -> str:
     s = s or {}
     if f["faces"] >= 5:
         return "Crowd"
+    if f["big_faces"] == 2 and (f["faces_touch"] or f["embrace"] >= 0.3):
+        return "Couple"
     if 2 <= f["big_faces"] <= 4:
         return "Talking heads"
     if f["face_max"] >= 0.035 or (f["faces"] == 0 and s.get("face_close", 0) > 1.2):
@@ -208,13 +242,19 @@ def typ(f: dict) -> str:
 
 
 def composition(f: dict) -> str:
-    if f["mirror_iou"] >= 0.85 and f["lr_sym"] >= 0.86:
+    if f["long_h"] + f["long_v"] >= 5 and f["long_h"] >= 1 and f["long_v"] >= 1:
+        return "Grid / collage"
+    if f["img_sym"] >= 0.55:
         return "Symmetric"
-    if abs(f["sal_cx"] - 0.5) < 0.06 and f["sal_spread"] < 0.28:
-        return "Centered"
+    if abs(f["sal_cx"] - 0.5) < 0.08 and f["sal_spread"] < 0.27 and f["empty_share"] > 0.35:
+        return "Single object"
+    if f["empty_share"] >= 0.5:
+        return "Open space"
     if f["diag"] >= 0.6:
         return "Diagonal"
-    return "Left-weighted" if f["weight_cx"] < 0.5 else "Right-weighted"
+    if f["figure_share"] >= 0.7:
+        return "Full-bleed image"
+    return "Other"
 
 
 def medium(f: dict, s: dict[str, float] | None) -> str:
@@ -257,14 +297,21 @@ def review_page(res: dict) -> Path:
     """범주별 전체 커버를 spine 순으로 늘어놓은 확인 페이지. 커버에 마우스를 올리면 번호와 제목."""
     import html
     import re
-    src = (ROOT / "web" / "data.js").read_text(encoding="utf-8")
-    info = {c["file"]: c for c in json.loads(re.search(r"window\.COVERS = (\[.*\]);", src, re.S).group(1))}
+    import sqlite3
+    db = sqlite3.connect(ROOT / "data" / "criterion.sqlite")
+    titles = {s: t for s, t in db.execute("select spine, title from films")}
+    info = {n: {"spine": int(n[:4]), "title": titles.get(int(n[:4]), n)} for n in res}
+    th = SHEETS / "thumbs"          # 확인용 작은 썸네일(posters 에서 만든다, 레포에 올리지 않는 out/ 안)
+    th.mkdir(parents=True, exist_ok=True)
+    for n in res:
+        if not (th / n).exists():
+            Image.open(POSTERS / n).convert("RGB").resize((112, 140), Image.LANCZOS).save(th / n, quality=80)
     body = []
     for fam, cats in FAMILIES.items():
         body.append(f'<h2 id="{fam}">{fam.capitalize()}</h2>')
         for c in cats:
             names = sorted((n for n, v in res.items() if v[fam] == c), key=lambda n: info.get(n, {}).get("spine", 0))
-            imgs = "".join(f'<img loading="lazy" src="../../web/thumbs/{html.escape(n)}" '
+            imgs = "".join(f'<img loading="lazy" src="thumbs/{html.escape(n)}" '
                            f'title="#{info.get(n, {}).get("spine", "")} {html.escape(info.get(n, {}).get("title", n))}">' for n in names)
             body.append(f'<h3>{c} <span>{len(names)}</span></h3><div class="g">{imgs}</div>')
     nav = " ".join(f'<a href="#{f}">{f.capitalize()}</a>' for f in FAMILIES)
