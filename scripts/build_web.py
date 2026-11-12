@@ -24,11 +24,14 @@ import base64
 import colorsys
 import json
 import sqlite3
+import sys
 from pathlib import Path
 
 import numpy as np
 from PIL import Image, ImageDraw
 from scipy.optimize import linear_sum_assignment
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from row_names import shorten_all  # noqa: E402  같은 scripts/ 폴더
 
 ROOT = Path(__file__).resolve().parent.parent
 POSTERS = ROOT / "posters"
@@ -694,7 +697,7 @@ def main() -> None:
                 im.convert("L").save(wp, "WEBP", quality=80, method=6)
 
     meta = {"count": len(items), "films": len(films), "maxSpine": max(films),
-            "grids": grids, "atlas": atlas, "rings": rings, "rowNames": names,
+            "grids": grids, "atlas": atlas, "rings": rings, "rowNames": shorten_all(names),
             "built": __import__("datetime").date.today().isoformat(),
             "yearMin": min(f[1] for f in films.values()), "yearMax": max(f[1] for f in films.values()),
             "axes": {k: len(v) for k, v in ax.items()}}

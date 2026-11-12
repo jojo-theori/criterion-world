@@ -92,4 +92,5 @@
 - 백그라운드에서 다른 스크립트가 끝나길 기다릴 때 `pgrep -f "<스크립트 이름>"` 은 기다리는 셸 자신의 명령줄에도 걸려 영원히 기다린다. PID 로 기다릴 것.
 - 문서를 정규식으로 고칠 때 re.S 와 `.*` 를 같이 쓰면 파일 끝까지 지운다(2026-11-11 CLAUDE.md 뒷부분을 지웠다가 복원).
 - archive.org 는 동시 요청(3개)에 Connection refused 로 한동안 막는다. 페이지 하나가 403·404 인 것은 막힘이 아니라 그 페이지 문제다. fetch_criterion_meta.py --fill 은 화면비 없는 단독 영화만 한 장씩 4초 간격으로 받고, 짧은 주소 → 미래 날짜(2099, 최신 보관본으로 넘겨줌) → 제목이 붙은 주소(CDX prefix) 순으로 찾는다. 2026-11-12 이렇게 81편 → 2편(Che 는 페이지에 화면비 칸이 비어 있음, A Master Builder 는 보관본 403).
+- 줄 이름(META.rowNames)은 build_web.py 가 마지막에 scripts/row_names.py 의 shorten_all 로 줄인다(축 이름이 이미 말하는 낱말·mostly 같은 군더더기 삭제, 겹치면 원래대로). 이 컴퓨터에서는 같은 함수로 data.js 의 META 만 갈아 끼웠다.
 - 이 컴퓨터(분석 데이터·.venv-ml 없음)에서는 build_web.py 를 못 돌려, criterion_meta.json 을 고친 뒤 build_web 과 같은 규칙(rt, ar, clr, language, fmt)으로 data.js 의 COVERS 만 갈아 끼우고 index.html 의 SIZES 를 맞췄다. 원래 컴퓨터에서 build_web 을 돌리면 같은 결과가 나온다.
