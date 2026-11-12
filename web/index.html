@@ -1,0 +1,1205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Criterion World</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Explore Criterion Collection covers through what a machine sees: color, lines, type, contrast, strokes, layout and objects.">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#000000">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Criterion World">
+<meta property="og:title" content="Criterion World">
+<meta property="og:description" content="Explore Criterion Collection covers through what a machine sees: color, lines, type, contrast, strokes, layout and objects.">
+<meta property="og:url" content="https://cc.umjo.me/">
+<meta property="og:image" content="https://cc.umjo.me/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<style>
+  :root { --fg: #ebebeb; --dim: #8a8a8a; --line: #2a2a2a; --out: cubic-bezier(.22,1,.36,1); }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: #000; color: var(--fg);
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; overflow: hidden; }
+  button { font: inherit; }
+
+  /* 두 화면이 함께 쓰는 머리줄: 축 + 원본/흔적 */
+  header { position: fixed; top: 0; left: 0; right: 0; height: 56px; display: flex; align-items: center;
+    gap: 14px; padding: 0 32px; z-index: 30; }
+  .group { position: relative; display: flex; gap: 2px; background: #111; border-radius: 999px; padding: 4px; }
+  .group button { position: relative; z-index: 1; border: 0; background: transparent; color: var(--dim); font-size: 13px;
+    padding: 7px 14px; border-radius: 999px; cursor: pointer; white-space: nowrap; transition: color .3s var(--out); }
+  .group button:not(:disabled):not(.on):hover { color: var(--fg); }
+  .group button.on { color: #000; }
+  .group button:disabled { opacity: .3; cursor: default; }
+  .group button:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
+  .group .sep { width: 1px; margin: 6px 4px; background: #333; }
+  .pill { position: absolute; top: 4px; bottom: 4px; left: 0; width: 0; border-radius: 999px; background: var(--fg);
+    transition: transform .45s var(--out), width .45s var(--out); pointer-events: none; }
+  .count { font-size: 12px; color: var(--dim); margin-left: auto; transition: opacity .3s; }
+  /* 눈: 누르면 기계가 본 흔적이 보인다 */
+  .eye { width: 36px; height: 36px; border: 0; border-radius: 50%; background: #111; color: var(--dim); padding: 0;
+    cursor: pointer; display: grid; place-items: center; transition: background .35s var(--out), color .35s var(--out); }
+  .eye:hover { color: var(--fg); }
+  .eye:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
+  .eye svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; overflow: visible; }
+  .eye .pupil { fill: currentColor; stroke: none; transform-origin: 12px 12px; transition: transform .45s var(--out); }
+  .eye .rays { opacity: 0; transform-origin: 12px 12px; transform: scale(.6); transition: opacity .35s var(--out), transform .5s var(--out); }
+  .eye[aria-pressed="true"] { background: var(--fg); color: #000; }
+  .eye[aria-pressed="true"] .pupil { transform: scale(1.55); }
+  .eye[aria-pressed="true"] .rays { opacity: 1; transform: none; }
+  /* 검색: 평소엔 좁게, 포커스하면 넓어진다 */
+  .search { position: relative; }
+  /* 쓰지 않을 때는 돋보기만 있는 동그라미로 접힌다 */
+  #q { width: 36px; height: 36px; border: 0; border-radius: 999px; background: #111; color: var(--fg); cursor: pointer;
+    font: inherit; font-size: 13px; padding: 0 0 0 36px; outline: none; transition: width .45s var(--out), background .2s, padding .45s var(--out); }
+  #q:hover { background: #1a1a1a; }
+  #q::placeholder { color: transparent; transition: color .2s; }
+  .search:focus-within #q::placeholder { color: #666; }
+  .search .icon { position: absolute; left: 10px; top: 10px; width: 16px; height: 16px; pointer-events: none;
+    fill: none; stroke: var(--dim); stroke-width: 1.8; stroke-linecap: round; transition: stroke .2s; }
+  .search:hover .icon, .search:focus-within .icon { stroke: var(--fg); }
+  #q::-webkit-search-cancel-button { display: none; }
+  .search .clear { position: absolute; right: 6px; top: 6px; width: 24px; height: 24px; border: 0; border-radius: 50%;
+    background: transparent; color: var(--dim); font-size: 16px; line-height: 24px; padding: 0; cursor: pointer;
+    transition: color .2s, background .2s; }
+  .search .clear:hover { color: var(--fg); background: #2a2a2a; }
+  .search:not(.has):not(:focus-within) .clear { opacity: 0; pointer-events: none; }
+  .search .clear { transition: color .2s, background .2s, opacity .2s; }
+  #q::placeholder { color: #666; }
+  #q:focus, .search.has #q { width: 280px; background: #1a1a1a; padding-right: 36px; cursor: text; }
+  #results { position: absolute; right: 0; top: 44px; width: 340px; margin: 0; padding: 6px; list-style: none;
+    background: #0e0e0e; border: 1px solid var(--line); border-radius: 14px; z-index: 40;
+    opacity: 0; transform: translateY(-6px); pointer-events: none; transition: opacity .2s var(--out), transform .25s var(--out); }
+  .search.open #results { opacity: 1; transform: none; pointer-events: auto; }
+  #results li { display: flex; gap: 10px; align-items: center; padding: 6px; border-radius: 9px; cursor: pointer; }
+  #results li.on { background: #1d1d1d; }
+  #results img { width: 34px; height: 42px; object-fit: cover; flex: none; background: #222; }
+  #results .t { font-size: 13px; }
+  #results .s { font-size: 11px; color: var(--dim); }
+  #results .none { height: 120px; display: flex; align-items: center; justify-content: center; text-align: center;
+    color: var(--dim); font-size: 13px; cursor: default; }
+  .close { border: 0; background: #111; color: var(--fg); width: 36px; height: 36px; border-radius: 50%;
+    cursor: pointer; font-size: 18px; opacity: 0; pointer-events: none; transform: scale(.6);
+    transition: opacity .3s var(--out), transform .4s var(--out), background .2s; }
+  body.tri-open .close { opacity: 1; pointer-events: auto; transform: none; }
+  body.tri-open .close:hover { background: #222; transform: rotate(90deg); }
+  body.tri-open .count { opacity: 0; }
+
+  /* 격자: 캔버스 한 장 */
+  #stage { position: fixed; top: 64px; left: 32px; right: 32px; bottom: 100px; }
+  #grid { position: absolute; inset: 0; width: 100%; height: 100%; cursor: default; }
+  #grid.hover { cursor: pointer; }
+  .axis { position: absolute; font-size: 10px; color: var(--dim); white-space: nowrap; pointer-events: none;
+    animation: fadeIn .6s var(--out) .45s both; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  footer { position: fixed; left: 32px; bottom: 28px; right: 32px; pointer-events: none; }
+  .k { font-size: 13px; color: var(--dim); }
+  .v { font-size: 34px; margin-top: 2px; }
+
+  #lens { position: fixed; left: 0; top: 0; pointer-events: none; z-index: 9; opacity: 0;
+    background-size: cover; background-position: center; outline: 1px solid var(--fg); box-shadow: 0 10px 30px rgba(0,0,0,.8);
+    transition: opacity .18s var(--out), transform .22s var(--out), width .22s var(--out), height .22s var(--out); }
+  #lens.show { opacity: 1; }
+  #lens.jump { transition: opacity .18s var(--out); }
+  #tip { position: fixed; left: 0; top: 0; pointer-events: none; background: #111; border: 1px solid var(--line);
+    padding: 10px 12px; font-size: 12px; line-height: 1.5; max-width: 280px; z-index: 10;
+    opacity: 0; transform: translateY(6px); transition: opacity .18s var(--out), transform .18s var(--out); }
+  #tip.show { opacity: 1; transform: none; }
+  #tip b { font-size: 14px; font-weight: 500; }
+
+  /* 화면 사이를 나는 이미지 한 장 */
+  #flyer { position: fixed; left: 0; top: 0; z-index: 25; pointer-events: none; display: none;
+    transform-origin: 0 0; background: #0b0b0b; overflow: hidden; }
+  #flyer img, #flyer canvas, #flyer div { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+
+  /* 세 폭 보기 */
+  #tri { position: fixed; inset: 0; background: #000; z-index: 20; visibility: hidden; opacity: 0;
+    transition: opacity .35s var(--out), visibility 0s .35s; }
+  #tri.open { visibility: visible; opacity: 1; transition: opacity .35s var(--out), visibility 0s; }
+  #tri footer { transform: translateY(14px); transition: transform .6s var(--out); }
+  #tri.open footer { transform: none; }
+  /* 위·아래: 다른 클러스터로 빠지는 출구, 가운데: 세 폭 */
+  /* 간격은 가로세로 모두 --gap 하나 */
+  #panels { --gap: 18px; position: absolute; top: 64px; bottom: 112px; left: 0; right: 0; display: grid;
+    --edge: 54px; grid-template-columns: var(--bw) var(--bw) var(--bw) var(--bw);
+    grid-template-rows: var(--edgeV, var(--edge)) var(--bh) var(--edgeV, var(--edge)); align-content: center;
+    gap: var(--gap); justify-content: center;
+    overflow: clip; }   /* 위·아래 띠에서 출발하는 커버는 영역 밖(맨 위·맨 아래 검은 띠) 뒤에서 나온다 */
+  .box { position: relative; width: var(--bw); height: var(--bh); overflow: hidden; background: #0b0b0b;
+    transform-origin: 0 0; cursor: pointer; grid-row: 2; }
+  .box.side:hover { outline: 1px solid var(--dim); }
+  .box.side img { transition: transform .5s var(--out); }
+  .box.side:hover img { transform: scale(1.03); }
+  .box.landing > * { visibility: hidden; }
+  .box img, .box canvas { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .box canvas { pointer-events: none; opacity: 0; transition: opacity .5s var(--out); }
+  body.trace .box canvas { opacity: 1; }
+  /* 3번째 칸: 지금 커버의 상세 정보 */
+  .info { grid-row: 2; grid-column: 3; display: flex; flex-direction: column; justify-content: flex-end; gap: 6px;
+    padding: 0 4px 2px; font-size: 14px; line-height: 1.45; color: var(--dim); }
+  .info .t { font-size: 30px; line-height: 1.12; color: var(--fg); margin-bottom: 10px; }
+  .info .n { font-size: 12px; margin-top: 10px; display: flex; gap: 14px; align-items: baseline; }
+  .info .o { margin-top: -8px; margin-bottom: 4px; font-style: italic; }
+  .info .sp { height: 10px; }
+  .info .kv { display: grid; grid-template-columns: 7.5em 1fr; column-gap: 10px; font-size: 13px; line-height: 1.4; }
+  .info .kv span:first-child { color: #555; }
+  .info .kv span:last-child { color: #b5b5b5; }
+  .info a { color: var(--dim); text-decoration: none; border-bottom: 1px solid #333; transition: color .2s, border-color .2s; }
+  .info a:hover { color: var(--fg); border-color: var(--fg); }
+  /* 줄 이름: 1열 왼쪽 여백에 세로로. 가운데 줄은 위 끝, 위 줄은 아래 끝, 아래 줄은 위 끝에 붙인다 */
+  .rowname { grid-column: 1; position: relative; pointer-events: none; z-index: 2; }
+  .rowname span { position: absolute; right: 100%; margin-right: 9px; writing-mode: vertical-rl; transform: rotate(180deg);
+    font-size: 11px; letter-spacing: .02em; white-space: nowrap; color: #555; max-height: 100%; overflow: hidden; text-overflow: ellipsis; }
+  .rowname[data-row="mid"] span { bottom: auto; top: 0; color: var(--dim); }
+  .rowname[data-row="up"] span { bottom: 0; }
+  .rowname[data-row="down"] span { top: 0; }
+  /* 오른쪽 아래 만든 이 */
+  #credit { position: fixed; right: 32px; bottom: 30px; z-index: 30; font-size: 12px; line-height: 1.6; color: #555; text-align: right; }
+  #credit a { color: #777; text-decoration: none; transition: color .2s; }
+  #credit a:hover { color: var(--fg); }
+  #credit .ver { color: #3a3a3a; font-variant-numeric: tabular-nums; margin-left: 6px; }
+  /* 평소엔 한 줄, 호버하면 위로 두 줄(영감, 비제휴)이 펼쳐진다 */
+  #credit .more { max-height: 0; opacity: 0; overflow: hidden; transform: translateY(6px);
+    transition: max-height .4s var(--out), opacity .3s var(--out), transform .4s var(--out); }
+  #credit:hover .more, #credit:focus-within .more { max-height: 3.4em; opacity: 1; transform: none; }
+  .peek { position: relative; overflow: hidden; cursor: pointer; opacity: .38;
+    transition: opacity .3s var(--out), transform .4s var(--out); }
+  .peek[data-row="up"] { grid-row: 1; }
+  .peek[data-row="mid"] { grid-row: 2; }
+  .peek[data-row="down"] { grid-row: 3; }
+  .peek:hover { opacity: 1; }
+  .peek[data-row="up"]:hover { transform: translateY(-3px); }
+  .peek[data-row="down"]:hover { transform: translateY(3px); }
+  /* 띠 안의 포스터는 가운데 커버와 같은 크기(--bw × --bh)이고, 안쪽 가장자리에 붙어 잘린다. 비율은 그대로 */
+  .peek img, .peek canvas { position: absolute; width: var(--bw, 100%); height: var(--bh, auto); object-fit: cover; left: 0; top: 0; }
+  .peek[data-row="up"] img, .peek[data-row="up"] canvas { top: auto; bottom: 0; }
+  .peek canvas { opacity: 0; transition: opacity .5s var(--out); pointer-events: none; }
+  body.trace .peek canvas { opacity: 1; }
+
+  /* 단축키 팝오버 */
+  #kbd { position: fixed; left: 0; top: 0; z-index: 60; pointer-events: none; display: flex; align-items: center; gap: 6px;
+    padding: 5px 7px 5px 10px; background: #1a1a1a; border: 1px solid #2c2c2c; border-radius: 9px; font-size: 11px;
+    color: var(--dim); white-space: nowrap; opacity: 0; transform: translateY(3px); transition: opacity .15s var(--out), transform .2s var(--out); }
+  #kbd.show { opacity: 1; transform: none; }
+  #kbd span { margin-right: 2px; }
+  #kbd kbd { font: inherit; font-size: 11px; color: var(--fg); background: #2a2a2a; border-radius: 5px; padding: 1px 6px; min-width: 18px; text-align: center; }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { transition-duration: 0s !important; transition-delay: 0s !important;
+      animation-duration: 0s !important; animation-delay: 0s !important; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <button class="eye" id="eye" aria-pressed="false" aria-label="Machine view" data-key="space" data-tip="Machine view">
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <g class="rays"><path d="M12 2.2v2.3M4.6 5.2l1.6 1.6M19.4 5.2l-1.6 1.6M12 21.8v-2.3M4.6 18.8l1.6-1.6M19.4 18.8l-1.6-1.6"/></g>
+      <path class="lid" d="M2.5 12s3.6-6 9.5-6 9.5 6 9.5 6-3.6 6-9.5 6-9.5-6-9.5-6z"/>
+      <circle class="pupil" cx="12" cy="12" r="2.4"/>
+    </svg>
+  </button>
+  <div class="group" id="axes" role="group" aria-label="Axes"></div>
+  <div class="count" id="count"></div>
+  <div class="search" id="search">
+    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.2"/><path d="M15.2 15.2 20 20"/></svg>
+    <input id="q" type="search" placeholder="Search" data-key="f" data-tip="Search" autocomplete="off" spellcheck="false" aria-label="Search by title, director, year, country, object">
+    <button class="clear" id="qClear" aria-label="Clear search" data-key="esc" data-tip="Clear">×</button>
+    <ol id="results" role="listbox"></ol>
+  </div>
+  <button class="close" id="close" aria-label="Close" data-key="esc" data-tip="Close">×</button>
+</header>
+<div id="stage"><canvas id="grid" aria-label="Cover grid"></canvas></div>
+<footer>
+  <div class="k">Covers are sorted according to</div>
+  <div class="v" id="gridName"></div>
+</footer>
+<div id="credit">
+  <div class="more">
+    <div>Inspired by <a href="https://www.epfl-ecal-lab.ch" target="_blank" rel="noopener">Poster World, EPFL+ECAL Lab</a></div>
+    <div>Not affiliated with The Criterion Collection</div>
+  </div>
+  <div><a href="https://umjo.me" target="_blank" rel="noopener">Criterion World by umjo.me</a> <span class="ver" id="ver"></span></div>
+</div>
+<div id="tip"></div>
+<div id="lens"></div>
+<div id="flyer"></div>
+
+<div id="tri" role="dialog" aria-label="Triptych">
+  <div id="panels"></div>
+  <footer>
+    <div class="k">Neighboring covers are associated based on</div>
+    <div class="v" id="triName"></div>
+  </footer>
+</div>
+
+<script src="data.js"></script>
+<script>
+const M = window.META, C = window.COVERS, N = C.length;
+// 버전: 화면·동작이 바뀌면 올린다. 데이터 날짜는 build_web.py 가 META.built 에 적는다
+const VERSION = '0.1.0';
+document.getElementById('ver').textContent = `v${VERSION}`;
+document.getElementById('ver').title = M.built ? `data ${M.built}` : '';
+const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const OUT = 'cubic-bezier(.22,1,.36,1)';
+const GAP = 0.18, ASPECT = 1288 / 1600;
+
+/* 축 하나가 격자 배치와 세 폭 짝을 함께 정한다 */
+const AXES = {
+  spine:    { label: 'Spine',      name: 'Spine' },
+  year:     { label: 'Year',  name: 'Release year' },
+  look:     { label: 'Look',  name: 'Overall look' },
+  color:    { label: 'Color',         name: 'Color' },
+  lines:    { label: 'Lines',     name: 'Composition lines' },
+  text:     { label: 'Type', name: 'Typography layout' },
+  contrast: { label: 'Contrast',       name: 'Contrast' },
+  strokes:  { label: 'Strokes',         name: 'Strokes' },
+  layout:   { label: 'Layout',   name: 'Layout' },
+  objects:  { label: 'Objects',       name: 'Object recognition' },
+};
+const KEYS = Object.keys(AXES);
+const META_AXES = new Set(['spine', 'year']);
+const stem = f => f.replace(/\.jpg$/, '');
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const has = (i, k) => META_AXES.has(k) || !!C[i].nb[k];
+const ease = t => 1 - Math.pow(1 - t, 3);
+const easeIO = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+
+let axis = 'spine', traceOn = false, cur = null, hist = [];
+
+/* ---------- 공통: 선택 표시, 글자 전환 ---------- */
+function movePill(group, instant = false) {
+  let pill = group.querySelector('.pill');
+  if (!pill) { pill = document.createElement('span'); pill.className = 'pill'; group.prepend(pill); instant = true; }
+  const on = group.querySelector('button.on');
+  if (!on) { pill.style.width = '0px'; return; }
+  if (instant) pill.style.transition = 'none';
+  pill.style.width = on.offsetWidth + 'px';
+  pill.style.transform = `translateX(${on.offsetLeft}px)`;
+  if (instant) { pill.offsetWidth; pill.style.transition = ''; }
+}
+// 빠지는 애니메이션은 끝나는 즉시 지운다. fill 을 남기면 들어온 뒤 다시 투명해진다
+function swapText(el, text) {
+  el._target = text;
+  if (RM || !el.textContent) { el.textContent = text; return; }
+  if (el._busy || el.textContent === text) return;
+  el._busy = true;
+  const out = el.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'translateY(-6px)' }],
+    { duration: 150, easing: 'ease-in', fill: 'forwards' });
+  out.onfinish = () => {
+    el.textContent = el._target; out.cancel(); el._busy = false;
+    el.animate([{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], { duration: 380, easing: OUT });
+  };
+  out.oncancel = () => { if (el._busy) { el._busy = false; el.textContent = el._target; } };
+}
+
+/* ---------- 머리줄 ---------- */
+const axesEl = document.getElementById('axes'), eyeEl = document.getElementById('eye');
+KEYS.forEach((k, n) => {
+  if (n === 2) { const s = document.createElement('span'); s.className = 'sep'; axesEl.appendChild(s); }
+  const b = document.createElement('button');
+  b.dataset.axis = k; b.textContent = AXES[k].label;
+  b.dataset.key = `${(n + 1) % 10}`; b.dataset.tip = AXES[k].name;
+  axesEl.appendChild(b);
+});
+axesEl.addEventListener('click', e => { const b = e.target.closest('button'); if (b && !b.disabled) setAxis(b.dataset.axis); });
+eyeEl.addEventListener('click', () => setTrace(!traceOn));
+document.getElementById('count').textContent = `${M.count} / ${M.films}`;   // 검색 중에는 setCount 가 바꾼다
+
+function syncAxisButtons() {
+  axesEl.querySelectorAll('button').forEach(b => {
+    b.classList.toggle('on', b.dataset.axis === axis);
+    b.disabled = cur !== null && !has(cur, b.dataset.axis);
+  });
+  movePill(axesEl);
+}
+function setAxis(k) {
+  if (!AXES[k] || k === axis) return;
+  axis = k;
+  syncAxisButtons();
+  const open = cur !== null;
+  G.go(axis, !open);                     // 세 폭 보기 뒤의 격자는 조용히 옮겨 둔다
+  swapText(document.getElementById('gridName'), AXES[axis].name);
+  if (open) showTri({ kind: 'axis' });
+  syncHash();
+}
+function setTrace(on) {
+  traceOn = on;
+  document.body.classList.toggle('trace', on);
+  eyeEl.setAttribute('aria-pressed', on);
+  G.mix(on ? 1 : 0);
+  // 미뤄 둔 흔적을 그린다(가운데부터, 한 프레임에 하나씩)
+  if (on && cur !== null) {
+    const todo = [...document.querySelectorAll('#panels canvas')].filter(cv => cv._todo)
+      .sort((a, b) => (b.closest('.mid') ? 1 : 0) - (a.closest('.mid') ? 1 : 0));
+    const next = () => { const cv = todo.shift(); if (!cv) return; drawTrace(cv, ...cv._todo); requestAnimationFrame(next); };
+    next();
+  }
+  if (lensOn !== null) showLens(lensOn);
+  syncHash();
+}
+
+/* ======================================================================
+   격자 렌더러 (WebGL2 인스턴싱)
+   - 축별 화면 좌표는 처음과 창 크기 변경 때만 계산해 캐시한다
+   - 전환: 출발·도착 좌표와 타일별 시차를 GPU 버퍼에 한 번 올린다. 매 프레임은 시간 값 하나만 넘긴다
+   - 보간·시차·원본/흔적 크로스페이드는 셰이더가 한다. 1,096장을 그리기 호출 한 번에 그린다
+   - 아틀라스는 텍스처로 한 번 올리고 밉맵을 만든다. file:// 에서도 쓰려고 data URL(atlas/<축>.js)로 받는다
+   - 흔적 아틀라스는 첫 화면이 뜬 뒤 쉬는 시간에 미리 받아 디코드해 둔다
+   - 움직이는 것이 없으면 그리지 않는다
+   ====================================================================== */
+const stage = document.getElementById('stage'), cv = document.getElementById('grid');
+const A = M.atlas, TW = A.tile[0], TH = A.tile[1];
+window.ATLAS = window.ATLAS || {};
+const atlasReq = {};
+// http(s) 에서는 WebP 를 바로 읽는다(배포). file:// 에서는 WebGL 이 이미지를 못 써서 data URL JS 로
+const HTTP = location.protocol.startsWith('http');
+function loadAtlas(name) {
+  if (HTTP) return atlasReq[name] ??= new Promise(res => {
+    const im = new Image(); im.src = `atlas/${name}.webp`;
+    im.decode().then(() => res(im), () => res(null));
+  });
+  return atlasReq[name] ??= new Promise(res => {
+    const done = () => { const im = new Image(); im.src = ATLAS[name]; im.decode().then(() => res(im), () => res(null)); };
+    if (ATLAS[name]) return done();
+    const s = document.createElement('script');
+    s.src = `atlas/${name}.js`; s.onload = done; s.onerror = () => res(null);
+    document.head.appendChild(s);
+  });
+}
+
+const G = (() => {
+  const gl = cv.getContext('webgl2', { antialias: false, premultipliedAlpha: true, alpha: true });
+  const VS = `#version 300 es
+  layout(location=0) in vec2 corner;
+  layout(location=1) in vec4 from;     // x, y, w, alpha (CSS px)
+  layout(location=2) in vec4 to;
+  layout(location=3) in vec3 delays;   // 이동 시차, 흔적 시차, 이동 시간 (ms)
+  layout(location=4) in vec3 color;    // 아틀라스가 오기 전 대표색
+  layout(location=5) in vec2 hl;       // 검색 강조: 이전 값, 새 값 (1 = 맞음)
+  uniform vec2 uRes, uGrid, uInset;
+  uniform float uT, uDur, uMixT, uMixFrom, uMixTo, uAspect, uHlT, uSwapT;
+  uniform int uHidden, uHover;
+  out vec2 vUV, vLocal, vSize; out float vA, vMix, vHl, vSwap; out vec3 vColor; flat out int vHover;
+  // 가속 → 감속 2차 곡선: 시간이 거리의 제곱근에 비례하면 모든 타일의 가속도가 같다
+  float io(float t) { return t < .5 ? 2. * t * t : 1. - pow(-2. * t + 2., 2.) / 2.; }
+  float oc(float t) { return 1. - pow(1. - t, 3.); }
+  void main() {
+    float p = uDur > 0. ? clamp((uT - delays.x) / max(delays.z, 1.), 0., 1.) : 1.;
+    vec4 s = mix(from, to, io(p));
+    vec2 size = vec2(s.z, s.z / uAspect);
+    vec2 pos = s.xy + corner * size;
+    gl_Position = vec4(pos / uRes * 2. - 1., 0., 1.);
+    gl_Position.y = -gl_Position.y;
+    int id = gl_InstanceID, cols = int(uGrid.x);
+    vec2 cell = vec2(float(id % cols), float(id / cols));
+    vUV = (cell + uInset + corner * (1. - 2. * uInset)) / uGrid;   // 밉맵 번짐을 막으려고 조금 안쪽에서 읽는다
+    vA = id == uHidden ? 0. : s.w;
+    vMix = mix(uMixFrom, uMixTo, oc(clamp((uMixT - delays.y) / 450., 0., 1.)));
+    vLocal = corner * size; vSize = size; vColor = color; vHover = id == uHover ? 1 : 0;
+    vHl = mix(hl.x, hl.y, oc(clamp(uHlT / 300., 0., 1.)));
+    vSwap = clamp((uSwapT - delays.y * .6) / 320., 0., 1.);   // 축을 바꿀 때 이전 흔적 → 새 흔적
+  }`;
+  const FS = `#version 300 es
+  precision mediump float;
+  uniform sampler2D uCover, uTrace, uPrev;
+  uniform float uCoverOk, uTraceOk, uPrevOk;
+  in vec2 vUV, vLocal, vSize; in float vA, vMix, vHl, vSwap; in vec3 vColor; flat in int vHover;
+  out vec4 o;
+  void main() {
+    if (vA < .005) discard;
+    vec3 c = uCoverOk > .5 ? texture(uCover, vUV).rgb : vColor;
+    if (uTraceOk > .5 && vMix > .001) {
+      vec3 t = texture(uTrace, vUV).rgb;
+      if (uPrevOk > .5) t = mix(texture(uPrev, vUV).rgb, t, vSwap);
+      c = mix(c, t, vMix);
+    }
+    if (vHover == 1) { vec2 d = min(vLocal, vSize - vLocal); if (min(d.x, d.y) < 1.) c = vec3(.92); }
+    c *= mix(.16, 1., vHl);
+    o = vec4(c * vA, vA);
+  }`;
+  function shader(type, src) {
+    const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s);
+    if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s));
+    return s;
+  }
+  const prog = gl.createProgram();
+  gl.attachShader(prog, shader(gl.VERTEX_SHADER, VS)); gl.attachShader(prog, shader(gl.FRAGMENT_SHADER, FS));
+  gl.linkProgram(prog);
+  if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog));
+  gl.useProgram(prog);
+  const U = {};
+  ['uRes', 'uGrid', 'uInset', 'uT', 'uDur', 'uMixT', 'uMixFrom', 'uMixTo', 'uAspect', 'uHidden', 'uHover', 'uCover', 'uTrace', 'uCoverOk', 'uTraceOk', 'uHlT', 'uSwapT', 'uPrev', 'uPrevOk']
+    .forEach(n => U[n] = gl.getUniformLocation(prog, n));
+
+  const from = new Float32Array(N * 4), to = new Float32Array(N * 4), delays = new Float32Array(N * 3), col = new Float32Array(N * 3);
+  C.forEach((c, i) => { const h = parseInt(c.color.slice(1), 16); col.set([(h >> 16 & 255) / 255, (h >> 8 & 255) / 255, (h & 255) / 255], i * 3); });
+  const vao = gl.createVertexArray(); gl.bindVertexArray(vao);
+  function buf(loc, data, size, divisor, usage = gl.DYNAMIC_DRAW) {
+    const b = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, b); gl.bufferData(gl.ARRAY_BUFFER, data, usage);
+    gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, size, gl.FLOAT, false, 0, 0); gl.vertexAttribDivisor(loc, divisor);
+    return b;
+  }
+  buf(0, new Float32Array([0, 0, 1, 0, 0, 1, 1, 1]), 2, 0, gl.STATIC_DRAW);
+  const bFrom = buf(1, from, 4, 1), bTo = buf(2, to, 4, 1), bDelay = buf(3, delays, 3, 1);
+  buf(4, col, 3, 1, gl.STATIC_DRAW);
+  const hlArr = new Float32Array(N * 2).fill(1), bHl = buf(5, hlArr, 2, 1);
+  let hlT0 = -1e9;
+  gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+  gl.uniform2f(U.uGrid, A.cols, A.rows);
+  gl.uniform2f(U.uInset, 1.5 / TW, 1.5 / TH);
+  gl.uniform1f(U.uAspect, ASPECT);
+  gl.uniform1i(U.uCover, 0); gl.uniform1i(U.uTrace, 1); gl.uniform1i(U.uPrev, 2);
+  gl.uniform1i(U.uHidden, -1); gl.uniform1i(U.uHover, -1);
+
+  // 텍스처: 원본은 늘, 흔적은 최근 3개만 GPU 에 둔다
+  const tex = {}, lru = [];
+  let coverOk = false;
+  function upload(name, img) {
+    const t = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, t);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, img);
+    gl.generateMipmap(gl.TEXTURE_2D);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    tex[name] = t;
+    if (name !== 'cover') {
+      lru.push(name);
+      while (lru.length > 3) { const old = lru.shift(); if (old !== traceName && old !== prevName) { gl.deleteTexture(tex[old]); delete tex[old]; } else lru.push(old); }
+    }
+  }
+  let traceName = null, prevName = null, swapT0 = -1e9, pendingK = null;
+  const SWAP = 420;   // 흔적이 바뀌는 시간. 이동은 그 뒤에 시작한다
+  function useTrace(name) {
+    traceName = name;
+    if (tex[name]) { const k = lru.indexOf(name); if (k >= 0) { lru.splice(k, 1); lru.push(name); } dirty(); return; }
+    loadAtlas(name).then(img => { if (img && !tex[name]) { upload(name, img); dirty(); } });
+  }
+  // 원본 커버: 배포에서는 반 크기(약 0.7MB)를 먼저 올리고, 큰 아틀라스가 오면 바꾼다
+  if (HTTP) loadAtlas('cover_s').then(img => { if (img && !coverOk) { upload('cover', img); coverOk = true; dirty(); } });
+  loadAtlas('cover').then(img => { if (img) { if (tex.cover) gl.deleteTexture(tex.cover); upload('cover', img); coverOk = true; dirty(); } });
+
+  // 화면 좌표 캐시: 축 → { px, py (NaN = 없음), tw, labels }
+  let cache = {}, dpr = 1, Wc = 0, Hc = 0;
+  function size() {
+    dpr = Math.min(2, devicePixelRatio || 1);
+    Wc = stage.clientWidth; Hc = stage.clientHeight;
+    cv.width = Math.round(Wc * dpr); cv.height = Math.round(Hc * dpr);
+    gl.viewport(0, 0, cv.width, cv.height);
+    gl.uniform2f(U.uRes, Wc, Hc);
+    cache = {};
+  }
+  function fitH(cols, rows, H) {
+    const w = Math.min(Wc / (cols + (cols - 1) * GAP), H / (rows / ASPECT + (rows - 1) * GAP));
+    return { w, h: w / ASPECT, g: w * GAP };
+  }
+  function fit(cols, rows) { return fitH(cols, rows, Hc - 18); }
+  function layout(k) {
+    if (cache[k]) return cache[k];
+    const px = new Float32Array(N).fill(NaN), py = new Float32Array(N).fill(NaN), lab = [];
+    let f;
+    if (k === 'spine') {
+      let best = null;
+      for (let cols = 10; cols <= 200; cols++) {
+        const rows = Math.ceil(M.maxSpine / cols), ff = fit(cols, rows);
+        if (!best || ff.w > best.f.w) best = { cols, rows, f: ff };
+      }
+      f = best.f;
+      C.forEach((c, i) => { const n = c.spine - 1; px[i] = (n % best.cols) * (f.w + f.g); py[i] = Math.floor(n / best.cols) * (f.h + f.g); });
+      for (let r = 0; r < best.rows; r += Math.max(1, Math.round(best.rows / 8))) lab.push([-6, r * (f.h + f.g) + f.h / 2, String(r * best.cols + 1), 'right']);
+    } else if (k === 'year') {
+      const cols = M.yearMax - M.yearMin + 1, stacks = {}, slot = new Int32Array(N);
+      [...C.keys()].sort((a, b) => C[a].spine - C[b].spine).forEach(i => { const yr = C[i].year; slot[i] = stacks[yr] = (stacks[yr] ?? -1) + 1; });
+      const H = Hc - 30;                       // 아래 연도 숫자 자리
+      f = fitH(cols, Math.max(12, ...Object.values(stacks).map(v => v + 1)), H);
+      C.forEach((c, i) => { px[i] = (c.year - M.yearMin) * (f.w + f.g); py[i] = H - f.h - slot[i] * (f.h + f.g); });
+      for (let yr = Math.ceil(M.yearMin / 10) * 10; yr <= M.yearMax; yr += 10) lab.push([(yr - M.yearMin) * (f.w + f.g), H + 18, String(yr), 'left']);
+    } else {
+      const [cols, rows] = M.grids[k];
+      f = fit(cols, rows);
+      C.forEach((c, i) => { if (c.g[k]) { px[i] = c.g[k][0] * (f.w + f.g); py[i] = c.g[k][1] * (f.h + f.g); } });
+    }
+    let maxX = 0;
+    for (let i = 0; i < N; i++) if (px[i] === px[i]) maxX = Math.max(maxX, px[i]);
+    const ox = Math.max(0, (Wc - (maxX + f.w)) / 2);
+    for (let i = 0; i < N; i++) px[i] += ox;
+    lab.forEach(l => { l[0] += ox; });
+    return cache[k] = { px, py, tw: f.w, labels: lab };
+  }
+
+  // 시간 상태 (셰이더와 같은 식을 CPU 에서도 쓴다: 전환을 이어 붙일 때, 마우스 판정할 때)
+  let t0 = 0, dur = 0, maxEnd = 0, mixT0 = -1e9, mixFrom = 0, mixTo = 0;
+  // 이동 시간 = K·√거리 (700px ≈ 1초), 0.45–1.8초
+  const K = 1000 / Math.sqrt(700), DMIN = 450, DMAX = 1800;
+  let raf = 0, hover = -1, hidden = -1;
+  const io = t => t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+  function stateAt(i, now, out) {
+    const p = dur > 0 ? Math.min(1, Math.max(0, (now - t0 - delays[i * 3]) / Math.max(delays[i * 3 + 2], 1))) : 1, e = io(p), b = i * 4;
+    for (let k = 0; k < 4; k++) out[k] = from[b + k] + (to[b + k] - from[b + k]) * e;
+    return out;
+  }
+  const tmp = new Float32Array(4);
+
+  function go(k, animate = true, boot = false) {
+    const anim = animate && !RM;
+    let shift = 0;
+    pendingK = k;
+    if (mixTo && anim && !boot && traceName && traceName !== k) {
+      // 흔적을 켠 채 축을 바꾸면: 제자리에서 새 흔적으로 번진 다음 움직인다. 새 아틀라스가 오기를 먼저 기다린다
+      if (!tex[k]) { loadAtlas(k).then(img => { if (img && !tex[k]) upload(k, img); if (pendingK === k) go(k, animate); }); return; }
+      prevName = traceName; traceName = k; swapT0 = performance.now(); shift = SWAP;
+      const j = lru.indexOf(k); if (j >= 0) { lru.splice(j, 1); lru.push(k); }
+    } else if (mixTo) useTrace(k);
+    const L = layout(k), now = performance.now();
+    maxEnd = 0;
+    for (let i = 0; i < N; i++) {
+      const s = stateAt(i, now, tmp), ok = L.px[i] === L.px[i], b = i * 4;
+      const tx = ok ? L.px[i] : s[0], ty = ok ? L.py[i] : s[1], tw = ok ? L.tw : s[2];
+      to[b] = tx; to[b + 1] = ty; to[b + 2] = tw; to[b + 3] = ok ? 1 : 0;
+      if (boot) { from[b] = tx + tw * .4; from[b + 1] = ty + tw / ASPECT * .4; from[b + 2] = tw * .2; from[b + 3] = 0; }
+      else if (s[3] < .01) { from[b] = tx; from[b + 1] = ty; from[b + 2] = tw; from[b + 3] = 0; }  // 숨어 있던 타일은 제자리에서 나타난다
+      else from.set(s, b);
+      const sx = tx / (Wc || 1), sy = ty / (Hc || 1);
+      const fx = from[b] / (Wc || 1), fy = from[b + 1] / (Hc || 1);   // 흔적 번짐 시차는 지금 자리 기준
+      const d = anim ? (sx * 380 + sy * 140 + (i % 7) * 6) * (boot ? 1.4 : 1) + (boot ? 100 : 0) + shift : 0;
+      const dist = Math.hypot(to[b] - from[b], to[b + 1] - from[b + 1], to[b + 2] - from[b + 2]);
+      const T = Math.min(DMAX, Math.max(DMIN, K * Math.sqrt(dist)));
+      delays[i * 3] = d; delays[i * 3 + 1] = shift ? fx * 350 + fy * 100 : sx * 350 + sy * 100; delays[i * 3 + 2] = T;
+      if (d + T > maxEnd) maxEnd = d + T;
+    }
+    // 출발·도착을 한 번에 올린다. 이후 프레임에서는 버퍼를 건드리지 않는다
+    gl.bindBuffer(gl.ARRAY_BUFFER, bFrom); gl.bufferSubData(gl.ARRAY_BUFFER, 0, from);
+    gl.bindBuffer(gl.ARRAY_BUFFER, bTo); gl.bufferSubData(gl.ARRAY_BUFFER, 0, to);
+    gl.bindBuffer(gl.ARRAY_BUFFER, bDelay); gl.bufferSubData(gl.ARRAY_BUFFER, 0, delays);
+    t0 = now; dur = anim ? 1 : 0;   // dur 은 '애니메이션 켬' 표시. 실제 시간은 타일마다 delays.z
+    placeLabels(L.labels);
+    kick();
+  }
+  function mixValue(now) {
+    const p = Math.min(1, Math.max(0, (now - mixT0) / (450 + 450)));
+    return mixFrom + (mixTo - mixFrom) * (1 - Math.pow(1 - p, 3));
+  }
+  function mix(v) {
+    const now = performance.now();
+    mixFrom = RM ? v : mixValue(now); mixTo = v; mixT0 = now;
+    if (v) useTrace(axis);
+    kick();
+  }
+  function placeLabels(labels) {
+    stage.querySelectorAll('.axis').forEach(a => a.remove());
+    labels.forEach(([lx, ly, t, align]) => {
+      const a = document.createElement('div');
+      a.className = 'axis'; a.textContent = t; a.style.top = (ly - 6) + 'px';
+      if (align === 'right') a.style.right = `calc(100% - ${lx}px)`; else a.style.left = lx + 'px';
+      stage.appendChild(a);
+    });
+  }
+  function kick() { if (!raf) raf = requestAnimationFrame(frame); }
+  function dirty() { kick(); }
+  function frame(now) {
+    raf = 0;
+    gl.uniform1f(U.uT, now - t0); gl.uniform1f(U.uDur, dur);
+    gl.uniform1f(U.uMixT, RM ? 1e9 : now - mixT0); gl.uniform1f(U.uMixFrom, mixFrom); gl.uniform1f(U.uMixTo, mixTo);
+    gl.uniform1f(U.uHlT, RM ? 1e9 : now - hlT0);
+    gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, tex.cover || null);
+    gl.uniform1f(U.uCoverOk, coverOk ? 1 : 0);
+    const tt = traceName && tex[traceName];
+    gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, tt || null);
+    gl.uniform1f(U.uTraceOk, tt ? 1 : 0);
+    const swapping = prevName && tex[prevName] && now - swapT0 < 800;
+    if (!swapping) prevName = null;
+    gl.uniform1f(U.uSwapT, RM ? 1e9 : now - swapT0);
+    gl.activeTexture(gl.TEXTURE2); gl.bindTexture(gl.TEXTURE_2D, swapping ? tex[prevName] : null);
+    gl.uniform1f(U.uPrevOk, swapping ? 1 : 0);
+    gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.drawArraysInstanced(gl.TRIANGLE_STRIP, 0, 4, N);
+    const moving = dur > 0 && now - t0 < maxEnd + 20;
+    const mixing = now - mixT0 < 900 + 20 || now - hlT0 < 320;
+    if (moving || mixing || swapping) kick();
+  }
+  function hit(mx, my) {
+    const now = performance.now();
+    for (let i = N - 1; i >= 0; i--) {
+      const s = stateAt(i, now, tmp);
+      if (s[3] < .5 || i === hidden) continue;
+      if (mx >= s[0] && mx <= s[0] + s[2] && my >= s[1] && my <= s[1] + s[2] / ASPECT) return i;
+    }
+    return -1;
+  }
+  function rect(i, target = true) {
+    const r = stage.getBoundingClientRect();
+    const s = target ? to.subarray(i * 4, i * 4 + 4) : stateAt(i, performance.now(), new Float32Array(4));
+    return { left: r.left + s[0], top: r.top + s[1], width: s[2], height: s[2] / ASPECT, right: r.left + s[0] + s[2] };
+  }
+  // 첫 화면이 뜬 뒤 쉬는 시간에 흔적 아틀라스를 미리 받아 디코드해 둔다
+  function prefetch() {
+    const names = KEYS.slice();
+    const next = () => { const n = names.shift(); if (!n) return; loadAtlas(n).then(() => (window.requestIdleCallback || setTimeout)(next, { timeout: 2000 })); };
+    // 큰 원본 아틀라스를 다 받은 뒤에 시작한다(배포에서 첫 화면과 대역폭을 다투지 않게)
+    loadAtlas('cover').then(() => (window.requestIdleCallback || setTimeout)(next, { timeout: 3000 }));
+  }
+  return {
+    size, go, mix, hit, rect, kick, layout, dirty, prefetch,
+    visible: i => to[i * 4 + 3] > .5,
+    setHover(i) { if (i !== hover) { hover = i; gl.uniform1i(U.uHover, i); kick(); } },
+    setHidden(i) { hidden = i; gl.uniform1i(U.uHidden, i); kick(); },
+    // 검색 강조: match = Set 이나 null(모두 밝게). 이전 값에서 300ms 동안 옮겨 간다
+    highlight(match) {
+      const now = performance.now(), p = Math.min(1, (now - hlT0) / 300), e = 1 - Math.pow(1 - p, 3);
+      for (let i = 0; i < N; i++) {
+        hlArr[i * 2] = hlArr[i * 2] + (hlArr[i * 2 + 1] - hlArr[i * 2]) * e;
+        hlArr[i * 2 + 1] = !match || match.has(i) ? 1 : 0;
+      }
+      gl.bindBuffer(gl.ARRAY_BUFFER, bHl); gl.bufferSubData(gl.ARRAY_BUFFER, 0, hlArr);
+      hlT0 = now; kick();
+    },
+  };
+})();
+
+/* 확대 미리보기와 툴팁 */
+const tip = document.getElementById('tip'), lens = document.getElementById('lens');
+let lensOn = null, lensBox = null;
+function sprite(el, name, i) {
+  el.style.background = `url("atlas/${name}.${HTTP ? 'webp' : 'jpg'}") ${(i % A.cols) / (A.cols - 1) * 100}% ${Math.floor(i / A.cols) / (A.rows - 1) * 100}% / ${A.cols * 100}% ${A.rows * 100}%`;
+}
+function showLens(i) {
+  const c = C[i], r = G.rect(i, false);
+  const k = 2.4, w = r.width * k, h = r.height * k;
+  const x = Math.max(4, Math.min(innerWidth - w - 4, r.left + r.width / 2 - w / 2));
+  const y = Math.max(60, Math.min(innerHeight - h - 4, r.top + r.height / 2 - h / 2));
+  lens.classList.toggle('jump', lensOn === null);
+  lens.style.width = w + 'px'; lens.style.height = h + 'px';
+  lens.style.transform = `translate(${x}px, ${y}px)`;
+  if (traceOn) sprite(lens, axis, i);
+  else lens.style.background = `${c.color} url("thumbs/${encodeURIComponent(c.file)}") center / cover`;
+  lens.classList.add('show');
+  lensOn = i; lensBox = { left: x, top: y, right: x + w, width: w, height: h };
+}
+function hideLens() { lens.classList.remove('show'); lensOn = null; G.setHover(-1); cv.classList.remove('hover'); }
+cv.addEventListener('mousemove', e => {
+  const r = stage.getBoundingClientRect(), i = G.hit(e.clientX - r.left, e.clientY - r.top);
+  if (i < 0) { tip.classList.remove('show'); hideLens(); return; }
+  G.setHover(i); cv.classList.add('hover');
+  if (i !== lensOn) showLens(i);
+  const c = C[i];
+  tip.innerHTML = `<b>${esc(c.title)}</b><br>#${c.spine} · ${c.year} · ${esc(c.directors)}`;
+  tip.classList.add('show');
+  const b = lensBox, tw = tip.offsetWidth || 280;
+  tip.style.left = (b.right + 10 + tw < innerWidth ? b.right + 10 : Math.max(4, b.left - 10 - tw)) + 'px';
+  tip.style.top = Math.min(b.top, innerHeight - tip.offsetHeight - 8) + 'px';
+});
+cv.addEventListener('mouseleave', () => { tip.classList.remove('show'); hideLens(); });
+cv.addEventListener('click', e => {
+  const r = stage.getBoundingClientRect(), i = G.hit(e.clientX - r.left, e.clientY - r.top);
+  if (i < 0) return;
+  const from = lensOn === i && lensBox ? lensBox : G.rect(i, false);
+  tip.classList.remove('show'); hideLens();
+  openTri(i, true, from);
+});
+
+/* ---------- 흔적: 세 폭 보기의 큰 캔버스 ---------- */
+window.TRACE = window.TRACE || {};
+const traceReq = {}, imgCache = {};
+function loadTrace(c) {
+  const k = stem(c.file);
+  if (!c.trace) return Promise.resolve(null);
+  if (TRACE[k]) return Promise.resolve(TRACE[k]);
+  return traceReq[k] ??= new Promise(res => {
+    const s = document.createElement('script');
+    s.src = `trace/${encodeURIComponent(k)}.js`;
+    s.onload = () => res(TRACE[k] || null); s.onerror = () => res(null);
+    document.head.appendChild(s);
+  });
+}
+function loadImg(src) {
+  return imgCache[src] ??= new Promise(res => { const im = new Image(); im.onload = () => res(im); im.onerror = () => res(null); im.src = src; });
+}
+const poly = (g, p, W, H) => { g.beginPath(); p.forEach(([px, py], k) => k ? g.lineTo(px * W, py * H) : g.moveTo(px * W, py * H)); g.closePath(); g.fill(); };
+async function drawTrace(cvs, c, k) {
+  cvs._todo = [c, k];
+  if (!traceOn) return;            // 꺼져 있으면 미뤄 두고, 눈을 켤 때 그린다
+  cvs._todo = null;
+  await paintTrace(cvs, c, k);
+  if (!RM && traceOn) cvs.animate([{ filter: 'blur(10px)' }, { filter: 'blur(0)' }], { duration: 500, easing: OUT });
+}
+async function paintTrace(cvs, c, k) {
+  const W = cvs.width = 480, H = cvs.height = 596, g = cvs.getContext('2d');
+  const tr = await loadTrace(c);
+  const img = await loadImg(`large/${encodeURIComponent(c.file)}`);
+  g.fillStyle = '#000'; g.fillRect(0, 0, W, H);
+  if (META_AXES.has(k)) {
+    const t = String(k === 'spine' ? c.spine : c.year);
+    g.fillStyle = '#ebebeb'; g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.font = `400 ${t.length <= 3 ? 190 : 160}px "Helvetica Neue", Helvetica, Arial`;
+    g.fillText(t, W / 2, H / 2);
+  } else if (k === 'color') {
+    let yy = 0;
+    c.palette.forEach(([col, r]) => { g.fillStyle = col; g.fillRect(0, yy, W, r * H + 1); yy += r * H; });
+  } else if (k === 'look' && img) {
+    const s = document.createElement('canvas'); s.width = 12; s.height = 15;
+    s.getContext('2d').drawImage(img, 0, 0, 12, 15);
+    g.imageSmoothingEnabled = false; g.drawImage(s, 0, 0, W, H);
+  } else if (k === 'contrast' && img) {
+    // 흐림 필터는 비싸다: 아주 작게 줄였다가 부드럽게 키우면 같은 효과
+    const sm = document.createElement('canvas'); sm.width = 24; sm.height = 30;
+    const q = sm.getContext('2d'); q.filter = 'grayscale(1) contrast(1.8)'; q.drawImage(img, 0, 0, 24, 30);
+    g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high'; g.drawImage(sm, 0, 0, W, H);
+  } else if (k === 'lines' && tr?.lines) {
+    // 4분의 1 크기에 그리고 키운다(흐림 필터 없이 같은 부드러움)
+    const sw = W / 4, sh = H / 4, sm = document.createElement('canvas'); sm.width = sw; sm.height = sh;
+    const q = sm.getContext('2d');
+    q.fillStyle = '#f2f2f2'; q.fillRect(0, 0, sw, sh); q.strokeStyle = '#000'; q.lineCap = 'round';
+    tr.lines.forEach(([x0, y0, x1, y1], n) => {
+      q.lineWidth = (n < 20 ? 9 : n < 60 ? 5 : 2.5) / 4;
+      q.beginPath(); q.moveTo(x0 * sw, y0 * sh); q.lineTo(x1 * sw, y1 * sh); q.stroke();
+    });
+    g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high'; g.drawImage(sm, 0, 0, W, H);
+  } else if (k === 'text' && tr?.text) {
+    g.fillStyle = '#f2f2f2'; tr.text.forEach(p => poly(g, p, W, H));
+    g.strokeStyle = '#555'; g.setLineDash([4, 4]);
+    (tr.frame || []).forEach(([x0, y0, x1, y1]) => g.strokeRect(x0 * W, y0 * H, (x1 - x0) * W, (y1 - y0) * H));
+    g.setLineDash([]);
+  } else if (k === 'strokes' && tr?.strokes) {
+    const ln = await loadImg(`strokes/${encodeURIComponent(stem(c.file))}.${HTTP ? 'webp' : 'png'}`);
+    g.fillStyle = '#f2f2f2'; g.fillRect(0, 0, W, H);
+    if (ln) { g.filter = 'invert(1)'; g.drawImage(ln, 0, 0, W, H); g.filter = 'none'; }
+    g.fillStyle = 'rgba(242,242,242,.85)'; (tr.text || []).forEach(p => poly(g, p, W, H));
+  } else if (k === 'layout' && tr?.layout) {
+    const gw = 40, gh = 50, cw = W / gw, ch = H / gh, col = { e: '#000', f: '#6e6e6e', t: '#f2f2f2', c: '#262626' };
+    for (let n = 0; n < tr.layout.length; n++) {
+      g.fillStyle = col[tr.layout[n]];
+      const xx = Math.floor((n % gw) * cw), yy = Math.floor(Math.floor(n / gw) * ch);
+      g.fillRect(xx, yy, Math.ceil(((n % gw) + 1) * cw) - xx, Math.ceil((Math.floor(n / gw) + 1) * ch) - yy);
+    }
+  } else if (k === 'objects' && tr?.objects) {
+    g.font = '500 15px Helvetica'; g.textBaseline = 'top';
+    const shared = new Set(c._shared || []);
+    [...tr.objects].reverse().forEach(o => {
+      const [x0, y0, x1, y1] = o.box, on = shared.has(o.label);
+      g.fillStyle = on ? 'rgba(235,235,235,.18)' : 'rgba(235,235,235,.05)';
+      g.fillRect(x0 * W, y0 * H, (x1 - x0) * W, (y1 - y0) * H);
+      g.strokeStyle = on ? '#ebebeb' : '#666'; g.lineWidth = on ? 2.5 : 1;
+      g.strokeRect(x0 * W, y0 * H, (x1 - x0) * W, (y1 - y0) * H);
+      const t = o.label, tw = g.measureText(t).width + 8;
+      const lx = Math.max(0, Math.min(x0 * W, W - tw)), ly = Math.max(0, Math.min(y0 * H, H - 20));
+      g.fillStyle = on ? '#ebebeb' : '#333'; g.fillRect(lx, ly, tw, 20);
+      g.fillStyle = on ? '#000' : '#bbb'; g.fillText(t, lx + 4, ly + 3);
+    });
+  }
+}
+
+/* ---------- 화면 사이를 나는 이미지 ---------- */
+const flyer = document.getElementById('flyer');
+// content: 'cover' | 'trace' | 캔버스 요소(그대로 복사)
+function fly(i, from, to, content, dur = 650) {
+  flyer.innerHTML = '';
+  if (content instanceof HTMLCanvasElement) {
+    const c2 = document.createElement('canvas'); c2.width = content.width; c2.height = content.height;
+    c2.getContext('2d').drawImage(content, 0, 0); flyer.appendChild(c2);
+  } else if (content === 'trace') {
+    const d = document.createElement('div'); sprite(d, axis, i); flyer.appendChild(d);
+  } else {
+    const im = document.createElement('img'); im.src = `large/${encodeURIComponent(C[i].file)}`; flyer.appendChild(im);
+  }
+  Object.assign(flyer.style, { display: 'block', left: to.left + 'px', top: to.top + 'px', width: to.width + 'px', height: to.height + 'px' });
+  if (RM) { flyer.style.display = 'none'; return Promise.resolve(); }
+  const a = flyer.animate([
+    { transform: `translate(${from.left - to.left}px, ${from.top - to.top}px) scale(${from.width / to.width}, ${from.height / to.height})` },
+    { transform: 'none' }], { duration: dur, easing: OUT });
+  return a.finished.then(() => { flyer.style.display = 'none'; flyer.innerHTML = ''; });
+}
+
+/* ---------- 세 폭 보기 ---------- */
+const tri = document.getElementById('tri'), panels = document.getElementById('panels');
+const bySpine = [...C.keys()].sort((a, b) => C[a].spine - C[b].spine);
+const byYear = [...C.keys()].sort((a, b) => C[a].year - C[b].year || C[a].spine - C[b].spine);
+/* 축마다 커버 전체를 토러스 격자로 둔다. 좌우 = 줄 안에서 순환, 위아래 = 줄 사이에서 순환.
+   오른쪽만 계속 가면 그 줄을 한 바퀴 돌고, 아래로 계속 가면 모든 줄을 지나 처음 줄로 돌아온다.
+   분석 축과 색은 build_web.py 의 격자(META.rings, 지도를 빈칸 없이 다시 배정), Spine·연도는 순서를 RING_LEN 씩 끊는다 */
+const RING_LEN = 24;
+const RINGS = {};
+// 줄 길이를 고르게 나눈다(마지막 줄에 한두 편만 남으면 양옆이 자기 자신이 된다)
+function chunk(order) {
+  const n = Math.max(1, Math.round(order.length / RING_LEN)), r = [];
+  for (let k = 0; k < n; k++) {
+    const a = Math.round(k * order.length / n), b = Math.round((k + 1) * order.length / n);
+    r.push(order.slice(a, b).map((i, c) => [i, Math.round(c / Math.max(1, b - a - 1) * 100)]));
+  }
+  return r;
+}
+RINGS.spine = chunk(bySpine); RINGS.year = chunk(byYear);
+// 분석 축: build_web.py 의 빈칸 없는 격자(M.rings)가 없으면 지도 좌표(c.g)의 줄을 그대로 쓴다
+for (const k of KEYS) {
+  if (META_AXES.has(k)) continue;
+  if (M.rings?.[k]) { RINGS[k] = M.rings[k]; continue; }
+  const rows = new Map();
+  C.forEach((c, i) => { const g = c.g?.[k]; if (g) { if (!rows.has(g[1])) rows.set(g[1], []); rows.get(g[1]).push([i, g[0]]); } });
+  if (rows.size) RINGS[k] = [...rows.keys()].sort((a, b) => a - b).map(y => rows.get(y).sort((a, b) => a[1] - b[1]));
+}
+const RING_POS = {};
+for (const k in RINGS) { const m = new Map(); RINGS[k].forEach((row, r) => row.forEach(([i], c) => m.set(i, [r, c]))); RING_POS[k] = m; }
+// i 에서 (dr 줄, dc 칸). 다른 줄로 갈 때는 가로 위치(x)가 가장 가까운 칸을 기준으로 dc 만큼
+function nbr(i, k, dr, dc) {
+  const R = RINGS[k], p = RING_POS[k]?.get(i);
+  if (!R || !p) {   // 격자 데이터가 없으면(예전 data.js) 가까운 순으로
+    if (dr) return undefined;
+    return (C[i].nb[k] || [])[{ '-1': 0, '1': 1, '-2': 2, '2': 3 }[dc]];
+  }
+  const wrap = (n, m) => ((n % m) + m) % m;
+  let [r, c] = p;
+  if (dr) {
+    const x = R[r][c][1], row = R[wrap(r + dr, R.length)];
+    let best = 0;
+    row.forEach((e, n) => { if (Math.abs(e[1] - x) < Math.abs(row[best][1] - x)) best = n; });
+    r = wrap(r + dr, R.length); c = best;
+  }
+  const row = R[r];
+  return row[wrap(c + dc, row.length)][0];
+}
+function pair(i, k) { return [nbr(i, k, 0, -1), nbr(i, k, 0, 1)]; }
+function pair2(i, k) { return [nbr(i, k, 0, -2), nbr(i, k, 0, 2)]; }
+let exits = {};
+function openTri(i, push = true, from = null) {
+  const opening = cur === null;
+  if (push && cur !== null && cur !== i) hist.push(cur);
+  cur = i;
+  if (!has(i, axis)) { axis = KEYS.find(k => has(i, k)); G.go(axis, false); swapText(document.getElementById('gridName'), AXES[axis].name); }
+  document.body.classList.add('tri-open');
+  tri.classList.add('open');
+  syncAxisButtons();
+  showTri({ kind: opening ? 'open' : 'nav', from });
+}
+// 가운데 커버를 다시 누르면 이 커버에 있는 다음 축으로
+function nextAxis() {
+  const ks = KEYS.filter(k => has(cur, k));
+  setAxis(ks[(ks.indexOf(axis) + 1) % ks.length]);
+}
+/* 사각형 a 에서 제자리로. 날아가는 동안은 다른 패널·띠보다 위 층에 둔다(아래로 지나가면 검은 배경에 가려진다) */
+function flyWithin(el, a) {
+  const b = el.getBoundingClientRect();
+  if (!a || !b.width || RM) return;
+  el.style.zIndex = 5;
+  el.animate([{ transform: `translate(${a.left - b.left}px, ${a.top - b.top}px) scale(${a.width / b.width}, ${a.height / b.height})` }, { transform: 'none' }],
+    { duration: 650, easing: OUT }).finished.then(() => { el.style.zIndex = ''; });
+}
+/* 세 폭 커버 크기: 가로(바깥 열 2개 + 간격 4개를 뺀 3등분)와 세로(띠 2줄 + 캡션 + 간격을 뺀 높이) 중 작은 쪽.
+   띠 안 포스터도 같은 크기(--bw × --bh)로 잘린다 */
+function triSize() {
+  const cs = getComputedStyle(panels), edge = parseFloat(cs.getPropertyValue('--edge')) || 54, gap = parseFloat(cs.getPropertyValue('--gap')) || 18;
+  const W = panels.clientWidth - 64, H = panels.clientHeight;
+  const bw = Math.floor(Math.min((W - 3 * gap) / 4, (H - 2 * edge - 2 * gap) * ASPECT));
+  const bh = Math.round(bw / ASPECT);
+  panels.style.setProperty('--bw', bw + 'px');
+  panels.style.setProperty('--bh', bh + 'px');
+  // 위·아래 띠: 남는 세로 공간을 다 쓰되 포스터 한 장 높이를 넘지 않는다
+  panels.style.setProperty('--edgeV', Math.max(54, Math.min(bh, Math.floor((H - bh - 2 * gap) / 2))) + 'px');
+}
+/* 상세 정보: 제목 · 원제 · 감독 · 연도/나라, 한 칸 띄고 Wikidata 정보(있는 것만), 끝에 #spine 과 criterion.com 링크 */
+function criterionUrl(c) {
+  if (!c.cid) return '';
+  return c.cid.startsWith('box:') ? `https://www.criterion.com/boxsets/${c.cid.slice(4)}` : `https://www.criterion.com/films/${c.cid}`;
+}
+/* 줄 이름. Spine·연도는 그 줄의 범위, 나머지 축은 build_web.py 의 META.rowNames(줄 평균을 말로) */
+function rowName(k, r) {
+  const R = RINGS[k]; if (!R?.[r]) return '';
+  if (k === 'spine' || k === 'year') {
+    const v = R[r].map(([i]) => k === 'spine' ? C[i].spine : C[i].year), a = Math.min(...v), b = Math.max(...v);
+    return k === 'spine' ? `#${a}–${b}` : a === b ? `${a}` : `${a}–${b}`;
+  }
+  return M.rowNames?.[k]?.[r] || '';
+}
+function infoHTML(c) {
+  const kv = (k, v) => v && v.length ? `<div class="kv"><span>${k}</span><span>${esc([].concat(v).join(', '))}</span></div>` : '';
+  const spec = [c.rt && `${c.rt} min`, ...(c.ar || []), c.clr].filter(Boolean).join(' · ');
+  const fmt = (c.fmt || []).join(' · ');
+  const url = criterionUrl(c);
+  const rows = [kv('Film', spec), kv('Edition', fmt), kv('Language', c.language), kv('Written by', c.writer), kv('Cinematography', c.dop),
+    kv('Music', c.music), kv('Cast', c.cast), kv('Genre', c.genre), kv('Box set', c.box ? (c.kind === 'box' ? 'Box set' : c.box) : '')].filter(Boolean);
+  return `<div class="t">${esc(c.title)}</div>
+    ${c.orig ? `<div class="o">${esc(c.orig)}</div>` : ''}
+    ${c.directors ? `<div>${esc(c.directors)}</div>` : ''}
+    <div>${[c.year, c.countries].filter(Boolean).map(esc).join(' · ')}</div>
+    ${rows.length ? '<div class="sp"></div>' + rows.join('') : ''}
+    <div class="n"><span>#${c.spine}</span>${url ? `<a href="${url}" target="_blank" rel="noopener">criterion.com ↗</a>` : ''}</div>`;
+}
+function showTri({ kind = 'axis', from = null } = {}) {
+  const c = C[cur], [l, r] = pair(cur, axis);
+  swapText(document.getElementById('triName'), AXES[axis].name);
+  // 4열: 1 이전 · 2 지금 · 3 정보 · 4 다음. 위·아래 줄은 1·2·4 열 위아래(토러스의 위·아래 줄)
+  // 줄이 짧아 양옆이 자기 자신이거나 서로 같으면 비운다
+  const cols = { 1: l === cur ? undefined : l, 2: cur, 4: r === cur || r === l ? undefined : r };
+  const shown = Object.values(cols).filter(x => x !== undefined);
+  const rowOf = dr => { const o = []; [[1, -1], [2, 0], [4, 1]].forEach(([col, dc]) => { const j = nbr(cur, axis, dr, dc); if (j !== undefined && j !== cur && !o.some(x => x?.j === j)) o[col] = { j }; }); return o; };
+  exits = { up: rowOf(-1), down: rowOf(1) };
+  const mid = new Set(c.objs || []);       // 물체 흔적: 가운데와 함께 나온 물체를 밝게
+  shown.forEach(i => { C[i]._shared = i === cur ? [...new Set(shown.filter(j => j !== cur).flatMap(j => (C[j].objs || []).filter(o => mid.has(o))))] : (C[i].objs || []).filter(o => mid.has(o)); });
+
+  triSize();
+  panels.innerHTML = '';
+  Object.entries(cols).forEach(([col, i]) => {
+    if (i === undefined) return;
+    col = +col;
+    const p = C[i], side = i !== cur;
+    const box = document.createElement('div');
+    box.className = 'box' + (side ? ' side' : ' mid');
+    box.style.gridColumn = col;
+    box.dataset.role = side ? (col === 1 ? 'left' : 'right') : 'mid';
+    box.innerHTML = `<img src="large/${encodeURIComponent(p.file)}" alt="${esc(p.title)} cover"><canvas></canvas>`;
+    drawTrace(box.querySelector('canvas'), p, axis);
+    box.addEventListener('click', side ? ev => openTri(i, true, ev.currentTarget.getBoundingClientRect()) : nextAxis);
+    // 가운데 커버는 팝오버를 띄우지 않는다(화면의 주인공이라 가린다). enter 는 그대로 동작
+    panels.append(box);
+  });
+  const info = document.createElement('div');
+  info.className = 'info';
+  info.innerHTML = infoHTML(c);
+  panels.append(info);
+  const rp = RING_POS[axis]?.get(cur);
+  if (rp) {
+    const n = RINGS[axis].length, wrap = x => ((x % n) + n) % n;
+    [['up', -1, 1], ['mid', 0, 2], ['down', 1, 3]].forEach(([row, dr, gr]) => {
+      const t = rowName(axis, wrap(rp[0] + dr)); if (!t) return;
+      const el = document.createElement('div');
+      el.className = 'rowname'; el.dataset.row = row; el.style.gridRow = gr;
+      el.innerHTML = `<span>${esc(t)}</span>`;
+      panels.append(el);
+    });
+  }
+  ['up', 'down'].forEach(row => exits[row].forEach((ex, col) => {
+    if (!ex) return;
+    const el = document.createElement('div');
+    el.className = 'peek';
+    el.dataset.row = row; el.dataset.col = col;
+    el.style.gridColumn = col;
+    el.innerHTML = `<img src="large/${encodeURIComponent(C[ex.j].file)}" alt="${esc(C[ex.j].title)} cover"><canvas></canvas>`;
+    drawTrace(el.querySelector('canvas'), C[ex.j], axis);
+    el.addEventListener('click', () => goExit(row, col));
+    panels.appendChild(el);
+  }));
+
+  syncHash();
+  if (RM) return;
+
+  const midBox = panels.querySelector('.box.mid');
+  if (kind === 'open' && from) {
+    // 격자 타일에서 가운데로: 날아가는 동안 진짜 패널은 숨긴다
+    midBox.classList.add('landing');
+    G.setHidden(cur);
+    fly(cur, from, midBox.getBoundingClientRect(), traceOn ? 'trace' : 'cover').then(() => midBox.classList.remove('landing'));
+  } else if (from) flyWithin(midBox, from);
+
+  /* 등장 순서는 키 배치와 같다: q w e / a (s) d / z x c, 정보 글자는 맨 끝에 한 박자 늦게.
+     모든 칸이 같은 움직임(아래에서 살짝 떠오르며 나타남)과 같은 시간, 같은 간격을 쓴다.
+     가운데(s)는 날아오는 중이라 순서에 자리만 차지한다 */
+  const ORDER = ['up1', 'up2', 'up4', 'left', 'mid', 'right', 'down1', 'down2', 'down4'];
+  const STEP = kind === 'axis' ? 28 : 45, BASE = kind === 'axis' ? 0 : kind === 'open' ? 260 : 180, DUR = kind === 'axis' ? 420 : 560;
+  const rise = (el, delay, to = 1) => el.animate([{ opacity: 0, transform: 'translateY(10px)' }, { opacity: to, transform: 'none' }],
+    { duration: DUR, delay, easing: OUT, fill: 'backwards' });
+  panels.querySelectorAll('.box.side, .peek').forEach(el => {
+    const slot = el.classList.contains('peek') ? el.dataset.row + el.dataset.col : el.dataset.role;
+    rise(el, BASE + ORDER.indexOf(slot) * STEP, +getComputedStyle(el).opacity);
+  });
+  panels.querySelectorAll('.rowname').forEach(el => rise(el, BASE + { up: 0, mid: 3, down: 6 }[el.dataset.row] * STEP));
+  if (!from && kind !== 'axis') rise(midBox, BASE + ORDER.indexOf('mid') * STEP);   // 날아올 자리가 없을 때(뒤로 가기 등)
+  if (kind !== 'axis') [...info.children].forEach((line, n) => rise(line, BASE + ORDER.length * STEP + 160 + n * 70));
+}
+/* 띠는 포스터를 잘라 보여준다. 날아가기 출발점은 띠가 아니라 잘린 포스터 전체(img)의 사각형이다.
+   영역 밖으로 나간 부분은 #panels 의 overflow: clip 이 가린다 */
+function goExit(row, col = 2) {
+  const ex = exits[row]?.[col]; if (!ex) return;
+  const img = panels.querySelector(`.peek[data-row="${row}"][data-col="${col}"] img`);
+  openTri(ex.j, true, img ? img.getBoundingClientRect() : null);
+}
+function goSide(role) {
+  const box = panels.querySelector(`.box.side[data-role="${role}"]`);
+  if (box) box.click();
+}
+function closeTri() {
+  if (cur === null) return;
+  const i = cur, box = panels.querySelector('.box.mid');
+  const land = !RM && box && G.visible(i);
+  if (land) {
+    // 큰 이미지에서 격자 타일로: 위층에서 날아가고, 도착하면 타일이 이어받는다
+    const from = box.getBoundingClientRect();
+    const content = traceOn ? box.querySelector('canvas') : 'cover';
+    G.setHidden(i);
+    fly(i, from, G.rect(i), content, 600).then(() => G.setHidden(-1));
+  } else G.setHidden(-1);
+  tri.classList.remove('open');
+  document.body.classList.remove('tri-open');
+  cur = null; hist = [];
+  syncAxisButtons();
+  syncHash();
+}
+document.getElementById('close').addEventListener('click', closeTri);
+
+/* ---------- 단축키: e.code(물리 키)로 읽어 한/영 입력 상태와 무관하다 (KeyF = f, F, ㄹ) ---------- */
+// 3×3 키 배치가 화면의 3×3(정보 칸 제외)과 같다: q w e / a s d / z x c
+const NAV_KEYS = {
+  KeyQ: () => goExit('up', 1), KeyW: () => goExit('up', 2), KeyE: () => goExit('up', 4),
+  KeyA: () => goSide('left'), KeyS: () => nextAxis(), KeyD: () => goSide('right'),
+  KeyZ: () => goExit('down', 1), KeyX: () => goExit('down', 2), KeyC: () => goExit('down', 4),
+};
+addEventListener('keydown', e => {
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+  if (e.target === qEl) return;
+  const c = e.code;
+  hideKbd();
+  if (c === 'KeyF' || c === 'Slash') { e.preventDefault(); qEl.focus(); qEl.select(); return; }
+  if (c === 'Space') { e.preventDefault(); setTrace(!traceOn); return; }
+  const dm = c.match(/^(?:Digit|Numpad)(\d)$/);
+  if (dm) {
+    const k = KEYS[(+dm[1] + 9) % 10];
+    if (cur === null || has(cur, k)) setAxis(k);
+    return;
+  }
+  if (cur === null) return;
+  if (c === 'Escape') closeTri();
+  else if (c === 'Backspace') { e.preventDefault(); if (hist.length) openTri(hist.pop(), false); }
+  else if (c === 'Enter') { e.preventDefault(); nextAxis(); }
+  else if (c === 'ArrowLeft') { e.preventDefault(); goSide('left'); }
+  else if (c === 'ArrowRight') { e.preventDefault(); goSide('right'); }
+  else if (c === 'ArrowUp') { e.preventDefault(); goExit('up', 2); }
+  else if (c === 'ArrowDown') { e.preventDefault(); goExit('down', 2); }
+  else if (NAV_KEYS[c]) { e.preventDefault(); NAV_KEYS[c](); }
+});
+
+/* 0.2초 머무르면 단축키 팝오버. 대상 요소에 data-key(표시할 키), data-tip(영어 설명) */
+const kbd = document.createElement('div');
+kbd.id = 'kbd'; document.body.appendChild(kbd);
+let kbdTimer = 0, kbdEl = null;
+function hideKbd() { clearTimeout(kbdTimer); kbd.classList.remove('show'); kbdEl = null; }
+function showKbd(el) {
+  kbd.innerHTML = `${el.dataset.tip ? `<span>${esc(el.dataset.tip)}</span>` : ''}${el.dataset.key.split(' ').map(k => `<kbd>${esc(k)}</kbd>`).join('')}`;
+  kbd.classList.add('show');
+  const r = el.getBoundingClientRect(), w = kbd.offsetWidth, h = kbd.offsetHeight;
+  let x = r.left + r.width / 2 - w / 2, y = r.bottom + 8;
+  if (y + h > innerHeight - 8) y = r.top - h - 8;
+  if (r.height > 200) y = r.top + 12;                 // 큰 패널은 위쪽 안에
+  kbd.style.left = Math.max(8, Math.min(innerWidth - w - 8, x)) + 'px';
+  kbd.style.top = Math.max(8, y) + 'px';
+}
+document.addEventListener('mouseover', e => {
+  const el = e.target.closest?.('[data-key]');
+  if (el === kbdEl) return;
+  hideKbd();
+  if (!el) return;
+  kbdEl = el;
+  kbdTimer = setTimeout(() => { if (kbdEl === el) showKbd(el); }, 200);
+});
+document.addEventListener('mousedown', hideKbd);
+
+/* ---------- 검색 ---------- */
+const fold = s => String(s ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+const HAY = C.map(c => fold([c.title, c.directors, c.countries, c.year, (c.objs || []).join(' ')].join(' ')));
+const qEl = document.getElementById('q'), searchEl = document.getElementById('search'), resEl = document.getElementById('results');
+let hits = [], hitOn = 0;
+function runSearch() {
+  const q = fold(qEl.value).trim();
+  searchEl.classList.toggle('has', !!q);
+  if (!q) { hits = []; G.highlight(null); renderResults(); setCount(); return; }
+  const toks = q.split(/\s+/);
+  const scored = [];
+  C.forEach((c, i) => {
+    const t = fold(c.title), h = HAY[i];
+    let ok = true, score = 0;
+    for (const w of toks) {
+      const num = w.replace(/^#/, '');
+      if (/^\d+$/.test(num) && (+num === c.spine)) { score += 100; continue; }
+      if (/^\d{4}$/.test(w) && +w === c.year) { score += 40; continue; }
+      if (w.startsWith('#')) { ok = false; break; }
+      if (t.startsWith(w)) score += 60;
+      else if (t.includes(' ' + w)) score += 45;
+      else if (t.includes(w)) score += 30;
+      else if (h.includes(w)) score += 10;
+      else { ok = false; break; }
+    }
+    if (ok) scored.push([score, i]);
+  });
+  scored.sort((a, b) => b[0] - a[0] || C[a[1]].spine - C[b[1]].spine);
+  hits = scored.map(x => x[1]); hitOn = 0;
+  G.highlight(new Set(hits));
+  renderResults(); setCount();
+}
+function setCount() {
+  document.getElementById('count').textContent = qEl.value.trim() ? `${hits.length} / ${M.count}` : `${M.count} / ${M.films}`;
+}
+function renderResults() {
+  const q = qEl.value.trim();
+  searchEl.classList.toggle('open', !!q && document.activeElement === qEl);
+  if (!q) { resEl.innerHTML = ''; return; }
+  if (!hits.length) { resEl.innerHTML = '<li class="none">No results</li>'; return; }
+  resEl.innerHTML = hits.slice(0, 8).map((i, n) => { const c = C[i]; return `<li role="option" data-i="${i}" class="${n === hitOn ? 'on' : ''}">
+    <img src="thumbs/${encodeURIComponent(c.file)}" alt=""><div><div class="t">${esc(c.title)}</div><div class="s">#${c.spine} · ${c.year} · ${esc(c.directors)}</div></div></li>`; }).join('');
+}
+function pickResult(i) {
+  if (i === undefined) return;
+  qEl.blur(); searchEl.classList.remove('open');
+  if (cur !== null) { openTri(i, true, null); return; }
+  if (!G.visible(i)) { const k = KEYS.find(k => k !== axis && has(i, k) && (META_AXES.has(k) || C[i].g[k])); if (k) setAxis(k); }
+  const from = lensOn === i && lensBox ? lensBox : G.rect(i);
+  hideLens(); tip.classList.remove('show');
+  openTri(i, true, from);
+}
+function previewResult(i) {
+  if (cur !== null || i === undefined || !G.visible(i)) return;
+  showLens(i);
+}
+qEl.addEventListener('input', runSearch);
+document.getElementById('qClear').addEventListener('click', () => {
+  if (qEl.value.trim()) { qEl.value = ''; runSearch(); qEl.focus(); }
+  else { qEl.value = ''; runSearch(); qEl.blur(); }
+});
+document.getElementById('qClear').addEventListener('mousedown', e => e.preventDefault());
+qEl.addEventListener('focus', () => { renderResults(); });
+qEl.addEventListener('blur', () => setTimeout(() => { searchEl.classList.remove('open'); if (lensOn !== null && cur === null) hideLens(); }, 150));
+qEl.addEventListener('keydown', e => {
+  e.stopPropagation();
+  const n = Math.min(8, hits.length);
+  if (e.key === 'ArrowDown' && n) { e.preventDefault(); hitOn = (hitOn + 1) % n; renderResults(); previewResult(hits[hitOn]); }
+  else if (e.key === 'ArrowUp' && n) { e.preventDefault(); hitOn = (hitOn - 1 + n) % n; renderResults(); previewResult(hits[hitOn]); }
+  else if (e.key === 'Enter') { e.preventDefault(); pickResult(hits[hitOn]); }
+  else if (e.key === 'Escape') { if (qEl.value) { qEl.value = ''; runSearch(); } else qEl.blur(); }
+});
+resEl.addEventListener('mousedown', e => e.preventDefault());   // 목록을 누를 때 입력창 포커스를 잃지 않게
+resEl.addEventListener('click', e => { const li = e.target.closest('li[data-i]'); if (li) pickResult(+li.dataset.i); });
+// 호버한 줄이 선택 줄이 된다(엔터·화살표도 거기서 이어진다)
+resEl.addEventListener('mousemove', e => {
+  const li = e.target.closest('li[data-i]'); if (!li) return;
+  const n = [...resEl.children].indexOf(li);
+  if (n !== hitOn) { hitOn = n; resEl.querySelectorAll('li').forEach((x, k) => x.classList.toggle('on', k === n)); }
+  if (+li.dataset.i !== lensOn) previewResult(+li.dataset.i);
+});
+
+/* ---------- 주소: #<축>[,t][,tri=<spine>] ---------- */
+function syncHash() {
+  const parts = [axis];
+  if (traceOn) parts.push('t');
+  if (cur !== null) parts.push(`tri=${C[cur].spine}`);
+  history.replaceState(null, '', '#' + parts.join(','));
+}
+function start() {
+  const parts = location.hash.slice(1).split(',');
+  // 예전 주소(#map, #spine,tri=2:lines:t)도 받아 준다
+  const old = parts.find(p => p.startsWith('tri='))?.slice(4).split(':') || [];
+  axis = AXES[old[1]] ? old[1] : AXES[parts[0]] ? parts[0] : parts[0] === 'map' ? 'look' : 'spine';
+  G.size();
+  G.go(axis, true, true);
+  swapText(document.getElementById('gridName'), AXES[axis].name);
+  syncAxisButtons(); movePill(axesEl, true);
+  setTrace(parts.includes('t') || parts.includes('trace') || old[2] === 't');
+  const i = old[0] ? C.findIndex(c => c.spine === +old[0]) : -1;
+  if (i >= 0) openTri(i);
+  G.prefetch();
+}
+let rz;
+addEventListener('resize', () => {
+  clearTimeout(rz);
+  rz = setTimeout(() => { G.size(); G.go(axis, false); movePill(axesEl, true); if (cur !== null) triSize(); }, 60);
+});
+start();
+</script>
+</body>
+</html>

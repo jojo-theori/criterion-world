@@ -1,0 +1,13 @@
+# Cloudflare Pages 캐시. 이미지·아틀라스는 파일 이름이 같아도 내용이 바뀔 수 있어 하루, 나머지는 짧게
+/atlas/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+/large/*
+  Cache-Control: public, max-age=604800
+/thumbs/*
+  Cache-Control: public, max-age=604800
+/strokes/*
+  Cache-Control: public, max-age=604800
+/trace/*
+  Cache-Control: public, max-age=86400
+/data.js
+  Cache-Control: public, max-age=3600, stale-while-revalidate=86400

@@ -1,0 +1,18 @@
+SELECT ?film ?spine ?title ?pubYear ?directors ?countries ?imdb ?tmdb ?criterionId WHERE {
+  {
+    SELECT ?film ?spine (MIN(YEAR(?pd)) AS ?pubYear)
+           (GROUP_CONCAT(DISTINCT ?dirLabel; separator="|") AS ?directors)
+           (GROUP_CONCAT(DISTINCT ?cLabel; separator="|") AS ?countries)
+           (SAMPLE(?imdb_) AS ?imdb) (SAMPLE(?tmdb_) AS ?tmdb) (SAMPLE(?cid_) AS ?criterionId)
+    WHERE {
+      ?film wdt:P12279 ?spine .
+      OPTIONAL { ?film wdt:P577 ?pd . }
+      OPTIONAL { ?film wdt:P57 ?dir . ?dir rdfs:label ?dirLabel . FILTER(LANG(?dirLabel)="en") }
+      OPTIONAL { ?film wdt:P495 ?c . ?c rdfs:label ?cLabel . FILTER(LANG(?cLabel)="en") }
+      OPTIONAL { ?film wdt:P345 ?imdb_ . }
+      OPTIONAL { ?film wdt:P4947 ?tmdb_ . }
+      OPTIONAL { ?film wdt:P9584 ?cid_ . }
+    } GROUP BY ?film ?spine
+  }
+  OPTIONAL { ?film rdfs:label ?title . FILTER(LANG(?title)="en") }
+}
