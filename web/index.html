@@ -197,6 +197,61 @@
   #boot .bar i { display: block; height: 100%; background: var(--fg); transform: scaleX(0); transform-origin: 0 50%; transition: transform .2s linear; }
   #boot .pct { display: flex; gap: 12px; font-size: 11px; color: #555; font-variant-numeric: tabular-nums; }
   #boot #bootPct { color: var(--fg); }
+
+  .nogl { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; text-align: center;
+    padding: 0 16px; font-size: 14px; color: var(--dim); }
+  #grid:focus { outline: none; }
+  #tri:focus { outline: none; }
+
+  /* ---------- 좁은 화면(폰) ---------- */
+  #grid { touch-action: none; }
+  #panels { touch-action: none; }
+  .info { touch-action: pan-y; }
+  @media (max-width: 720px) {
+    header { height: 56px; padding: 0 16px; gap: 8px; }
+    /* 축 버튼은 가로로 밀어 본다. 오른쪽 끝을 흐려 더 있다는 것을 알린다 */
+    #axes { flex: 1 1 auto; min-width: 0; overflow-x: auto; scrollbar-width: none;
+      -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent);
+      mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent); }
+    #axes::-webkit-scrollbar { display: none; }
+    .eye, .close { flex: none; }
+    .count { display: none; }
+    /* 검색: 펼치면 머리줄을 덮는다. 접힌 채 검색어가 있으면 돋보기 동그라미를 밝게 */
+    .search { flex: none; }
+    .search:focus-within { position: fixed; left: 16px; right: 16px; top: 10px; z-index: 50; }
+    .search:focus-within #q { width: 100%; }
+    .search.has:not(:focus-within) #q { width: 36px; padding-right: 0; background: var(--fg); }
+    .search.has:not(:focus-within) .icon { stroke: #000; }
+    .search:not(:focus-within) .clear { opacity: 0; pointer-events: none; }
+    #results { width: 100%; }
+    body.tri-open .close { margin-left: 0; }
+
+    #stage { top: 60px; left: 16px; right: 16px; bottom: calc(124px + env(safe-area-inset-bottom)); }
+    footer { left: 16px; right: 16px; bottom: calc(64px + env(safe-area-inset-bottom)); }
+    .k { font-size: 12px; }
+    .v { font-size: 24px; }
+    #credit { left: 16px; bottom: calc(43px + env(safe-area-inset-bottom)); }
+    #credit2 { left: 16px; right: auto; bottom: calc(8px + env(safe-area-inset-bottom)); text-align: left; }
+
+    /* 세 폭 보기: 이전 · 지금 · 다음을 한 줄에(양옆은 안쪽 가장자리만), 위·아래 띠, 그 밑에 정보 */
+    #panels { --gap: 12px; --edge: 44px; top: 60px; bottom: calc(124px + env(safe-area-inset-bottom));
+      grid-template-columns: var(--sw) var(--bw) var(--sw);
+      grid-template-rows: var(--edge) var(--bh) var(--edge) minmax(0, 1fr); align-content: start; }
+    .box.side { width: var(--sw); }
+    .box.side img, .box.side canvas { inset: auto; top: 0; left: 0; width: var(--bw); height: var(--bh); }
+    .box.side[data-role="left"] img, .box.side[data-role="left"] canvas { left: auto; right: 0; }
+    .peek[data-col="1"] img, .peek[data-col="1"] canvas { left: auto; right: 0; }
+    .info { grid-row: 4; grid-column: 1 / -1; justify-content: flex-start; overflow-y: auto; padding: 6px 16px 12px; }
+    .info .t { font-size: 22px; margin-bottom: 6px; }
+    .rowname { grid-column: 1 / -1 !important; }
+    .rowname span { right: auto; left: 8px; margin: 0; writing-mode: horizontal-tb; transform: none; max-height: none;
+      max-width: calc(100% - 16px); text-shadow: 0 0 6px #000, 0 0 2px #000; }
+    .rowname[data-row="up"] span { top: auto; bottom: 4px; }
+    .rowname[data-row="mid"] span { top: 6px; }
+    .rowname[data-row="down"] span { top: 4px; }
+  }
+  /* 터치: 확대 미리보기를 누르면 연다 */
+  @media (hover: none) { #lens { pointer-events: auto; cursor: pointer; } }
 </style>
 </head>
 <body>
@@ -218,7 +273,7 @@
   </div>
   <button class="close" id="close" aria-label="Close" data-key="esc" data-tip="Close">×</button>
 </header>
-<div id="stage"><canvas id="grid" aria-label="Cover grid"></canvas></div>
+<div id="stage"><canvas id="grid" tabindex="0" aria-label="Cover grid. Arrow keys move, Enter opens"></canvas></div>
 <footer>
   <div class="k">Covers are sorted according to</div>
   <div class="v" id="gridName"></div>
@@ -234,7 +289,7 @@
 <div id="lens"></div>
 <div id="flyer"></div>
 
-<div id="tri" role="dialog" aria-label="Triptych">
+<div id="tri" role="dialog" aria-modal="true" aria-label="Triptych" tabindex="-1">
   <div id="panels"></div>
   <footer>
     <div class="k">Neighboring covers are associated based on</div>
@@ -298,10 +353,12 @@ window.PRELOAD = {};
 <script type="text/plain" id="main">
 const M = window.META, C = window.COVERS, N = C.length;
 // 버전: 화면·동작이 바뀌면 올린다. 데이터 날짜는 build_web.py 가 META.built 에 적는다
-const VERSION = '0.2.0';
+const VERSION = '0.3.0';
 document.getElementById('ver').textContent = `v${VERSION}`;
 document.getElementById('ver').title = M.built ? `data ${M.built}` : '';
 const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const narrow = () => innerWidth <= 720;                        // CSS 의 max-width: 720px 와 같은 기준
+const NOHOVER = matchMedia('(hover: none)');
 const OUT = 'cubic-bezier(.22,1,.36,1)';
 const GAP = 0.18, ASPECT = 1288 / 1600;
 
@@ -373,6 +430,8 @@ function syncAxisButtons() {
     b.disabled = cur !== null && !has(cur, b.dataset.axis);
   });
   movePill(axesEl);
+  const on = axesEl.querySelector('button.on');
+  if (on && axesEl.scrollWidth > axesEl.clientWidth) on.scrollIntoView({ block: 'nearest', inline: 'center', behavior: RM ? 'auto' : 'smooth' });
 }
 function setAxis(k) {
   if (!AXES[k] || k === axis) return;
@@ -429,6 +488,13 @@ function loadAtlas(name) {
   });
 }
 
+if (!cv.getContext('webgl2', { antialias: false, premultipliedAlpha: true, alpha: true })) {
+  const m = document.createElement('div');
+  m.className = 'nogl';
+  m.textContent = 'This browser can’t run WebGL 2, which this viewer needs.';
+  stage.appendChild(m);
+  throw new Error('WebGL 2 unavailable');
+}
 const G = (() => {
   const gl = cv.getContext('webgl2', { antialias: false, premultipliedAlpha: true, alpha: true });
   const VS = `#version 300 es
@@ -553,24 +619,35 @@ const G = (() => {
     gl.uniform2f(U.uRes, Wc, Hc);
     cache = {};
   }
-  function fitH(cols, rows, H) {
-    const w = Math.min(Wc / (cols + (cols - 1) * GAP), H / (rows / ASPECT + (rows - 1) * GAP));
+  function fitH(cols, rows, H, W = Wc) {
+    const w = Math.min(W / (cols + (cols - 1) * GAP), H / (rows / ASPECT + (rows - 1) * GAP));
     return { w, h: w / ASPECT, g: w * GAP };
   }
   function fit(cols, rows) { return fitH(cols, rows, Hc - 18); }
   function layout(k) {
     if (cache[k]) return cache[k];
     const px = new Float32Array(N).fill(NaN), py = new Float32Array(N).fill(NaN), lab = [];
-    let f;
+    // 세로로 긴 화면(폰)에서는 가로로 긴 지도를 전치한다. 왼쪽 숫자 자리는 좁은 화면에서만 따로 남긴다(넓으면 여백에 들어간다)
+    const tall = Hc > Wc * 1.1, labW = narrow() ? 26 : 0;
+    let f, minX = 0;
     if (k === 'spine') {
       let best = null;
       for (let cols = 10; cols <= 200; cols++) {
-        const rows = Math.ceil(M.maxSpine / cols), ff = fit(cols, rows);
+        const rows = Math.ceil(M.maxSpine / cols), ff = fitH(cols, rows, Hc - 18, Wc - labW);
         if (!best || ff.w > best.f.w) best = { cols, rows, f: ff };
       }
       f = best.f;
       C.forEach((c, i) => { const n = c.spine - 1; px[i] = (n % best.cols) * (f.w + f.g); py[i] = Math.floor(n / best.cols) * (f.h + f.g); });
       for (let r = 0; r < best.rows; r += Math.max(1, Math.round(best.rows / 8))) lab.push([-6, r * (f.h + f.g) + f.h / 2, String(r * best.cols + 1), 'right']);
+      minX = labW;
+    } else if (k === 'year' && tall) {
+      // 해마다 한 줄, 같은 해는 오른쪽으로 쌓는다
+      const years = M.yearMax - M.yearMin + 1, stacks = {}, slot = new Int32Array(N);
+      [...C.keys()].sort((a, b) => C[a].spine - C[b].spine).forEach(i => { const yr = C[i].year; slot[i] = stacks[yr] = (stacks[yr] ?? -1) + 1; });
+      f = fitH(Math.max(12, ...Object.values(stacks).map(v => v + 1)), years, Hc - 18, Wc - labW);
+      C.forEach((c, i) => { px[i] = slot[i] * (f.w + f.g); py[i] = (c.year - M.yearMin) * (f.h + f.g); });
+      for (let yr = Math.ceil(M.yearMin / 10) * 10; yr <= M.yearMax; yr += 10) lab.push([-6, (yr - M.yearMin) * (f.h + f.g) + f.h / 2, String(yr), 'right']);
+      minX = labW;
     } else if (k === 'year') {
       const cols = M.yearMax - M.yearMin + 1, stacks = {}, slot = new Int32Array(N);
       [...C.keys()].sort((a, b) => C[a].spine - C[b].spine).forEach(i => { const yr = C[i].year; slot[i] = stacks[yr] = (stacks[yr] ?? -1) + 1; });
@@ -579,13 +656,13 @@ const G = (() => {
       C.forEach((c, i) => { px[i] = (c.year - M.yearMin) * (f.w + f.g); py[i] = H - f.h - slot[i] * (f.h + f.g); });
       for (let yr = Math.ceil(M.yearMin / 10) * 10; yr <= M.yearMax; yr += 10) lab.push([(yr - M.yearMin) * (f.w + f.g), H + 18, String(yr), 'left']);
     } else {
-      const [cols, rows] = M.grids[k];
-      f = fit(cols, rows);
-      C.forEach((c, i) => { if (c.g[k]) { px[i] = c.g[k][0] * (f.w + f.g); py[i] = c.g[k][1] * (f.h + f.g); } });
+      const [cols, rows] = M.grids[k], X = tall ? 1 : 0, Y = 1 - X;
+      f = tall ? fit(rows, cols) : fit(cols, rows);
+      C.forEach((c, i) => { if (c.g[k]) { px[i] = c.g[k][X] * (f.w + f.g); py[i] = c.g[k][Y] * (f.h + f.g); } });
     }
     let maxX = 0;
     for (let i = 0; i < N; i++) if (px[i] === px[i]) maxX = Math.max(maxX, px[i]);
-    const ox = Math.max(0, (Wc - (maxX + f.w)) / 2);
+    const ox = Math.max(minX, (Wc - (maxX + f.w)) / 2);
     for (let i = 0; i < N; i++) px[i] += ox;
     lab.forEach(l => { l[0] += ox; });
     return cache[k] = { px, py, tw: f.w, labels: lab };
@@ -690,6 +767,19 @@ const G = (() => {
     }
     return -1;
   }
+  // 손가락용: 정확히 닿지 않아도 r px 안에서 가장 가까운 타일
+  function near(mx, my, r) {
+    const now = performance.now();
+    let best = -1, bd = r;
+    for (let i = 0; i < N; i++) {
+      const s = stateAt(i, now, tmp);
+      if (s[3] < .5 || i === hidden) continue;
+      const h = s[2] / ASPECT, dx = Math.max(s[0] - mx, 0, mx - s[0] - s[2]), dy = Math.max(s[1] - my, 0, my - s[1] - h);
+      const d = Math.hypot(dx, dy);
+      if (d < bd || (d === 0 && bd === 0)) { bd = d; best = i; if (d === 0) break; }
+    }
+    return best;
+  }
   function rect(i, target = true) {
     const r = stage.getBoundingClientRect();
     const s = target ? to.subarray(i * 4, i * 4 + 4) : stateAt(i, performance.now(), new Float32Array(4));
@@ -703,7 +793,7 @@ const G = (() => {
     loadAtlas('cover').then(() => (window.requestIdleCallback || setTimeout)(next, { timeout: 3000 }));
   }
   return {
-    size, go, mix, hit, rect, kick, layout, dirty, prefetch,
+    size, go, mix, hit, near, rect, kick, layout, dirty, prefetch,
     visible: i => to[i * 4 + 3] > .5,
     setHover(i) { if (i !== hover) { hover = i; gl.uniform1i(U.uHover, i); kick(); } },
     setHidden(i) { hidden = i; gl.uniform1i(U.uHidden, i); kick(); },
@@ -726,11 +816,13 @@ let lensOn = null, lensBox = null;
 function sprite(el, name, i) {
   el.style.background = `url("atlas/${name}.${HTTP ? 'webp' : 'jpg'}") ${(i % A.cols) / (A.cols - 1) * 100}% ${Math.floor(i / A.cols) / (A.rows - 1) * 100}% / ${A.cols * 100}% ${A.rows * 100}%`;
 }
-function showLens(i) {
+function showLens(i, touch = false) {
   const c = C[i], r = G.rect(i, false);
-  const k = 2.4, w = r.width * k, h = r.height * k;
+  // 손가락으로는 타일이 작아 더 크게, 손가락에 가리지 않게 위에 띄운다(위에 자리가 없으면 아래)
+  const k = 2.4, w = touch ? Math.max(r.width * k, 132) : r.width * k, h = touch ? w / ASPECT : r.height * k;
   const x = Math.max(4, Math.min(innerWidth - w - 4, r.left + r.width / 2 - w / 2));
-  const y = Math.max(60, Math.min(innerHeight - h - 4, r.top + r.height / 2 - h / 2));
+  let y = Math.max(60, Math.min(innerHeight - h - 4, r.top + r.height / 2 - h / 2));
+  if (touch) y = r.top - h - 28 >= 60 ? r.top - h - 28 : Math.min(innerHeight - h - 4, r.bottom + 28);
   lens.classList.toggle('jump', lensOn === null);
   lens.style.width = w + 'px'; lens.style.height = h + 'px';
   lens.style.transform = `translate(${x}px, ${y}px)`;
@@ -740,26 +832,68 @@ function showLens(i) {
   lensOn = i; lensBox = { left: x, top: y, right: x + w, width: w, height: h };
 }
 function hideLens() { lens.classList.remove('show'); lensOn = null; G.setHover(-1); cv.classList.remove('hover'); }
+function showTip(i, touch = false) {
+  const c = C[i];
+  tip.innerHTML = `<b>${esc(c.title)}</b><br>#${c.spine} · ${c.year} · ${esc(c.directors)}`;
+  tip.classList.add('show');
+  const b = lensBox, tw = tip.offsetWidth || 280, th = tip.offsetHeight;
+  if (touch || narrow()) {   // 좁은 화면: 미리보기 옆에 자리가 없어 위나 아래에 붙인다
+    tip.style.left = Math.max(4, Math.min(innerWidth - tw - 4, b.left + b.width / 2 - tw / 2)) + 'px';
+    tip.style.top = (b.top - th - 8 >= 60 ? b.top - th - 8 : b.top + b.height + 8) + 'px';
+    return;
+  }
+  tip.style.left = (b.right + 10 + tw < innerWidth ? b.right + 10 : Math.max(4, b.left - 10 - tw)) + 'px';
+  tip.style.top = Math.min(b.top, innerHeight - th - 8) + 'px';
+}
+function openFromGrid(i) {
+  const from = lensOn === i && lensBox ? lensBox : G.rect(i, false);
+  tip.classList.remove('show'); hideLens();
+  openTri(i, true, from);
+}
+// 터치 직후 브라우저가 흉내 내는 마우스 이벤트는 무시한다
+let lastTouch = -1e9;
+const fromTouch = () => performance.now() - lastTouch < 800;
 cv.addEventListener('mousemove', e => {
+  if (fromTouch()) return;
   const r = stage.getBoundingClientRect(), i = G.hit(e.clientX - r.left, e.clientY - r.top);
   if (i < 0) { tip.classList.remove('show'); hideLens(); return; }
   G.setHover(i); cv.classList.add('hover');
   if (i !== lensOn) showLens(i);
-  const c = C[i];
-  tip.innerHTML = `<b>${esc(c.title)}</b><br>#${c.spine} · ${c.year} · ${esc(c.directors)}`;
-  tip.classList.add('show');
-  const b = lensBox, tw = tip.offsetWidth || 280;
-  tip.style.left = (b.right + 10 + tw < innerWidth ? b.right + 10 : Math.max(4, b.left - 10 - tw)) + 'px';
-  tip.style.top = Math.min(b.top, innerHeight - tip.offsetHeight - 8) + 'px';
+  showTip(i);
 });
-cv.addEventListener('mouseleave', () => { tip.classList.remove('show'); hideLens(); });
+cv.addEventListener('mouseleave', () => { if (!fromTouch()) { tip.classList.remove('show'); hideLens(); } });
 cv.addEventListener('click', e => {
+  if (fromTouch()) return;
   const r = stage.getBoundingClientRect(), i = G.hit(e.clientX - r.left, e.clientY - r.top);
-  if (i < 0) return;
-  const from = lensOn === i && lensBox ? lensBox : G.rect(i, false);
-  tip.classList.remove('show'); hideLens();
-  openTri(i, true, from);
+  if (i >= 0) openFromGrid(i);
 });
+/* 터치: 훑으면 미리보기가 따라오고, 미리보기 중인 커버를 한 번 더 누르거나 미리보기를 누르면 연다 */
+let downOn = null;
+function touchAt(e) {
+  const r = stage.getBoundingClientRect(), i = G.near(e.clientX - r.left, e.clientY - r.top, 18);
+  if (i < 0) { tip.classList.remove('show'); hideLens(); return -1; }
+  G.setHover(i);
+  if (i !== lensOn) showLens(i, true);
+  showTip(i, true);
+  return i;
+}
+cv.addEventListener('pointerdown', e => {
+  if (e.pointerType === 'mouse') return;
+  lastTouch = performance.now(); downOn = lensOn;
+  cv.setPointerCapture(e.pointerId);
+  touchAt(e);
+});
+cv.addEventListener('pointermove', e => {
+  if (e.pointerType === 'mouse' || !cv.hasPointerCapture(e.pointerId)) return;
+  lastTouch = performance.now(); touchAt(e);
+});
+cv.addEventListener('pointerup', e => {
+  if (e.pointerType === 'mouse') return;
+  lastTouch = performance.now();
+  const i = touchAt(e);
+  if (i >= 0 && i === downOn) openFromGrid(i);
+});
+lens.addEventListener('click', () => { if (lensOn !== null && cur === null) openFromGrid(lensOn); });
 
 /* ---------- 흔적: 세 폭 보기의 큰 캔버스 ---------- */
 window.TRACE = window.TRACE || {};
@@ -923,8 +1057,12 @@ function nbr(i, k, dr, dc) {
 function pair(i, k) { return [nbr(i, k, 0, -1), nbr(i, k, 0, 1)]; }
 function pair2(i, k) { return [nbr(i, k, 0, -2), nbr(i, k, 0, 2)]; }
 let exits = {};
+// 넓은 화면은 4열(이전 · 지금 · 정보 · 다음), 좁은 화면은 3열(이전 · 지금 · 다음)이고 정보는 아래 줄
+const gc = col => narrow() ? { 1: 1, 2: 2, 4: 3 }[col] : col;
+let focusBack = null;
 function openTri(i, push = true, from = null) {
   const opening = cur === null;
+  if (opening) { focusBack = document.activeElement; setTimeout(() => tri.focus({ preventScroll: true }), 0); }
   if (push && cur !== null && cur !== i) hist.push(cur);
   cur = i;
   if (!has(i, axis)) { axis = KEYS.find(k => has(i, k)); G.go(axis, false); swapText(document.getElementById('gridName'), AXES[axis].name); }
@@ -950,6 +1088,15 @@ function flyWithin(el, a) {
    띠 안 포스터도 같은 크기(--bw × --bh)로 잘린다 */
 function triSize() {
   const cs = getComputedStyle(panels), edge = parseFloat(cs.getPropertyValue('--edge')) || 54, gap = parseFloat(cs.getPropertyValue('--gap')) || 18;
+  if (narrow()) {
+    // 폭의 62%. 정보 칸에 적어도 190px 를 남긴다. 양옆(--sw)은 남는 폭을 반씩
+    const W = panels.clientWidth, H = panels.clientHeight;
+    const bw = Math.max(80, Math.floor(Math.min(W * .62, (H - 2 * edge - 3 * gap - 190) * ASPECT)));
+    panels.style.setProperty('--bw', bw + 'px');
+    panels.style.setProperty('--bh', Math.round(bw / ASPECT) + 'px');
+    panels.style.setProperty('--sw', Math.max(0, Math.floor((W - bw - 2 * gap) / 2)) + 'px');
+    return;
+  }
   const W = panels.clientWidth - 64, H = panels.clientHeight;
   const bw = Math.floor(Math.min((W - 3 * gap) / 4, (H - 2 * edge - 2 * gap) * ASPECT));
   const bh = Math.round(bw / ASPECT);
@@ -1006,11 +1153,13 @@ function showTri({ kind = 'axis', from = null } = {}) {
     const p = C[i], side = i !== cur;
     const box = document.createElement('div');
     box.className = 'box' + (side ? ' side' : ' mid');
-    box.style.gridColumn = col;
+    box.style.gridColumn = gc(col);
+    box._i = i;
     box.dataset.role = side ? (col === 1 ? 'left' : 'right') : 'mid';
     box.innerHTML = `<img src="large/${encodeURIComponent(p.file)}" alt="${esc(p.title)} cover"><canvas></canvas>`;
     drawTrace(box.querySelector('canvas'), p, axis);
-    box.addEventListener('click', side ? ev => openTri(i, true, ev.currentTarget.getBoundingClientRect()) : nextAxis);
+    // 날아가기 출발점은 잘린 칸이 아니라 커버 전체(img)의 사각형
+    box.addEventListener('click', side ? ev => openTri(i, true, ev.currentTarget.querySelector('img').getBoundingClientRect()) : nextAxis);
     // 가운데 커버는 팝오버를 띄우지 않는다(화면의 주인공이라 가린다). enter 는 그대로 동작
     panels.append(box);
   });
@@ -1034,7 +1183,7 @@ function showTri({ kind = 'axis', from = null } = {}) {
     const el = document.createElement('div');
     el.className = 'peek';
     el.dataset.row = row; el.dataset.col = col;
-    el.style.gridColumn = col;
+    el.style.gridColumn = gc(col);
     el.innerHTML = `<img src="large/${encodeURIComponent(C[ex.j].file)}" alt="${esc(C[ex.j].title)} cover"><canvas></canvas>`;
     drawTrace(el.querySelector('canvas'), C[ex.j], axis);
     el.addEventListener('click', () => goExit(row, col));
@@ -1076,10 +1225,12 @@ function goExit(row, col = 2) {
 }
 function goSide(role) {
   const box = panels.querySelector(`.box.side[data-role="${role}"]`);
-  if (box) box.click();
+  if (box) openTri(box._i, true, box.querySelector('img').getBoundingClientRect());
 }
-function closeTri() {
+function closeTri(fromPop = false) {
   if (cur === null) return;
+  const goBack = pushed && !fromPop;   // 돌아간 기록의 주소는 popstate 에서 지금 상태로 고친다
+  if (goBack) { pushed = false; history.back(); }
   const i = cur, box = panels.querySelector('.box.mid');
   const land = !RM && box && G.visible(i);
   if (land) {
@@ -1093,9 +1244,57 @@ function closeTri() {
   document.body.classList.remove('tri-open');
   cur = null; hist = [];
   syncAxisButtons();
-  syncHash();
+  if (!goBack) syncHash();
+  if (focusBack && document.contains(focusBack)) focusBack.focus({ preventScroll: true }); else cv.focus({ preventScroll: true });
+  focusBack = null;
 }
-document.getElementById('close').addEventListener('click', closeTri);
+document.getElementById('close').addEventListener('click', () => closeTri());
+
+/* 세 폭 보기 스와이프: 좌우 = 이전·다음, 위아래 = 아래·위 줄로(밀어 올리면 아래 줄이 온다). 정보 칸은 스크롤에 쓴다 */
+let swipe = null, swallowClick = 0;
+panels.addEventListener('pointerdown', e => {
+  if (e.pointerType === 'mouse' || e.target.closest('.info')) return;
+  swipe = { x: e.clientX, y: e.clientY };
+});
+panels.addEventListener('pointercancel', () => { swipe = null; });
+panels.addEventListener('pointerup', e => {
+  if (!swipe) return;
+  const dx = e.clientX - swipe.x, dy = e.clientY - swipe.y;
+  swipe = null;
+  if (Math.max(Math.abs(dx), Math.abs(dy)) < 40) return;
+  swallowClick = performance.now();
+  if (Math.abs(dx) > Math.abs(dy)) goSide(dx < 0 ? 'right' : 'left');
+  else goExit(dy < 0 ? 'down' : 'up', 2);
+});
+panels.addEventListener('click', e => { if (performance.now() - swallowClick < 400) { e.stopPropagation(); e.preventDefault(); } }, true);
+
+/* ---------- 격자 키보드 이동: 방향키로 가장 가까운 이웃 타일, enter 로 연다 ---------- */
+let kf = -1;
+function gridStep(dir) {
+  const L = G.layout(axis), ok = i => L.px[i] === L.px[i];
+  const cx = i => L.px[i] + L.tw / 2, cy = i => L.py[i] + L.tw / ASPECT / 2;
+  let next = -1;
+  if (kf < 0 || !ok(kf)) {   // 처음엔 왼쪽 위 커버
+    let best = Infinity;
+    for (let i = 0; i < N; i++) if (ok(i) && L.py[i] * 4 + L.px[i] < best) { best = L.py[i] * 4 + L.px[i]; next = i; }
+  } else {
+    const [ux, uy] = { left: [-1, 0], right: [1, 0], up: [0, -1], down: [0, 1] }[dir];
+    let best = Infinity;
+    for (let i = 0; i < N; i++) {
+      if (!ok(i) || i === kf) continue;
+      const dx = cx(i) - cx(kf), dy = cy(i) - cy(kf), along = dx * ux + dy * uy, across = Math.abs(dx * uy - dy * ux);
+      if (along <= 1) continue;
+      const score = along + across * 2.5;   // 진행 방향 우선, 옆으로 벗어날수록 불리
+      if (score < best) { best = score; next = i; }
+    }
+  }
+  if (next < 0) return;
+  kf = next;
+  G.setHover(kf); showLens(kf); showTip(kf);
+}
+function gridBlur() { if (kf >= 0) { kf = -1; tip.classList.remove('show'); hideLens(); } }
+cv.addEventListener('blur', gridBlur);
+cv.addEventListener('mousemove', () => { kf = -1; });
 
 /* ---------- 단축키: e.code(물리 키)로 읽어 한/영 입력 상태와 무관하다 (KeyF = f, F, ㄹ) ---------- */
 // 3×3 키 배치가 화면의 3×3(정보 칸 제외)과 같다: q w e / a s d / z x c
@@ -1117,7 +1316,13 @@ addEventListener('keydown', e => {
     if (cur === null || has(cur, k)) setAxis(k);
     return;
   }
-  if (cur === null) return;
+  if (cur === null) {
+    const dir = { ArrowLeft: 'left', ArrowRight: 'right', ArrowUp: 'up', ArrowDown: 'down' }[c];
+    if (dir) { e.preventDefault(); if (document.activeElement !== cv) cv.focus({ preventScroll: true }); gridStep(dir); }
+    else if (c === 'Enter' && kf >= 0) { e.preventDefault(); const i = kf; kf = -1; openFromGrid(i); }
+    else if (c === 'Escape') gridBlur();
+    return;
+  }
   if (c === 'Escape') closeTri();
   else if (c === 'Backspace') { e.preventDefault(); if (hist.length) openTri(hist.pop(), false); }
   else if (c === 'Enter') { e.preventDefault(); nextAxis(); }
@@ -1144,6 +1349,7 @@ function showKbd(el) {
   kbd.style.top = Math.max(8, y) + 'px';
 }
 document.addEventListener('mouseover', e => {
+  if (NOHOVER.matches || fromTouch()) return;
   const el = e.target.closest?.('[data-key]');
   if (el === kbdEl) return;
   hideKbd();
@@ -1186,7 +1392,8 @@ function runSearch() {
   renderResults(); setCount();
 }
 function setCount() {
-  document.getElementById('count').textContent = qEl.value.trim() ? `${hits.length} / ${M.count}` : `${M.count} / ${M.films}`;
+  // 밝게 남은 커버 / 전체 편수. 평소엔 확보한 커버 전부, 검색 중엔 맞는 것
+  document.getElementById('count').textContent = `${qEl.value.trim() ? hits.length : M.count} / ${M.films}`;
 }
 function renderResults() {
   const q = qEl.value.trim();
@@ -1236,12 +1443,23 @@ resEl.addEventListener('mousemove', e => {
 });
 
 /* ---------- 주소: #<축>[,t][,tri=<spine>] ---------- */
+/* 세 폭 보기를 열 때만 기록을 하나 쌓는다(pushState). 그 안의 이동·축 바꾸기는 그 기록을 고쳐 쓴다.
+   닫기(×, esc)는 history.back() 으로 그 기록을 걷어 내고, 브라우저 뒤로 가기는 popstate 에서 닫는다 */
+let pushed = false;
 function syncHash() {
   const parts = [axis];
   if (traceOn) parts.push('t');
   if (cur !== null) parts.push(`tri=${C[cur].spine}`);
-  history.replaceState(null, '', '#' + parts.join(','));
+  const h = '#' + parts.join(',');
+  if (cur !== null && !pushed) { history.pushState({ tri: true }, '', h); pushed = true; }
+  else history.replaceState(history.state, '', h);
 }
+addEventListener('popstate', () => {
+  const sp = +(location.hash.match(/tri=(\d+)/)?.[1] || 0);
+  if (cur !== null && !sp) { pushed = false; closeTri(true); }
+  else if (cur === null && sp) { const i = C.findIndex(c => c.spine === sp); if (i >= 0) { pushed = true; openTri(i); } }
+  else if (cur === null) syncHash();   // 닫기로 돌아온 기록: 축·눈 상태를 지금 것으로
+});
 function start() {
   const parts = location.hash.slice(1).split(',');
   // 예전 주소(#map, #spine,tri=2:lines:t)도 받아 준다
@@ -1253,13 +1471,17 @@ function start() {
   syncAxisButtons(); movePill(axesEl, true);
   setTrace(parts.includes('t') || parts.includes('trace') || old[2] === 't');
   const i = old[0] ? C.findIndex(c => c.spine === +old[0]) : -1;
-  if (i >= 0) openTri(i);
+  if (i >= 0) { history.replaceState(null, '', '#' + [axis, ...(traceOn ? ['t'] : [])].join(',')); openTri(i); }
   G.prefetch();
 }
-let rz;
+let rz, wasNarrow = narrow();
 addEventListener('resize', () => {
   clearTimeout(rz);
-  rz = setTimeout(() => { G.size(); G.go(axis, false); movePill(axesEl, true); if (cur !== null) triSize(); }, 60);
+  rz = setTimeout(() => {
+    G.size(); G.go(axis, false); movePill(axesEl, true);
+    if (cur !== null) { if (narrow() !== wasNarrow) showTri({ kind: 'axis' }); else triSize(); }
+    wasNarrow = narrow();
+  }, 60);
 });
 start();
 </script>

@@ -50,6 +50,8 @@
   - 머리줄: 눈(맨 왼쪽) · 축 · … · 개수 · 검색 · 닫기. 오른쪽 아래 크레딧(umjo.me, Poster World, Not affiliated). favicon.svg(눈), og.jpg.
   - 격자에서 흔적을 켠 채 축을 바꾸면 제자리에서 흔적이 번져 바뀐 뒤(SWAP 420ms) 움직인다. 세 폭 보기 등장 순서는 q w e a s d z x c, 정보 글자는 맨 끝.
   - 구도선 축은 full 버전이라 글자 획이 선으로 많이 잡힌다. art 버전과 비교할 것.
+  - v0.3.0 모바일(폭 720px 이하, CSS 와 JS narrow() 가 같은 기준): 축 버튼 가로 스크롤, 검색은 펼치면 머리줄을 덮음, 세로 화면이면 지도 축·연도 축을 전치. 터치는 훑으면 미리보기(가장 가까운 타일 18px 안), 같은 커버를 한 번 더 누르거나 미리보기를 누르면 연다. 세 폭 보기는 이전·지금·다음 한 줄(양옆은 안쪽 가장자리만) + 위·아래 띠 + 아래 정보, 스와이프로 이동(밀어 올리면 아래 줄).
+  - 같은 버전: 세 폭 보기를 열 때만 pushState(브라우저 뒤로 가기 = 닫기, ×·esc 는 history.back()), 격자 방향키 이동 + enter, 세 폭 보기 포커스 이동·복귀, WebGL 2 없으면 안내 문구. 개수 표시는 늘 '밝은 커버 / 전체 편수'.
 - 박스 세트 커버 시험 수집(2026-11-11, 사용자: "일단 받고 생각하자"): scripts/fetch_box_covers.py → posters_box/, 기록 data/raw/box_cover_sources.csv. 박스 세트 쪽 spine 245개 중 Wikidata 에 Criterion ID 가 있는 151편. DB 에는 넣지 않았다. 넣을지는 사용자 결정 대기.
   - 결과: 151편 전부 받음, 박스 세트 49개. 이미지 주소는 151개 모두 다르지만 그림이 같은 쌍이 14개(28편): World Cinema Project 1–4 는 디스크 한 장(2편)마다 커버 하나, Gates of Heaven/Vernon, Florida, The Emigrants/The New Land, I Am Curious Yellow/Blue(부제만 다름). 자기 커버가 있는 것은 123편(예: 284 Kanal, DVD 시기 디자인).
   - 같은 그림 판정: 24×30 흑백 상관 0.99 이상. World Cinema Project 끼리는 같은 템플릿이라 0.9–0.94 로 높게 나오니 기준을 낮추지 말 것.
