@@ -1,4 +1,4 @@
-# Criterion Collection World (CCW)
+# The Criterion Collection World (CCW)
 
 크라이테리온 컬렉션 커버를 AI로 분석하는 개인 웹 인터랙티브 프로젝트의 작업 폴더.
 
