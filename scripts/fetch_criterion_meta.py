@@ -9,10 +9,6 @@
 사용
   .venv/bin/python scripts/fetch_criterion_meta.py            # 없는 것만
   .venv/bin/python scripts/fetch_criterion_meta.py --parse    # 받은 HTML 만 다시 읽기
-  .venv/bin/python scripts/fetch_criterion_meta.py --fill     # 화면비가 없는 영화만 최신 보관본으로 받아 기존 결과에 합친다
-
---fill 은 archive.org 가 동시 요청에 Connection refused 로 한동안 막아서 한 장씩 FILL_PAUSE 간격으로 받는다.
-커버 보관본 시점이 없거나 그 시점 페이지에 Film Info 가 없으면, 미래 날짜(2099)로 요청해 가장 최근 보관본을 쓴다.
 """
 
 from __future__ import annotations
@@ -24,7 +20,6 @@ import re
 import sqlite3
 import sys
 import time
-import urllib.parse
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
@@ -35,9 +30,6 @@ ROOT = Path(__file__).resolve().parent.parent
 RAW = ROOT / "data" / "raw"
 PAGES = RAW / "criterion_pages"
 OUT = RAW / "criterion_meta.json"
-FILL_PAUSE = 4.0
-# 화면비 한 개 또는 여러 개. 판본 주석(괄호)과 구분자(, ; /)를 허용. Criterion 표기 오타 '1:37:1' 도 받는다
-RATIO_LIST = re.compile(r"\d[\d.:]*:1(\s*\([^)]*\))?(\s*[,;/]\s*\d[\d.:]*:1(\s*\([^)]*\))?)*")
 
 
 def snaps() -> dict[int, str]:
@@ -88,7 +80,7 @@ def parse(h: str) -> dict:
                 n = re.search(r"\d+", t)
                 if n:
                     d["runtime"] = int(n.group())
-            elif "aspect" in attr or RATIO_LIST.fullmatch(t):
+            elif "aspect" in attr or re.fullmatch(r"[\d.]+:1", t):
                 d["aspect"] = t
             elif re.fullmatch(r"\d{4}", t):
                 d["year"] = int(t)
@@ -109,68 +101,11 @@ def parse(h: str) -> dict:
     return d
 
 
-def slug_url(cid: str) -> str | None:
-    if cid.startswith("box:"):
-        return None
-    q = urllib.parse.urlencode({"url": f"www.criterion.com/films/{cid}-", "matchType": "prefix", "filter": "statuscode:200",
-                                "output": "json", "fl": "timestamp,original", "limit": "-3"})
-    rows = json.loads(get(f"https://web.archive.org/cdx/search/cdx?{q}") or b"[]")
-    time.sleep(FILL_PAUSE)
-    return f"https://web.archive.org/web/{rows[-1][0]}id_/{rows[-1][1]}" if len(rows) > 1 else None
-
-
-def fill(rows: list[tuple[int, str]], sn: dict[int, str]) -> None:
-    """화면비가 없는 단독 영화만 받아 OUT 에 합친다. 이미 있는 항목은 건드리지 않는다(로컬에 페이지가 없어도 된다)."""
-    out = {int(k): v for k, v in json.loads(OUT.read_text()).items()} if OUT.exists() else {}
-    con = sqlite3.connect(ROOT / "data" / "criterion.sqlite")
-    films = {s for (s,) in con.execute("select spine from films where kind != 'box'")}
-    todo = [(s, c) for s, c in rows if s in films and not out.get(s, {}).get("aspect")]
-    print(f"{len(todo)} films without aspect", flush=True)
-    fails = 0
-    for n, (s, cid) in enumerate(todo, 1):
-        dest = PAGES / f"{s}.html"
-        h = dest.read_text(encoding="utf-8", errors="ignore") if dest.exists() else ""
-        if "film-meta-list" not in h:
-            h = ""
-            urls = [f"https://web.archive.org/web/{ts}id_/{page_url(cid)}" for ts in ([sn[s]] if s in sn else []) + ["2099"]]
-            urls.append("slug")   # 짧은 주소로 보관된 적이 없으면 제목이 붙은 주소(/films/<id>-<slug>)의 최신 보관본
-            for u in urls:
-                ts = u.split("/")[4] if u != "slug" else "slug"
-                try:
-                    if u == "slug":
-                        u = slug_url(cid)
-                        if not u:
-                            break
-                    data = get(u) or b""
-                except Exception as e:  # noqa: BLE001
-                    print(f"  {s} {ts} fail {e}", flush=True)
-                    data = b""
-                    if not re.search(r"HTTP Error 40[34]", str(e)):   # 그 페이지만 막힌 것(403·404)은 차단으로 세지 않는다
-                        fails += 1
-                time.sleep(FILL_PAUSE)
-                if b"film-meta-list" in data:
-                    dest.write_bytes(data)
-                    h = data.decode("utf-8", errors="ignore")
-                    fails = 0
-                    break
-            if fails >= 5:
-                print("  연달아 실패해 멈춘다. 나중에 다시 실행하면 이어서 받는다", flush=True)
-                break
-        if h:
-            out[s] = {**out.get(s, {}), **parse(h)}
-        print(f"[{n}/{len(todo)}] {s} {out.get(s, {}).get('aspect', '-')}", flush=True)
-    OUT.write_text(json.dumps({str(k): out[k] for k in sorted(out)}, ensure_ascii=False))
-    print(f"aspect {sum(1 for d in out.values() if d.get('aspect'))}/{len(out)} -> {OUT}")
-
-
 def main() -> None:
     PAGES.mkdir(parents=True, exist_ok=True)
     con = sqlite3.connect(ROOT / "data" / "criterion.sqlite")
     rows = [(s, c) for s, c in con.execute("select spine, criterion_id from films where criterion_id != ''")]
     sn = snaps()
-    if "--fill" in sys.argv:
-        fill(rows, sn)
-        return
     if "--parse" not in sys.argv:
         todo = [(s, c, sn[s]) for s, c in rows if s in sn and not (PAGES / f"{s}.html").exists()]
         print(f"{len(todo)} pages to fetch", flush=True)
