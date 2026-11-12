@@ -29,7 +29,7 @@
 
   /* 두 화면이 함께 쓰는 머리줄: 축 + 원본/흔적 */
   header { position: fixed; top: 0; left: 0; right: 0; height: 56px; display: flex; align-items: center;
-    gap: 14px; padding: 0 32px; z-index: 30; }
+    gap: 14px; padding: 0 32px; z-index: 40; }   /* 크레딧(30)보다 위: 검색 결과·축 목록이 아래로 길게 내려와도 덮는다 */
   .group { position: relative; display: flex; gap: 2px; background: #111; border-radius: 999px; padding: 4px; }
   .group button { position: relative; z-index: 1; border: 0; background: transparent; color: var(--dim); font-size: var(--t3);
     height: 28px; padding: 0 14px; border-radius: 999px; cursor: pointer; white-space: nowrap; transition: color .3s var(--out); }
@@ -276,9 +276,13 @@
     .eye, .close { flex: none; }
     .count { display: none; }
     /* 검색: 펼치면 머리줄을 덮는다. 접힌 채 검색어가 있으면 돋보기 동그라미를 밝게 */
-    .search { flex: none; }
-    .search:focus-within { position: fixed; left: 16px; right: 16px; top: 10px; z-index: 50; }
-    .search:focus-within #q { width: 100%; }
+    /* 검색: 돋보기 동그라미의 오른쪽 끝을 고정한 채 왼쪽으로 늘어난다(세 폭 보기에선 닫기 버튼 앞까지).
+       자리를 옮기지 않고 폭만 바뀌어 끊기지 않는다 */
+    .search { --sr: 16px; position: absolute; top: 10px; right: var(--sr); width: 36px; height: 36px; z-index: 50;
+      transition: width .45s var(--out); }
+    body.tri-open .search { --sr: 60px; }
+    .search:focus-within { width: calc(100% - 16px - var(--sr)); }
+    .search #q, .search:focus-within #q { width: 100%; transition: background .2s, padding .45s var(--out); }
     .search.has:not(:focus-within) #q { width: 36px; padding-right: 0; background: var(--fg); }
     .search.has:not(:focus-within) .icon { stroke: #000; }
     .search:not(:focus-within) .clear { opacity: 0; pointer-events: none; }
