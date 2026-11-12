@@ -472,8 +472,9 @@ const G = (() => {
     loadAtlas(name).then(img => { if (img && !tex[name]) { upload(name, img); dirty(); } });
   }
   // 원본 커버: 배포에서는 반 크기(약 0.7MB)를 먼저 올리고, 큰 아틀라스가 오면 바꾼다
-  if (HTTP) loadAtlas('cover_s').then(img => { if (img && !coverOk) { upload('cover', img); coverOk = true; dirty(); } });
-  loadAtlas('cover').then(img => { if (img) { if (tex.cover) gl.deleteTexture(tex.cover); upload('cover', img); coverOk = true; dirty(); } });
+  const full = () => loadAtlas('cover').then(img => { if (img) { if (tex.cover) gl.deleteTexture(tex.cover); upload('cover', img); coverOk = true; dirty(); } });
+  if (HTTP) loadAtlas('cover_s').then(img => { if (img && !coverOk) { upload('cover', img); coverOk = true; dirty(); } }).then(full);   // 작은 것을 다 받은 뒤 큰 것
+  else full();
 
   // 화면 좌표 캐시: 축 → { px, py (NaN = 없음), tw, labels }
   let cache = {}, dpr = 1, Wc = 0, Hc = 0;

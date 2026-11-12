@@ -70,7 +70,7 @@
 
 ## 배포 (2026-11-12 준비)
 
-- GitHub 레포 + Cloudflare Pages(출력 폴더 web, 빌드 명령 없음), 도메인 cc.umjo.me. .gitignore 가 원본·레퍼런스·중간 결과·file:// 용 산출물(atlas *.js/*.jpg, strokes *.png)을 뺀다. 레포 약 123MB, 5,300 파일.
+- 레포 https://github.com/thumbjiho/criterion-world (public). 배포는 scripts/deploy.sh: git 에 올라간 web/ 만 모아 Cloudflare Workers 정적 자산(Worker 이름 criterion-world, 도메인 cc.umjo.me)으로 올린다. wrangler 4.160 은 pages project create 를 Workers 로 넘겨서 Pages 대신 이 방식. GitHub 와 자동 연결은 없다(커밋·푸시 후 deploy.sh). .gitignore 가 원본·레퍼런스·중간 결과·file:// 용 산출물(atlas *.js/*.jpg, strokes *.png)을 뺀다. 레포 약 123MB, 5,300 파일.
 - http 에서는 아틀라스를 WebP 로 읽고 원본 아틀라스는 반 크기(cover_s.webp 0.75MB)를 먼저 올린다. 흔적 아틀라스 미리 받기는 큰 원본 아틀라스가 온 뒤. 캐시는 web/_headers.
 - 로컬에서 file:// 로 열면 예전처럼 data URL JS 를 쓴다.
 - 버전: 오른쪽 아래 'v0.1.0 · data 2026-11-12'. 화면·동작을 바꿔 배포할 때 web/index.html 의 VERSION 을 올린다. 데이터 날짜는 build_web.py 가 META.built 에 적는다.
