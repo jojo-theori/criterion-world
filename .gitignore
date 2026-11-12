@@ -20,3 +20,10 @@ data/regions/
 web/atlas/*.js
 web/atlas/*.jpg
 web/strokes/*.png
+
+# 이 Mac 의 로컬 작업물(venv 링크, 내려받은 모델, 480px 사본·이전 분석·빈 칸 커버 찾기)
+.venv
+data/models/
+posters_480/
+posters_missing/
+data_480/

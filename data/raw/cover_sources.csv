@@ -1097,50 +1097,50 @@ spine,criterion_id,snapshot,image_url,width,height,status
 819,27902,20250316215019,https://s3.amazonaws.com/criterion-production/films/3c2f9f202a6b57f2b444b424209ebe28/c5ox5KYrMRnqR8Wqw4VC8Zmn7pha4X_original.jpg,1288,1600,ok
 842,28700,20260220140540,https://s3.amazonaws.com/criterion-production/films/e9fc8a91b2f9ebe10efb6edde367dffe/LRIg86I1YijdtiaQ7G1aWN6USnhprt_original.jpg,1288,1600,ok
 1329,,,,,,fail: LookupError: no criterion_id
-88,,,,,,fail: LookupError: no criterion_id
-79,,,,,,fail: LookupError: no criterion_id
+88,625,,,1288,1600,manual
+79,,,,1288,1600,manual
 66,box:155-the-orphic-trilogy,20260210052758,https://s3.amazonaws.com/criterion-production/product_images/1836-3f162562261e055f62b74fad187f814c/gvlLIyoIOj8bseeE1jh16ttnnyrYTT_original.jpg,1288,1600,ok
 100,638,20260809064804,https://s3.amazonaws.com/criterion-production/films/5d4e823b0423c12ee26cc989dfc1b576/hXfCsS5uWKrEmRzTRFosLsvJgxLie4_original.jpg,1288,1600,ok
 86,box:204-eisenstein-the-sound-years,20260627212925,https://s3.amazonaws.com/criterion-production/product_images/1838-ee328a31205b114ef125fd81b54b5cd0/VZGhEsbGQY3luUNqMc64IKmXGoRe9U_original.jpg,1288,1600,ok
-169,,,,,,fail: LookupError: no criterion_id
+169,722,,,1288,1600,manual
 124,box:254-carl-theodor-dreyer-box-set,20251009182659,https://s3.amazonaws.com/criterion-production/product_images/1860-82b0f5807053a21a1cae335b8d477d7f/ZA7wOpAzBD7Xh0bDvZhFii5RQ8BD02_original.jpg,1288,1600,ok
-179,,,,,,fail: LookupError: no criterion_id
-184,,,,,,fail: LookupError: no criterion_id
+179,box:338-i-am-curious,,,1600,1988,manual
+184,box:722-by-brakhage-an-anthology-volumes-one-and-tw,,https://s3.amazonaws.com/criterion-production/product_images/1847-6983ff5cc48386adceaaacb6c2cd4357/kWcc6bGm7iGDpGxxvJhUoNfAwRKCup_original.jpg,1288,1600,ok
 167,box:326-the-complete-monterey-pop-festival,20261022104734,https://s3.amazonaws.com/criterion-production/product_images/1845-db3c5bcb75d32e794daaab2880a9cefc/oRg21cXVbdpJhR5WR3oZFrGDkJXY37_original.jpg,1288,1600,ok
 176,box:334-the-killers,20250907025441,https://s3.amazonaws.com/criterion-production/product_images/1859-5a1d456ec7733e9205b555242f30548d/QydMAqke3toeG4h4BOBYwNcOHf6z3W_original.jpg,1288,1600,ok
 185,box:346-the-adventures-of-antoine-doinel,20260811161948,https://s3.amazonaws.com/criterion-production/product_images/2088-0e4b2af8640cb7253a3cc59f5081b66e/L3RECZWMgKGVyKeEidmcUw3MYAkLyL_original.jpg,1288,1600,ok
-212,,,,,,fail: LookupError: no criterion_id
-232,,,,,,fail: LookupError: no criterion_id
+212,608,,,1288,1600,ok
+232,349,,,1600,1988,manual
 203,box:138-the-brd-trilogy,20260428114808,https://s3.amazonaws.com/criterion-production/product_images/1945-23da7bdafe273dbec66ce60e6dd58658/V5oY4ZalkXBF5sf9sEHmGPVjlZjmps_original.jpg,1288,1600,ok
 208,box:89-a-film-trilogy-by-ingmar-bergman,20251210120700,https://s3.amazonaws.com/criterion-production/product_images/1938-86e4176cc4262e3524935d83d5870456/4hx4crqXk77qBf3SJxMwbw6Mz2sDUg_original.jpg,1288,1600,ok
 239,box:487-the-lower-depths,20251023010319,https://s3.amazonaws.com/criterion-production/product_images/1869-e5c85aaf05b37b7eb3c006cf0e4733b6/oc21ci95QjfyEYXMwqohFekz0EFAbu_original.jpg,1288,1600,ok
 241,box:540-stage-and-spectacle-three-films-by-jean-renoir,20250811070944,https://s3.amazonaws.com/criterion-production/product_images/1871-b497c6ca9fe76597e465ae063f33cf92/ZOLgPj9zTnYgjLm6sE0LHOBVKS9aAT_original.jpg,1288,1600,ok
-262,,,,,,fail: LookupError: no criterion_id
-263,,,,,,fail: LookupError: no criterion_id
-264,,,,,,fail: LookupError: no criterion_id
+262,201,,https://s3.amazonaws.com/criterion-production/films/289eee85492838ff64671c24d63e631a/bqzpSsBVIkScl3o7Ae7hxmJ8ZubMnE_original.jpg,1288,1600,ok
+263,626,,https://s3.amazonaws.com/criterion-production/films/469345bca4a09a5ee860757191bf54aa/qBKD4rkTkrw13Kel43PGAGbg1uBePQ_original.jpg,1288,1600,ok
+264,627,,,1288,1600,manual
 261,box:206-fanny-and-alexander-box-set,20260225050506,https://s3.amazonaws.com/criterion-production/product_images/1879-ddf9f0d1ce4179a8d951c0d9565fd7b6/p9zD6ZURSPmDBhod3yL2aDID2gMRQD_original.jpg,1288,1600,ok
 250,box:558-john-cassavetes-five-films,20260528070208,https://s3.amazonaws.com/criterion-production/product_images/1872-a1193fec634c922ab53d68f8c156ee20/En2M1rQdo8KTHEDM6IF3wCzKIDV7GU_original.jpg,1288,1600,ok
 282,box:528-andrzej-wajda-three-war-films,20250913233617,https://s3.amazonaws.com/criterion-production/product_images/1878-d753be32254186084fdb034ba6170a04/ytgENOPbs8VJ0e3nRGCtvhuYESgw8X_original.jpg,1288,1600,ok
-360,,,,,,fail: LookupError: no criterion_id
+360,751,,https://s3.amazonaws.com/criterion-production/films/87d7b3b84ecb3f91c6430f016fa1ce87/gKuKu6kWhvuHinD1ZQ064BWav4w3iA_original.jpg,1288,1600,ok
 327,box:397-3-films-by-louis-malle,20261031084327,https://s3.amazonaws.com/criterion-production/product_images/1877-48de0a1fa166375e5c29008f57be3a14/rbztsW1GKvPEC5vTna3sbQdpYeG9Ro_original.jpg,1288,1600,ok
 342,box:417-six-moral-tales,20250905094528,https://s3.amazonaws.com/criterion-production/product_images/1875-4d5d5e2c0c2e29fa19513f6dc62869f6/uCMcMymA2Obfiryf0OHp2HPNItUlPx_original.jpg,1288,1600,ok
 364,box:434-monsters-and-madmen,20260716004012,https://s3.amazonaws.com/criterion-production/product_images/1874-1783a5b7ab030641aab494f13c026174/ahGfceaQ9idYzYJHUy4cVjH4aRnxZo_original.jpg,1288,1600,ok
 369,box:443-paul-robeson-portraits-of-the-artist,20261003232953,https://s3.amazonaws.com/criterion-production/product_images/1873-f368b5675c9f0eb398727cb9a03b6e7b/vDeZBqbuBzw7Bpsb3KEK6hBnY6zACK_original.jpg,1288,1600,ok
-406,,,,,,fail: LookupError: no criterion_id
+406,835,,,1288,1600,manual
 387,box:77-la-jet-e-sans-soleil,20250517032129,https://s3.amazonaws.com/criterion-production/product_images/1863-d6916651f0f3ead148ffd869331459b7/oQoeqXYr3XiuO5vvu3J6PphWl19PlW_original.jpg,1288,1600,ok
 392,box:458-three-films-by-hiroshi-teshigahara,20261005082407,https://s3.amazonaws.com/criterion-production/product_images/1857-4a9eaad0ae6e5e6609b78fa778227642/day0uJj7Jk3QoCZJAIVSdel8IzDr6q_original.jpg,1288,1600,ok
 418,box:8-4-by-agn-s-varda,20240304192405,https://s3.amazonaws.com/criterion-production/product_images/1856-70cb6699a8cee4d1285949a3f86c813d/NxYyVlcajs0ng5eCLjUz0H5LgGSk7Z_original.jpg,1288,1600,ok
-495,,,,,,fail: LookupError: no criterion_id
+495,3560,,,1288,1600,manual
 471,box:613-pigs-pimps-prostitutes-3-films-by-shohei-imamura,20250915060928,https://s3.amazonaws.com/criterion-production/product_images/1855-d1af5d0a5e3d807a317f3cc4e9c52f38/vdPxhXhBYsJOygUcZ3XqUkDiS3dZOl_original.jpg,1288,1600,ok
 500,box:689-roberto-rossellini-s-war-trilogy,20260106093046,https://s3.amazonaws.com/criterion-production/product_images/1852-f20e8f5bdc458777cda90775598ef89c/G2jPTXWEYclcKFXC7LYWoNEj5D7V7l_original.jpg,1288,1600,ok
-517,,,,,,fail: LookupError: no criterion_id
+517,box:722-by-brakhage-an-anthology-volumes-one-and-tw,,https://s3.amazonaws.com/criterion-production/product_images/1847-6983ff5cc48386adceaaacb6c2cd4357/kWcc6bGm7iGDpGxxvJhUoNfAwRKCup_original.jpg,1288,1600,ok
 508,box:704-letters-from-fontainhas-three-films-by-pedro-costa,20261019201649,https://s3.amazonaws.com/criterion-production/product_images/1851-dba6177f0bd538f868c12a4c87760e83/tLbF78x2hqXHJGqSbQ5j7qW9izcNvg_original.jpg,1288,1600,ok
 468,1286,20261029190310,https://s3.amazonaws.com/criterion-production/films/59391d0914ee5e1f9ae246722f7b2d0e/84gqckqQjOBKLal72bAP241JlCOFPs_original.jpg,1288,1600,ok
 524,box:730-the-only-son-there-was-a-father-two-films-by-yasujiro-ozu,20260110212324,https://s3.amazonaws.com/criterion-production/product_images/1846-9cfef2c5fa060f8411bc2acc04261a18/KDlOmOyxMcew06CzkKPKggnG1K2TO6_original.jpg,1288,1600,ok
 528,box:744-three-silent-classics-by-josef-von-sternberg,20250402063432,https://s3.amazonaws.com/criterion-production/product_images/1844-c9cb634fa3b22393408e64804c4b045c/u8zW5OazrYxQD3wNBZLu8H9zaj8mTx_original.jpg,1288,1600,ok
-587,,,,,,fail: LookupError: no criterion_id
+587,box:844-three-colors,,,1600,1988,manual
 578,box:819-the-complete-jean-vigo,20260206230343,https://s3.amazonaws.com/criterion-production/product_images/1843-6e179857a2b22f6fff1aee72814e6e1f/ucDdSNidzRCUS9xrmSXHu8tdlizbxG_original.jpg,1288,1600,ok
-607,,,,,,fail: LookupError: no criterion_id
+607,27945,,,1288,1600,manual
 518,box:722-by-brakhage-an-anthology-volumes-one-and-two,20260205231520,https://s3.amazonaws.com/criterion-production/product_images/1980-d6f55873e3a1b4901255990fca628280/58sDczfTOsoQ3ZJKh8W7xzcwE95s1f_original.jpg,1288,1600,ok
 603,box:861-david-lean-directs-no-l-coward,20251130090729,https://s3.amazonaws.com/criterion-production/product_images/1840-088af0518384d0cd3ade371a9be9adad/HA6lPFqR7TccJBZskcnpzNd3SgtQAz_original.jpg,1288,1600,ok
 639,box:934-the-qatsi-trilogy,20260712140525,https://s3.amazonaws.com/criterion-production/product_images/1837-6d63f856dbe4a02bd6c8e0fb5705faf0/WElxowomsGYQjFojxmDr1GWbnfPgXq_original.jpg,1288,1600,ok
@@ -1149,18 +1149,18 @@ spine,criterion_id,snapshot,image_url,width,height,status
 679,box:1012-zatoichi-the-blind-swordsman,20260806131249,https://s3.amazonaws.com/criterion-production/product_images/1829-e54c495813226f69d09f05ddc914b0e2/0VeHCin2ALFJtf0af05BebTL2pamd4_original.jpg,1288,1600,ok
 713,box:1055-the-essential-jacques-demy,20260721030054,https://s3.amazonaws.com/criterion-production/product_images/1827-340d95a9dc4160151fad3b6ee59da757/g1SkfwOWOBrY9ryHCbnk9w9KcU5iJW_original.jpg,1288,1600,ok
 684,box:1021-martin-scorsese-s-world-cinema-project-no-1,20260530223700,https://s3.amazonaws.com/criterion-production/product_images/1976-ece4132f4abef8c4e7beb0a0edffc9a8/y26UyQwNxt4FguJSgQIZWpCNlLsjHJ_original.jpg,1288,1600,ok
-737,,,,,,fail: LookupError: no criterion_id
+737,28658,,,1288,1600,manual
 729,box:1069-the-complete-jacques-tati,20251102044452,https://s3.amazonaws.com/criterion-production/product_images/1826-74abafd9cdfb81dc87d1738ec3c99693/VZ6wkU3rR5LF2srqIn918sRLIBPOl8_original.jpg,1288,1600,ok
-808,,,,,,fail: LookupError: no criterion_id
+808,28907,,https://s3.amazonaws.com/criterion-production/films/cd4e04ca68b6bfb60fdcbb7ea6b8386f/JtYzw2kwoN2ahEB7YqQiYXBBzRbTvp_original.jpg,1288,1600,ok
 631,box:916-trilogy-of-life,20260708133924,https://s3.amazonaws.com/criterion-production/product_images/1839-b0e33c60c0fef04ebd79f8b275c00439/0z4n2qVrtfnIckCIIHgJmQHaXzQR5g_original.jpg,1288,1600,ok
 782,box:1145-the-apu-trilogy,20261030014543,https://s3.amazonaws.com/criterion-production/product_images/2043-f4da3d5006f2a970282f17be8c294db3/bDrfYcPsmq9yU7aO2Z9xg2HUGie1lG_original.jpg,1288,1600,ok
 841,box:1217-lone-wolf-and-cub,20260309123318,https://s3.amazonaws.com/criterion-production/product_images/1772-05f7b23e0d4044cfa66e916e5ef7a8df/atLwCDI4fWZrMlIpaGL1YTLyiGq7ND_original.jpg,1288,1600,ok
 873,box:1258-martin-scorsese-s-world-cinema-project-no-2,20260602081004,https://s3.amazonaws.com/criterion-production/product_images/1767-0744687c884e8c056982d471b122dce3/cgKxO604g3phzPqpONSN5STBrfnV6y_original.jpg,1288,1600,ok
 881,box:1264-the-marseille-trilogy,20260115192346,https://s3.amazonaws.com/criterion-production/product_images/1766-0926bfc8985e1333759badc8421feb20/CcaaWhABn32RGpmaY0QfWfQzx5pNgV_original.jpg,1288,1600,ok
-900,,,,,,fail: LookupError: no criterion_id
+900,29360,,https://s3.amazonaws.com/criterion-production/stills/132442-6056f9217f1687b51e28b2fbadb098af/Olympics_Product_Horizontal_logo_doublesize_original.jpg,1288,1600,ok
 813,box:1186-wim-wenders-the-road-trilogy,20260603231718,https://s3.amazonaws.com/criterion-production/product_images/1773-3e4219a9f27e8402b68c2d685584258a/qVsCeiFh9PYaWkZhYXFAMnpoAI0MUF_original.jpg,1288,1600,ok
 930,box:1329-dietrich-von-sternberg-in-hollywood,20261016081755,https://s3.amazonaws.com/criterion-production/product_images/1913-aa161a0f125c18e184c759f4e6fa4d86/ne8EBMDiHqGQ5vJDvaBUV6wzuwbT3d_original.jpg,1288,1600,ok
-1030,,,,,,fail: LookupError: no criterion_id
+1030,30616,,https://s3.amazonaws.com/criterion-production/films/f88e619547e1036d2b7595feb1688281/38xYUK39YImmWPoyi8XjcukL09hDwU_original.jpg,1288,1600,ok
 856,box:1237-the-before-trilogy,20260225201932,https://s3.amazonaws.com/criterion-production/product_images/1771-d7f77a156a0263e965d0f6783ee1e182/f6rUjvmvonLQE9018f0vXA5elbqAoI_original.jpg,1288,1600,ok
 1000,box:2648-godzilla-the-showa-era-films-1954-1975,20261006180127,https://s3.amazonaws.com/criterion-production/product_images/1953-0d1595bafe2ba6d32c5f5e1bc6215555/bG4INWRMocURqMHZl7ZgyVgw1O47Tx_original.jpg,1288,1600,ok
 1082,box:4431-the-signifyin-works-of-marlon-riggs,20260420210315,https://s3.amazonaws.com/criterion-production/product_images/1979-b50ddf05e790d45f0d3452882a1c5104/Yz5hb3zePSR6H1BFKoUnt0dQHSxzSj_original.jpg,1288,1600,ok
@@ -1187,12 +1187,12 @@ spine,criterion_id,snapshot,image_url,width,height,status
 1236,box:7621-i-walked-with-a-zombie-the-seventh-victim-produced-by-val-lewton,20260312202011,https://s3.amazonaws.com/criterion-production/product_images/2066-c00bb17941cafa3708ce7d4e3afcf863/1gdac1B76kfppJEEQOF5juO1Jidjak_original.jpg,1288,1600,ok
 1257,box:7935-jean-de-florette-manon-of-the-spring-two-films-by-claude-berri,20260311152755,https://s3.amazonaws.com/criterion-production/product_images/2084-4be54be31dd4f0f2af7a44ad87e06e72/D3KcT6rRfAGaKuGOBvOtz1ipVg7GCV_original.jpg,1288,1600,ok
 1263,box:7974-the-three-musketeers-the-four-musketeers-two-films-by-richard-lester,20260516172800,https://s3.amazonaws.com/criterion-production/product_images/2085-51259520a591e486478292d7c44d25ed/vTjIL84GfnnUQPTOxsv6pDReCUHiCH_original.jpg,1288,1600,ok
-1291,,,,,,fail: LookupError: no criterion_id
+1291,34101,,,1288,1600,manual
 1200,box:6993-the-red-balloon-and-other-stories-five-films-by-albert-lamorisse,20250907235153,https://s3.amazonaws.com/criterion-production/product_images/2039-5159ae10de718a98162dd5477f1f03df/3ypqxNpO5CYzhOFtphfmaQVhvSEI2M_original.jpg,1288,1600,ok
 1275,box:8199-a-confucian-confusion-mahjong-two-films-by-edward-yang,20251014135709,https://s3.amazonaws.com/criterion-production/product_images/2092-235095b29d34e09190df9bad073f2696/uJNrHmi3tdjnVoHRlrdLKUYOpinDXr_original.jpg,1288,1600,ok
 1307,box:8684-john-singleton-s-hood-trilogy,20260528070246,https://s3.amazonaws.com/criterion-production/product_images/2115-d6a14e7f258b78a4337ce95193e65765/8dSu0A2ypviSZ8AHptXe0kEmxNR2jR_original.jpg,1288,1600,ok
 1322,box:8869-i-ll-remind-you-of-everything-the-films-of-mike-mills,20260903215616,https://s3.amazonaws.com/criterion-production/product_images/2121-0a14a94e80619baaff23e0ad2616e3a8/XAClWoEycZY5LiNadq8wGDJbxiddSf_original.jpg,1288,1600,ok
-1329,,,,,,fail: LookupError: no criterion_id
-1341,,,,,,fail: LookupError: no criterion_id
+1329,,,,1288,1600,manual
+1341,,,,1600,1988,manual
 1326,box:8999-three-films-by-leos-carax,20261024222701,https://s3.amazonaws.com/criterion-production/product_images/2130-31d2ae38aee2755d8d744769cfd1baa6/KOHvIxBJQ9WBxBNCAAgSGKnEMGv1SN_original.jpg,1288,1600,ok
 1296,box:8451-martin-scorsese-s-world-cinema-project-no-5,20260517194518,https://s3.amazonaws.com/criterion-production/product_images/2109-ab677d7fb198eb0cd393ce95b8c0751d/2RSRQxWw1lOtbCdNmwx9J06CgL2YLX_original.jpg,1288,1600,ok
