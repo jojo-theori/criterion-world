@@ -138,6 +138,9 @@
   .box.side:hover img { transform: scale(1.03); }
   .box.landing > * { visibility: hidden; }
   .box img, .box canvas { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  /* 느린 회선: 큰 커버가 오기 전에는 이미 받은 작은 아틀라스 타일(흐린 커버)을 밑그림으로 깔고 숨 쉬듯 깜빡인다 */
+  img.lq:not(.ok) { animation: lqp 1.1s ease-in-out infinite alternate; }
+  @keyframes lqp { to { opacity: .55; } }
   .box canvas { pointer-events: none; opacity: 0; transition: opacity .5s var(--out); }
   body.trace .box canvas { opacity: 1; }
   /* 3번째 칸: 지금 커버의 상세 정보 */
@@ -428,7 +431,7 @@ window.BUILD = '?v=' + (SIZES['data.js'] || 0);
 <script type="text/plain" id="main">
 const M = window.META, C = window.COVERS, N = C.length;
 // 버전: 화면·동작이 바뀌면 올린다. 데이터 날짜는 build_web.py 가 META.built 에 적는다
-const VERSION = '0.3.2';
+const VERSION = '0.3.3';
 document.getElementById('ver').textContent = `v${VERSION}`;
 document.getElementById('ver').title = M.built ? `data ${M.built}` : '';
 const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -921,6 +924,11 @@ const G = (() => {
 /* 확대 미리보기와 툴팁 */
 const tip = document.getElementById('tip'), lens = document.getElementById('lens');
 let lensOn = null, lensBox = null;
+// 큰 커버의 밑그림: 대표 색 + 반 크기 원본 아틀라스(첫 로딩 때 이미 받은 것)의 타일
+const LQ = HTTP ? (window.PRELOAD.cover_s || `atlas/cover_s.webp${BUILD}`) : `atlas/cover.jpg${BUILD}`;
+const lq = i => `background:${C[i].color} url('${LQ}') ${(i % A.cols) / (A.cols - 1) * 100}% ${Math.floor(i / A.cols) / (A.rows - 1) * 100}% / ${A.cols * 100}% ${A.rows * 100}%`;
+document.addEventListener('load', e => { if (e.target.classList?.contains('lq')) e.target.classList.add('ok'); }, true);
+document.addEventListener('error', e => { if (e.target.classList?.contains('lq')) e.target.classList.add('ok'); }, true);
 function sprite(el, name, i) {
   el.style.background = `url("atlas/${name}.${HTTP ? 'webp' : 'jpg'}${BUILD}") ${(i % A.cols) / (A.cols - 1) * 100}% ${Math.floor(i / A.cols) / (A.rows - 1) * 100}% / ${A.cols * 100}% ${A.rows * 100}%`;
 }
@@ -1105,7 +1113,7 @@ function fly(i, from, to, content, dur = 650) {
   } else if (content === 'trace') {
     const d = document.createElement('div'); sprite(d, axis, i); flyer.appendChild(d);
   } else {
-    const im = document.createElement('img'); im.src = `large/${encodeURIComponent(C[i].file)}`; flyer.appendChild(im);
+    const im = document.createElement('img'); im.className = 'lq'; im.style.cssText = lq(i); im.src = `large/${encodeURIComponent(C[i].file)}`; flyer.appendChild(im);
   }
   Object.assign(flyer.style, { display: 'block', left: to.left + 'px', top: to.top + 'px', width: to.width + 'px', height: to.height + 'px' });
   if (RM) { flyer.style.display = 'none'; return Promise.resolve(); }
@@ -1326,7 +1334,7 @@ function showTri({ kind = 'axis', from = null } = {}) {
     box.style.gridColumn = gc(col);
     box._i = i;
     box.dataset.role = side ? (col === 1 ? 'left' : 'right') : 'mid';
-    box.innerHTML = `<img src="large/${encodeURIComponent(p.file)}" alt="${esc(p.title)} cover"><canvas></canvas>`;
+    box.innerHTML = `<img class="lq" style="${lq(i)}" src="large/${encodeURIComponent(p.file)}" alt="${esc(p.title)} cover"><canvas></canvas>`;
     drawTrace(box.querySelector('canvas'), p, axis);
     // 날아가기 출발점은 잘린 칸이 아니라 커버 전체(img)의 사각형
     box.addEventListener('click', side ? ev => openTri(i, true, ev.currentTarget.querySelector('img').getBoundingClientRect()) : nextAxis);
@@ -1353,7 +1361,7 @@ function showTri({ kind = 'axis', from = null } = {}) {
     el.className = 'peek';
     el.dataset.row = row; el.dataset.col = col;
     el.style.gridColumn = gc(col);
-    el.innerHTML = `<img src="large/${encodeURIComponent(C[ex.j].file)}" alt="${esc(C[ex.j].title)} cover"><canvas></canvas>`;
+    el.innerHTML = `<img class="lq" style="${lq(ex.j)}" src="large/${encodeURIComponent(C[ex.j].file)}" alt="${esc(C[ex.j].title)} cover"><canvas></canvas>`;
     drawTrace(el.querySelector('canvas'), C[ex.j], axis);
     el.addEventListener('click', () => goExit(row, col));
     panels.appendChild(el);
@@ -1609,7 +1617,7 @@ function renderResults() {
   if (!q) { resEl.innerHTML = ''; return; }
   if (!hits.length) { resEl.innerHTML = '<li class="none">No results</li>'; return; }
   resEl.innerHTML = hits.slice(0, 8).map((i, n) => { const c = C[i]; return `<li role="option" data-i="${i}" class="${n === hitOn ? 'on' : ''}">
-    <img src="thumbs/${encodeURIComponent(c.file)}" alt=""><div><div class="t">${esc(c.title)}</div><div class="s">#${c.spine} · ${c.year} · ${esc(c.directors)}</div></div></li>`; }).join('');
+    <img class="lq" style="${lq(i)}" src="thumbs/${encodeURIComponent(c.file)}" alt=""><div><div class="t">${esc(c.title)}</div><div class="s">#${c.spine} · ${c.year} · ${esc(c.directors)}</div></div></li>`; }).join('');
 }
 function pickResult(i) {
   if (i === undefined) return;
