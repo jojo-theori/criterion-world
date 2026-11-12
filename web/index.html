@@ -161,10 +161,10 @@
   .info a.t { display: block; color: var(--fg); border: 0; text-decoration: underline dotted; text-decoration-color: transparent;
     text-decoration-thickness: 1.5px; text-underline-offset: .14em; transition: text-decoration-color .2s; }
   .info a.t:hover, .info a.t:focus-visible { color: var(--fg); text-decoration-color: currentColor; outline: none; }
-  /* 화살표는 대문자 높이(약 .72em)로 그리고, 굵기는 글자 크기와 무관하게 1.2px */
-  .info a.t .out { width: .84em; height: .84em; margin-left: .14em; vertical-align: -.06em; opacity: 0; stroke-width: 1.2;
-    transition: opacity .2s; }
-  .info a.t .out path { vector-effect: non-scaling-stroke; }
+  /* 화살표: Lucide arrow-up-right 모양(24 격자의 7–17). 그려진 부분이 대문자 높이(약 .72em)가 되게 viewBox 를 5–19 로 자르고
+     아랫변을 글자 기준선에 맞춘다. 끝과 이음은 둥글게 */
+  .info a.t .out { width: 1em; height: 1em; margin-left: .12em; vertical-align: -.14em; opacity: 0; stroke-width: .62;
+    stroke-linecap: round; stroke-linejoin: round; transition: opacity .2s; }
   .info a.t:hover .out, .info a.t:focus-visible .out { opacity: 1; }
   @media (hover: none) { .info a.t .out { opacity: .5; } }
   /* 바깥 링크 표시: 대각선은 짧게, 꺾인 두 끝은 길게(글꼴의 ↗ 는 비율이 반대) */
@@ -1160,7 +1160,7 @@ function infoHTML(c) {
   const rows = [kv('Country', c.countries), kv('Runtime', c.rt ? `${c.rt} min` : ''), kv('Aspect ratio', c.ar), kv('Language', c.language)].filter(Boolean);
   const extra = [kv('Color', c.clr), kv('Cinematography', c.dop), kv('Music', c.music), kv('Written by', c.writer)].filter(Boolean);
   return `<div class="no">#${c.spine}</div>
-    ${url ? `<a class="t" href="${url}" target="_blank" rel="noopener" aria-label="${esc(c.title)} on criterion.com">${esc(c.title)}<svg class="out" viewBox="1.5 .5 7 7" aria-hidden="true"><path d="M2 1h6v6M8 1 3.3 5.7"/></svg></a>` : `<div class="t">${esc(c.title)}</div>`}
+    ${url ? `<a class="t" href="${url}" target="_blank" rel="noopener" aria-label="${esc(c.title)} on criterion.com">${esc(c.title)}<svg class="out" viewBox="5 5 14 14" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg></a>` : `<div class="t">${esc(c.title)}</div>`}
     ${c.orig ? `<div class="o">${esc(c.orig)}</div>` : ''}
     <div>${[c.directors, c.year].filter(Boolean).map(esc).join(' · ')}</div>
     <div class="body">${rows.length || extra.length ? '<div class="sp"></div>' + rows.join('') : ''}
