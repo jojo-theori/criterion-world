@@ -154,8 +154,16 @@
   .info a { color: var(--dim); text-decoration: none; border-bottom: 1px solid #333; transition: color .2s, border-color .2s; }
   .info a:hover { color: var(--fg); border-color: var(--fg); }
   /* 바깥 링크 표시: 대각선은 짧게, 꺾인 두 끝은 길게(글꼴의 ↗ 는 비율이 반대) */
-  .info a .out { width: .78em; height: .78em; margin-left: 3px; vertical-align: -.04em; fill: none; stroke: currentColor;
-    stroke-width: 1.15; stroke-linecap: round; stroke-linejoin: round; }
+  .info a .out { width: 9px; height: 9px; margin-left: 4px; vertical-align: 0; fill: none; stroke: currentColor;
+    stroke-width: 1; stroke-linecap: square; stroke-linejoin: miter; shape-rendering: geometricPrecision; }
+  /* 더보기: 덜 중요한 줄은 접어 둔다. 링크와 같은 줄, 같은 결 */
+  .info .extra { display: none; flex-direction: column; gap: 6px; }
+  .info.open .extra { display: flex; }
+  .info.open { overflow-y: auto; }
+  .info .more { border: 0; background: none; padding: 0; font: inherit; color: var(--dim); cursor: pointer;
+    border-bottom: 1px solid #333; transition: color .2s, border-color .2s; }
+  .info .more:hover { color: var(--fg); border-color: var(--fg); }
+  .info .more:focus-visible { outline: 1px solid var(--fg); outline-offset: 3px; }
   /* 줄 이름: 1열 왼쪽 여백에 세로로. 가운데 줄은 위 끝, 위 줄은 아래 끝, 아래 줄은 위 끝에 붙인다 */
   .rowname { grid-column: 1; position: relative; pointer-events: none; z-index: 2; }
   .rowname span { position: absolute; right: 100%; margin-right: 9px; writing-mode: vertical-rl; transform: rotate(180deg);
@@ -1131,28 +1139,30 @@ function rowName(k, r) {
 }
 function infoHTML(c) {
   const kv = (k, v) => v && v.length ? `<div class="kv" data-k="${k}"><span>${k}</span><span>${esc([].concat(v).join(', '))}</span></div>` : '';
-  // c.writer, c.cast, c.fmt, c.genre 는 데이터에 남아 있고 화면에만 쓰지 않는다
+  // 늘 보이는 네 줄과 More 로 펼치는 줄. c.cast, c.fmt, c.genre, c.box 는 데이터에 남아 있고 화면에만 쓰지 않는다
   const url = criterionUrl(c);
-  const rows = [kv('Country', c.countries), kv('Runtime', c.rt ? `${c.rt} min` : ''), kv('Aspect ratio', c.ar), kv('Color', c.clr),
-    kv('Language', c.language), kv('Cinematography', c.dop), kv('Music', c.music), kv('Box set', c.box ? (c.kind === 'box' ? 'Box set' : c.box) : '')].filter(Boolean);
+  const rows = [kv('Country', c.countries), kv('Runtime', c.rt ? `${c.rt} min` : ''), kv('Aspect ratio', c.ar), kv('Language', c.language)].filter(Boolean);
+  const extra = [kv('Color', c.clr), kv('Cinematography', c.dop), kv('Music', c.music), kv('Written by', c.writer)].filter(Boolean);
   return `<div class="no">#${c.spine}</div>
     <div class="t">${esc(c.title)}</div>
     ${c.orig ? `<div class="o">${esc(c.orig)}</div>` : ''}
     <div>${[c.directors, c.year].filter(Boolean).map(esc).join(' · ')}</div>
-    <div class="body">${rows.length ? '<div class="sp"></div>' + rows.join('') : ''}
-    ${url ? `<div class="n"><a href="${url}" target="_blank" rel="noopener">criterion.com<svg class="out" viewBox="0 0 10 10" aria-hidden="true"><path d="M4.5 5.5 7.5 2.5M3 2.5h4.5V7"/></svg></a></div>` : ''}</div>`;
+    <div class="body">${rows.length || extra.length ? '<div class="sp"></div>' + rows.join('') : ''}
+    ${extra.length ? `<div class="extra" id="infoExtra">${extra.join('')}</div>` : ''}
+    <div class="n">${extra.length ? `<button class="more" aria-expanded="${infoOpen}" aria-controls="infoExtra">${infoOpen ? 'Less' : 'More'}</button>` : ''}
+    ${url ? `<a href="${url}" target="_blank" rel="noopener">criterion.com<svg class="out" viewBox="0 0 9 9" aria-hidden="true"><path d="M3.5 1.5h4v4M7.5 1.5 3.5 5.5"/></svg></a>` : ''}</div></div>`;
 }
-/* 정보가 칸(커버 높이)을 넘으면: 값을 한 줄로 줄이고, 덜 중요한 줄 넷까지 빼고, 그래도 넘치면 제목을 줄인 뒤 나머지 줄을 뺀다.
+/* 정보가 칸(커버 높이)을 넘으면: 값을 한 줄로 줄이고, 그래도 넘치면 제목을 줄인 뒤 아래 줄부터 뺀다.
    좁은 화면은 정보 칸이 스크롤되므로 그대로 둔다 */
-const INFO_DROP = ['Music', 'Cinematography', 'Language', 'Box set', 'Color', 'Aspect ratio', 'Runtime', 'Country'];
+const INFO_DROP = ['Language', 'Aspect ratio', 'Runtime', 'Country'];
+let infoOpen = false;   // More 를 펼친 상태는 다른 커버로 옮겨 가도 유지한다
 function fillInfo(info, c) {
-  info.className = 'info'; info.innerHTML = infoHTML(c);
-  if (narrow()) return;
+  info.className = 'info' + (infoOpen ? ' open' : ''); info.innerHTML = infoHTML(c);
+  if (narrow() || infoOpen) return;   // 펼치면 줄이지 않고 스크롤한다
   const over = () => info.scrollHeight > info.clientHeight + 1;
   const drop = keys => { for (const k of keys) { if (!over()) return; info.querySelector(`.kv[data-k="${k}"]`)?.remove(); } };
   if (!over()) return;
   info.classList.add('tight');
-  drop(INFO_DROP.slice(0, 2));
   if (!over()) return;
   info.innerHTML = infoHTML(c); info.classList.add('small');
   drop(INFO_DROP);
@@ -1273,6 +1283,12 @@ function closeTri(fromPop = false) {
   focusBack = null;
 }
 document.getElementById('close').addEventListener('click', () => closeTri());
+panels.addEventListener('click', e => {
+  if (!e.target.closest('.info .more') || cur === null) return;
+  infoOpen = !infoOpen;
+  fillInfo(panels.querySelector('.info'), C[cur]);
+  panels.querySelector('.info .more')?.focus({ preventScroll: true });
+});
 
 /* 세 폭 보기 스와이프: 좌우 = 이전·다음, 위아래 = 아래·위 줄로(밀어 올리면 아래 줄이 온다). 정보 칸은 스크롤에 쓴다 */
 let swipe = null, swallowClick = 0;
@@ -1332,6 +1348,7 @@ addEventListener('keydown', e => {
   if (e.target === qEl) return;
   const c = e.code;
   hideKbd();
+  if ((c === 'Enter' || c === 'Space') && e.target.closest?.('button, a') && !e.target.closest('header')) return;
   if (c === 'KeyF' || c === 'Slash') { e.preventDefault(); qEl.focus(); qEl.select(); return; }
   if (c === 'Space') { e.preventDefault(); setTrace(!traceOn); return; }
   const dm = c.match(/^(?:Digit|Numpad)(\d)$/);
