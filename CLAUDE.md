@@ -39,7 +39,7 @@
   - 짝이 시각보다 의미로 묶인다(Seven Samurai → Sanjuro, Three Outlaw Samurai). SigLIP 이 커버의 제목 글자를 읽기 때문. 시각 축으로 쓰려면 art 버전(텍스트 가린 이미지)을 넣어야 한다.
   - 기법 제로샷은 sigmoid 확률이 0.00–0.09로 낮아 절대값으로는 못 쓴다. 라벨 안 순위는 typographic, collage, watercolor 정도가 그럴듯하고 photograph 는 틀린다.
 - 웹 뷰어(2026-11-11, 사용자 피드백으로 여러 번 개편): web/index.html. 축 10개(Spine, 개봉 연도, 전체 인상, 색, 구도선, 텍스트 배치, 대비, 획, 레이아웃, 물체)가 격자 배치와 세 폭 짝을 함께 정한다. 원본/흔적 토글 공용. 격자는 WebGL2 인스턴싱(좌표 보간은 셰이더, 아틀라스는 data URL JS), 화면 이동은 #flyer. 세 폭 보기는 3×3: 위 줄 다른 축으로 이어진 커버, 아래 줄 먼 곳의 커버. 세부는 README.
-  - 사용자 취향: 담백하게. 설명 문구·수치 캡션·조작 안내는 뺐다. 격자 라벨은 'Arranged by', 세 폭 보기 라벨은 'Paired by'(2026-11-12 사용자 선택, 이전 'Covers are sorted according to' / 'Neighboring covers are associated based on'). 포스터 밑은 제목, #spine · 연도 · 감독만.
+  - 사용자 취향: 담백하게. 설명 문구·수치 캡션·조작 안내는 뺐다. 격자 라벨은 'Arranged by', 세 폭 보기 라벨은 'Grouped by'(2026-11-12 사용자 선택, 이전 'Covers are sorted according to' / 'Neighboring covers are associated based on'). 포스터 밑은 제목, #spine · 연도 · 감독만.
   - 2026-11-12 개편: 세 폭 보기는 4열(이전 · 지금 · 상세 정보 · 다음) + 위·아래 줄. 이동은 축마다 토러스 격자(META.rings, 좌우 = 줄 안 순환, 위아래 = 줄 사이 순환, 모든 커버를 돈다). 최근접 둘을 양옆에 두면 A↔B 고리가 생겨 버렸다.
   - UI 는 영어로 통일(축 버튼 Spine/Year/Look/Color/Lines/Type/Contrast/Strokes/Layout/Objects). 상세 정보의 번호는 '#834'.
   - 단축키는 e.code(물리 키)로 읽어 한/영 상태와 무관. 이동 q w e / a s d / z x c(화면 3×3과 같은 배치, s = 다음 축), 축 1–9·0, space 눈, f·/ 검색, esc, backspace 뒤로, 방향키 보조. 팝오버(0.2초)는 머리줄 버튼에만, 포스터에는 띄우지 않는다.
