@@ -33,6 +33,7 @@
 
 - 영화 DB: data/criterion.sqlite, 1,344행 = spine 1–1344 전부(단독 1,099, 박스 수록 155, 박스 자체 90). 박스 자체의 criterion_id 는 'box:<id-slug>'(data/raw/boxsets_cdx.txt 의 Internet Archive 주소와 이름으로 맞춤, 이름 속 1–9 숫자가 다르면 거절). 이전 DB 는 scratchpad 에 백업했었다.
 - 커버 수집 완료(2026-11-11): 1,096/1,099. 빠진 3편은 DB 에 criterion_id 가 없다: 212 Ingmar Bergman Makes a Movie(실은 Bergman 3부작 박스 보너스 디스크 → BOX_SET_ONLY 에 넣을지 사용자 결정 대기), 406 Martha Graham: Dance on Film, 1329 Welcome II the Terrordome. scripts/fetch_covers.py (Internet Archive 보관본 → Criterion S3). 결과는 data/raw/cover_sources.csv, 로그는 out/logs/fetch_covers.log. 실패 건은 이 CSV 의 status 로 확인.
+- 빈 칸 채움(2026-11-12): spine 1–1344 전부 커버가 있다(박스 세트 자체 포함, 사용자: "세트 자체도 넣어도 될 것 같은데 빈 곳 없이"). 빈 칸 23편 중 10편은 Wayback CDX 로 영화·박스 페이지를 제목으로 찾아 보관본의 원본 이미지(og:image 또는 페이지 안 criterion-production S3 주소)를 받았고(옛 디자인 보관본에는 og:image 가 없어 시점을 거슬러 올라가야 할 때가 많다), 13편은 사용자가 직접 넣었다(data/raw/cover_sources.csv 의 status manual). 212 는 박스 보너스 디스크지만 자기 커버로 넣었다. criterion_id 21편 보충(79, 1341 은 빈 값). 원본 23장은 공개 레포에 올리지 않으므로 다른 컴퓨터에는 따로 전달한다(ccw-missing-covers-23.zip 을 posters/ 에 푼다).
 - 텍스트 영역 파이프라인 완료: PaddleOCR 검출 다각형(모양) + macOS Vision 원본·50%(글자) 결합. scripts/run_text_regions.py 가 새 커버만 처리한다.
 - 색·대비·구도선 분석 완료(2026-11-11): data/analysis/visual/, 커버 전체(full)와 그림 부분(art) 두 버전, 지표와 축별 비교 벡터.
 - SigLIP 2 임베딩 시험(2026-11-11): .venv-ml(Python 3.12, uv, torch·transformers 5)을 따로 만들었다. 기존 .venv(3.9, PaddleOCR)와 섞지 않는다. scripts/embed_siglip.py → data/analysis/embed/, scripts/render_embed.py → out/embed/ (격자 UMAP 지도, 세 폭 짝, 기법 제로샷 상위). base 모델로 667장 25초(M1 Max, MPS).
@@ -74,7 +75,7 @@
    이후 후보: 기법(SigLIP 제로샷: 목판화, 수채화, 사진 등), 무게중심 축(saliency 벡터 있음), 오독 아카이브 축(의미 짝 vs 시각 짝 차이). 구도 유형 분류 모델 KU-PCP 는 야외 사진 학습이라 일러스트에 안 맞을 수 있음.
    ML 모델은 .venv-ml 에 설치한다(torch 설치는 2026-11-11 사용자 승인, controlnet_aux 추가). 큰 패키지를 새로 넣을 때는 사용자에게 확인한다.
 3. 커버가 들어오면: (.venv) run_text_regions.py → analyze_visual.py → cover_checklist.py, (.venv-ml) embed_siglip.py → detect_objects.py → analyze_strokes_layout.py → build_web.py. 모두 새 커버만 처리한다(build_web 은 전부 다시, 약 1분).
-4. 사용자 결정 대기: 212 를 BOX_SET_ONLY 에 넣을지, Spine 축 격자의 박스 세트 빈 칸 처리(흐린 테두리 + 박스 이름 제안), 박스 세트 커버(posters_box/)를 뷰어에 넣을지.
+4. 사용자 결정 대기: 박스 세트 커버(posters_box/, 박스 수록작의 개별 판본)를 뷰어에 넣을지. (Spine 격자 빈 칸은 2026-11-12 커버를 모두 채워 해결)
 
 ## 배포 (2026-11-12 준비)
 
