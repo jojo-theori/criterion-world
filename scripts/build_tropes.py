@@ -45,7 +45,7 @@ EMBED = A / "embed" / "siglip2-base-patch16-384.npz"
 SIGLIP = "google/siglip2-base-patch16-384"
 
 FAMILIES = {
-    "people": ["Crowd", "Couple", "Talking heads", "Big face", "Lone figure", "Figures", "No one"],
+    "people": ["Crowd", "Couple", "Talking heads", "Big face", "Lone figure", "Figures", "Some human", "No one"],
     "type": ["Type only", "Big centered title", "Big title", "Quiet type", "Title on top", "Title in the middle", "Title at the bottom"],
     "composition": ["Grid / collage", "Symmetric", "Off-center subject", "Silhouette", "Busy frame", "Close crop",
                     "Single object", "Open space", "Diagonal", "Wide scene"],
@@ -74,6 +74,8 @@ COMP_PROMPTS = {
 CUE_PROMPTS = {
     "face_close": ["a close-up of a human face", "an extreme close-up portrait", "a large face filling the frame"],
     "people": ["people", "a person standing", "a group of people", "a drawing of a person"],
+    # 얼굴 없이 몸의 일부만(손, 다리, 몸통, 발) — 사용자: 이런 포스터가 No one 에 들어가 있다
+    "body_part": ["a close-up of a human hand", "a person's legs", "a human body without a face", "a naked torso", "human feet"],
 }
 
 
@@ -160,6 +162,9 @@ def features(name: str, faces: dict, objects: dict) -> dict:
     pb = [o["box"] for o in objects.get(name, []) if o["label"] in PERSON_LABELS and o["score"] >= 0.25]
     f["person_max"] = max((area(b) for b in pb), default=0.0)
     f["persons"] = len(pb)
+    # 손(얼굴과 따로 잡힌 손): 점수 × 넓이의 최댓값
+    f["hand"] = max((o["score"] * (0.3 + area(o["box"]) ** 0.5) for o in objects.get(name, [])
+                     if o["label"] == "hand" and o["score"] >= 0.25), default=0.0)
     # 주인공: 가장 큰 얼굴 또는 사람 상자의 가로 중심과 넓이(치우친 구도 판정)
     sb = max(fb + pb, key=area, default=None)
     f["subj_cx"] = (sb[0] + sb[2]) / 2 if sb else 0.5
@@ -246,6 +251,8 @@ def people(f: dict, s: dict[str, float] | None = None) -> str:
         return "Lone figure"
     if f["faces"] + f["persons"] >= 1 or s.get("people", 0) > 0.7 or s.get("face_close", 0) > 0.5:
         return "Figures"
+    if f["hand"] >= 0.15 or s.get("body_part", 0) > 0.9:     # 얼굴·사람 없이 손이나 몸의 일부만
+        return "Some human"
     return "No one"
 
 

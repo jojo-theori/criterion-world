@@ -516,7 +516,7 @@ TROPES = ROOT / "data" / "analysis" / "tropes.json"
 FACES = ROOT / "data" / "analysis" / "faces.json"
 PERSON_LABELS = {"person", "silhouette of a person", "couple embracing", "child"}
 TROPE_ORDER = {   # build_tropes.py FAMILIES 와 같은 순서
-    "people": ["Crowd", "Couple", "Talking heads", "Big face", "Lone figure", "Figures", "No one"],
+    "people": ["Crowd", "Couple", "Talking heads", "Big face", "Lone figure", "Figures", "Some human", "No one"],
     "type": ["Type only", "Big centered title", "Big title", "Quiet type", "Title on top", "Title in the middle", "Title at the bottom"],
     "composition": ["Grid / collage", "Symmetric", "Off-center subject", "Silhouette", "Busy frame", "Close crop",
                     "Single object", "Open space", "Diagonal", "Wide scene"],
@@ -1367,7 +1367,7 @@ def free_layouts(items: list[dict], tropes: dict, look: dict[int, np.ndarray], u
     zc = lambda key: np.array([z.get(key, 0.0) for z in Z])
     sq, lg = np.sqrt, np.log1p
     spec = {
-        "people": ([col("faces", lg), col("face_max", sq), col("face_sum", sq), col("big_faces"),
+        "people": ([col("faces", lg), col("face_max", sq), col("face_sum", sq), col("big_faces"), col("hand"), zc("body_part"),
                     col("face_y_spread"), col("person_max", sq), col("persons", lg), col("subj_cx"), col("subj_area", sq),
                     zc("face_close"), zc("people")], []),
         "type": ([col("text_area", sq), col("title_h"), col("title_cx"), col("title_cy"), col("title_w"), col("text_share"),
@@ -1425,7 +1425,8 @@ def free_layouts(items: list[dict], tropes: dict, look: dict[int, np.ndarray], u
     pcat = lambda i: tropes[items[i]["file"]].get("people")
     regions = partition_regions(pos, {"No people": [i for i in ids if pcat(i) == "No one"],
                                       "Big face": [i for i in ids if pcat(i) in ("Big face", "Couple")],   # 커플(큰 얼굴 둘)도 함께
-                                      "Crowd": [i for i in ids if pcat(i) == "Crowd"]})   # Couple 은 따로 두지 않는다(사용자: 억지스럽다)
+                                      "Crowd": [i for i in ids if pcat(i) == "Crowd"],
+                                      "Some human": [i for i in ids if pcat(i) == "Some human"]})   # Couple 은 따로 두지 않는다(사용자: 억지스럽다)
     out["people"] = (pos, size, labels, "", {"axes": ["More people", "Larger in the frame"], "regions": regions})
 
     # Type: 느슨한 축(가로 = 제목이 아래로, 세로 = 글자가 클수록 위) + 기울기·글자 분포·겉모습으로 뭉친다
