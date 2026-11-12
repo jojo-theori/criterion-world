@@ -85,10 +85,11 @@
   #results .s { font-size: var(--t1); color: var(--dim); }
   #results .none { height: 120px; display: flex; align-items: center; justify-content: center; text-align: center;
     color: var(--dim); font-size: var(--t3); cursor: default; }
-  .close { border: 0; background: #111; color: var(--fg); width: 36px; height: 36px; border-radius: 50%;
-    cursor: pointer; display: grid; place-items: center; padding: 0; opacity: 0; pointer-events: none; transform: scale(.6);
-    transition: opacity .3s var(--out), transform .4s var(--out), background .2s; }
-  body.tri-open .close { opacity: 1; pointer-events: auto; transform: none; }
+  /* 닫기는 세 폭 보기에서만. 숨어 있을 때는 폭을 접어 검색이 오른쪽 끝에 붙는다(줄이 맞게) */
+  .close { border: 0; background: #111; color: var(--fg); width: 0; margin-left: -14px; height: 36px; border-radius: 50%;
+    cursor: pointer; display: grid; place-items: center; padding: 0; opacity: 0; pointer-events: none; transform: scale(.6); overflow: hidden; flex: none;
+    transition: opacity .3s var(--out), transform .4s var(--out), width .4s var(--out), margin .4s var(--out), background .2s; }
+  body.tri-open .close { opacity: 1; pointer-events: auto; transform: none; width: 36px; margin-left: 0; }
   .close svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; }
   body.tri-open .close:hover { background: #222; transform: rotate(90deg); }
   body.tri-open .count { opacity: 0; }
@@ -225,6 +226,9 @@
   }
   /* 첫 로딩 */
   /* 자유 배치 이름표: 덩어리 위 가운데, 커버 위에 얹혀도 읽히게 */
+  #gridbg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0; transition: opacity .8s var(--out); overflow: visible; }
+  #gridbg.on { opacity: 1; }
+  #gridbg path { fill: #0d0d0d; stroke: #262626; stroke-width: 1; }
   .axis.free { transform: translateX(-50%); white-space: nowrap; background: rgba(0,0,0,.7); padding: 0 4px; border-radius: 2px; }
   #boot { position: fixed; inset: 0; z-index: 100; background: #000; display: none; flex-direction: column; align-items: center;
     justify-content: center; gap: 14px; transition: opacity .6s var(--out); }
@@ -388,7 +392,7 @@
 /* 빌드마다 바뀌는 값(data.js 크기)을 data.js 와 아틀라스 주소에 붙인다. 커버가 늘면 아틀라스 칸 순서가 바뀌는데,
    브라우저가 이전 아틀라스를 캐시에서 쓰면 칸마다 엉뚱한 커버가 그려진다 */
 window.BUILD = '';
-const SIZES = /*SIZES*/{"data.js": 1662580, "atlas/cover_s.webp": 780562}/*END*/;
+const SIZES = /*SIZES*/{"data.js": 1691998, "atlas/cover_s.webp": 780562}/*END*/;
 window.PRELOAD = {};
 window.BUILD = '?v=' + (SIZES['data.js'] || 0);
 (() => {
@@ -435,7 +439,7 @@ window.BUILD = '?v=' + (SIZES['data.js'] || 0);
 <script type="text/plain" id="main">
 const M = window.META, C = window.COVERS, N = C.length;
 // 버전: 화면·동작이 바뀌면 올린다. 데이터 날짜는 build_web.py 가 META.built 에 적는다
-const VERSION = '0.5.0';
+const VERSION = '0.6.0';
 document.getElementById('ver').textContent = `v${VERSION}`;
 document.getElementById('ver').title = M.built ? `data ${M.built}` : '';
 const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -745,7 +749,7 @@ const G = (() => {
     const px = new Float32Array(N).fill(NaN), py = new Float32Array(N).fill(NaN), lab = [];
     // 세로로 긴 화면(폰)에서는 가로로 긴 지도를 전치한다. 왼쪽 숫자 자리는 좁은 화면에서만 따로 남긴다(넓으면 여백에 들어간다)
     const tall = Hc > Wc * 1.1, labW = narrow() ? 26 : 0;
-    let f, minX = 0;
+    let f, minX = 0, oyBg = 0;
     if (k === 'spine') {
       let best = null;
       for (let cols = 10; cols <= 200; cols++) {
@@ -780,7 +784,7 @@ const G = (() => {
       (M.gridLabels?.[k] || []).forEach(([x, y, t, al]) => lab.push([x * (f.w + f.g), y * (f.h + f.g), t, al]));
       if (free) {   // 세로로 가운데
         let maxY = 0; for (let i = 0; i < N; i++) if (py[i] === py[i]) maxY = Math.max(maxY, py[i]);
-        const oy = Math.max(0, (Hc - 18 - (maxY + f.h)) / 2);
+        const oy = oyBg = Math.max(0, (Hc - 18 - (maxY + f.h)) / 2);
         for (let i = 0; i < N; i++) py[i] += oy;
         lab.forEach(l => { l[1] += oy; });
       }
@@ -790,7 +794,7 @@ const G = (() => {
     const ox = Math.max(minX, (Wc - (maxX + f.w)) / 2);
     for (let i = 0; i < N; i++) px[i] += ox;
     lab.forEach(l => { l[0] += ox; });
-    return cache[k] = { px, py, tw: f.w, labels: lab };
+    return cache[k] = { px, py, tw: f.w, labels: lab, bg: [ox, oyBg, f.w + f.g, f.h + f.g] };
   }
 
   // 시간 상태 (셰이더와 같은 식을 CPU 에서도 쓴다: 전환을 이어 붙일 때, 마우스 판정할 때)
@@ -839,6 +843,7 @@ const G = (() => {
     gl.bindBuffer(gl.ARRAY_BUFFER, bDelay); gl.bufferSubData(gl.ARRAY_BUFFER, 0, delays);
     t0 = now; dur = anim ? 1 : 0;   // dur 은 '애니메이션 켬' 표시. 실제 시간은 타일마다 delays.z
     placeLabels(L.labels);
+    placeBg(k, L);
     kick();
   }
   function mixValue(now) {
@@ -850,6 +855,19 @@ const G = (() => {
     mixFrom = RM ? v : mixValue(now); mixTo = v; mixT0 = now;
     if (v) useTrace(axis);
     kick();
+  }
+  // 배경 그림(지금은 Country 의 육지 윤곽): 격자와 같은 칸 좌표, 축이 바뀌면 서서히 나타나고 사라진다
+  const bgSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  bgSvg.id = 'gridbg'; stage.insertBefore(bgSvg, cv);
+  const bgG = document.createElementNS('http://www.w3.org/2000/svg', 'g'), bgP = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  bgP.setAttribute('vector-effect', 'non-scaling-stroke'); bgG.appendChild(bgP); bgSvg.appendChild(bgG);
+  function placeBg(k, L) {
+    const d = M.gridBg?.[k];
+    bgSvg.classList.toggle('on', !!d);
+    if (!d) return;
+    if (bgP._k !== k) { bgP.setAttribute('d', d); bgP._k = k; }
+    const [ox, oy, sx, sy] = L.bg;
+    bgG.setAttribute('transform', `translate(${ox} ${oy}) scale(${sx} ${sy})`);
   }
   function placeLabels(labels) {
     stage.querySelectorAll('.axis').forEach(a => a.remove());
