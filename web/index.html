@@ -152,6 +152,9 @@
   .info .kv span:last-child { color: #b5b5b5; }
   .info a { color: var(--dim); text-decoration: none; border-bottom: 1px solid #333; transition: color .2s, border-color .2s; }
   .info a:hover { color: var(--fg); border-color: var(--fg); }
+  /* 바깥 링크 표시: 대각선은 짧게, 꺾인 두 끝은 길게(글꼴의 ↗ 는 비율이 반대) */
+  .info a .out { width: .78em; height: .78em; margin-left: 3px; vertical-align: -.04em; fill: none; stroke: currentColor;
+    stroke-width: 1.15; stroke-linecap: round; stroke-linejoin: round; }
   /* 줄 이름: 1열 왼쪽 여백에 세로로. 가운데 줄은 위 끝, 위 줄은 아래 끝, 아래 줄은 위 끝에 붙인다 */
   .rowname { grid-column: 1; position: relative; pointer-events: none; z-index: 2; }
   .rowname span { position: absolute; right: 100%; margin-right: 9px; writing-mode: vertical-rl; transform: rotate(180deg);
@@ -1135,10 +1138,9 @@ function infoHTML(c) {
   return `<div class="no">#${c.spine}</div>
     <div class="t">${esc(c.title)}</div>
     ${c.orig ? `<div class="o">${esc(c.orig)}</div>` : ''}
-    ${c.directors ? `<div>${esc(c.directors)}</div>` : ''}
-    <div>${[c.year, c.countries].filter(Boolean).map(esc).join(' · ')}</div>
+    <div>${[c.directors, c.year, c.countries].filter(Boolean).map(esc).join(' · ')}</div>
     ${rows.length ? '<div class="sp"></div>' + rows.join('') : ''}
-    ${url ? `<div class="n"><a href="${url}" target="_blank" rel="noopener">criterion.com ↗</a></div>` : ''}`;
+    ${url ? `<div class="n"><a href="${url}" target="_blank" rel="noopener">criterion.com<svg class="out" viewBox="0 0 10 10" aria-hidden="true"><path d="M4.5 5.5 7.5 2.5M3 2.5h4.5V7"/></svg></a></div>` : ''}`;
 }
 /* 정보가 칸(커버 높이)을 넘으면: 값을 한 줄로 줄이고, 덜 중요한 줄 넷까지 빼고, 그래도 넘치면 제목을 줄인 뒤 나머지 줄을 뺀다.
    좁은 화면은 정보 칸이 스크롤되므로 그대로 둔다 */
