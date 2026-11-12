@@ -157,22 +157,16 @@
   .info .kv span:last-child { color: #b5b5b5; }
   .info a { color: var(--dim); text-decoration: none; border-bottom: 1px solid #333; transition: color .2s, border-color .2s; }
   .info a:hover { color: var(--fg); border-color: var(--fg); }
-  /* 제목이 criterion.com 링크. 평소엔 제목 그대로, 가리키면 밑줄과 화살표 */
-  .info a.t { display: block; color: var(--fg); border: 0; text-decoration: underline dotted; text-decoration-color: transparent;
-    text-decoration-thickness: 1.5px; text-underline-offset: .14em; transition: text-decoration-color .2s; }
-  .info a.t:hover, .info a.t:focus-visible { color: var(--fg); text-decoration-color: currentColor; outline: none; }
-  /* 화살표: Lucide arrow-up-right 모양(24 격자의 7–17, viewBox 5–19). 대문자 높이의 절반 크기로,
-     대문자 높이(약 .72em)의 가운데에 맞춘다. 끝과 이음은 둥글게, 선은 약 1px */
-  .info a.t .out { width: .5em; height: .5em; margin-left: .14em; vertical-align: .11em; opacity: 0; stroke-width: 1;
-    stroke-linecap: round; stroke-linejoin: round; transition: opacity .2s; }
-  .info a.t:hover .out, .info a.t:focus-visible .out { opacity: 1; }
-  @media (hover: none) { .info a.t .out { opacity: .5; } }
-  /* 바깥 링크 표시: 대각선은 짧게, 꺾인 두 끝은 길게(글꼴의 ↗ 는 비율이 반대) */
-  .info a .out { width: 9px; height: 9px; margin-left: 4px; vertical-align: 0; fill: none; stroke: currentColor;
-    stroke-width: 1; stroke-linecap: square; stroke-linejoin: miter; shape-rendering: geometricPrecision; }
-  /* 더보기: 덜 중요한 줄은 접어 둔다. 링크와 같은 줄, 같은 결 */
+  /* criterion.com 링크: Show More 안 맨 끝. 화살표는 Lucide arrow-up-right(24 격자의 7–17, viewBox 5–19)를
+     글자의 절반 남짓 크기로, 대문자 높이(약 .72em)의 가운데에 맞춘다. 끝과 이음은 둥글게, 선은 약 1px */
+  .info .lk { margin-top: 4px; font-size: 13px; }
+  .info .lk .out { width: .62em; height: .62em; margin-left: .3em; vertical-align: .05em; fill: none; stroke: currentColor;
+    stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
+  /* 더보기: 덜 중요한 줄과 링크는 접어 둔다. 버튼은 가운데 커버나 정보 글자를 가리킬 때만 보인다(자리는 그대로) */
   .info .extra { display: none; flex-direction: column; gap: 6px; overflow: hidden; }
-  .info .m { font-size: 12px; margin-top: 2px; }
+  .info .m { font-size: 12px; margin-top: 2px; opacity: 0; transition: opacity .25s var(--out); }
+  #panels:has(.box.mid:hover) .info .m, .info:hover .m, .info .m:focus-within { opacity: 1; }
+  @media (hover: none) { .info .m { opacity: 1; } }
   .info.open .extra { display: flex; }
   .info.compact, .info.compact .body, .info.compact .extra { gap: 3px; }   /* 넘칠 때 마지막으로 줄 간격을 좁힌다 */
   .info.compact .kv { font-size: 12px; line-height: 1.35; }
@@ -1155,12 +1149,13 @@ function rowName(k, r) {
 }
 function infoHTML(c) {
   const kv = (k, v) => v && v.length ? `<div class="kv" data-k="${k}"><span>${k}</span><span>${esc([].concat(v).join(', '))}</span></div>` : '';
-  // 늘 보이는 네 줄과 More 로 펼치는 줄. c.cast, c.fmt, c.genre, c.box 는 데이터에 남아 있고 화면에만 쓰지 않는다
+  // 늘 보이는 네 줄과 Show More 로 펼치는 줄(끝에 criterion.com). c.cast, c.fmt, c.genre, c.box 는 데이터에 남아 있고 화면에만 쓰지 않는다
   const url = criterionUrl(c);
   const rows = [kv('Country', c.countries), kv('Runtime', c.rt ? `${c.rt} min` : ''), kv('Aspect ratio', c.ar), kv('Language', c.language)].filter(Boolean);
-  const extra = [kv('Color', c.clr), kv('Cinematography', c.dop), kv('Music', c.music), kv('Written by', c.writer)].filter(Boolean);
+  const extra = [kv('Color', c.clr), kv('Cinematography', c.dop), kv('Music', c.music), kv('Written by', c.writer),
+    url ? `<div class="lk"><a href="${url}" target="_blank" rel="noopener">criterion.com<svg class="out" viewBox="5 5 14 14" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg></a></div>` : ''].filter(Boolean);
   return `<div class="no">#${c.spine}</div>
-    ${url ? `<a class="t" href="${url}" target="_blank" rel="noopener" aria-label="${esc(c.title)} on criterion.com">${esc(c.title)}<svg class="out" viewBox="5 5 14 14" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg></a>` : `<div class="t">${esc(c.title)}</div>`}
+    <div class="t">${esc(c.title)}</div>
     ${c.orig ? `<div class="o">${esc(c.orig)}</div>` : ''}
     <div>${[c.directors, c.year].filter(Boolean).map(esc).join(' · ')}</div>
     <div class="body">${rows.length || extra.length ? '<div class="sp"></div>' + rows.join('') : ''}
