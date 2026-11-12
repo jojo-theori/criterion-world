@@ -305,7 +305,7 @@
     .peek[data-col="1"] img, .peek[data-col="1"] canvas { left: auto; right: 0; }
     /* 정보 영역은 검은 덮개 층: 아래 띠에서 날아오르는 커버가 그 뒤에서 나오고(flyWithin z 5 < 6),
        넘치면 글자 크기를 바꾸지 않고 margin-top 을 음수로 해 위로 늘어나 아래 띠를 덮는다 */
-    .info { grid-row: 4; grid-column: 1 / -1; padding: 20px calc(16px + var(--gut, 26px)) 12px; background: #000;
+    .info { grid-row: 4; grid-column: 1 / -1; padding: 14px calc(16px + var(--gut, 26px)) 12px; background: #000;
       margin-left: calc(-1 * var(--gut, 26px)); margin-right: calc(-1 * var(--gut, 26px));   /* 양옆 여백까지 덮는다 */ position: relative; z-index: 6;
       transition: margin-top .42s var(--out); }
     .info .body { margin-top: 0; }
@@ -1246,7 +1246,7 @@ function infoHTML(c) {
 const INFO_DROP = ['Written by', 'Music', 'Cinematography', 'Color', 'Language', 'Aspect ratio', 'Runtime', 'Country'];
 let infoOpen = false;   // More 를 펼친 상태는 다른 커버로 옮겨 가도 유지한다
 const NARROW_GUTTER = 26;   // 좁은 화면 양옆 여백. 왼쪽에 줄 이름을 세로로 쓴다
-const NARROW_INFO = 300;   // 좁은 화면에서 정보 칸 높이(px). 펼친 내용까지 들어가게 처음부터 잡아 열고 닫을 때 커버 크기가 바뀌지 않는다
+const NARROW_INFO = 258;   // 좁은 화면 정보 칸 높이(px): 접힌 내용의 95% 가 들어가는 높이. 펼치거나 더 길면 위로 늘어난다(커버 크기는 그대로)
 // 평소 padding: 가운데 커버의 윗변·아랫변까지(offsetTop 은 날아오는 중의 transform 과 무관)
 function infoPads(info) {
   const mid = panels.querySelector('.box.mid');
@@ -1267,9 +1267,15 @@ function fillInfo(info, c, animate = false) {
   if (wide) { pad = infoPads(info); setPad(pad); info.style.marginTop = ''; }
   else { info.style.paddingTop = info.style.paddingBottom = ''; info.style.marginTop = '0px'; }
   info._over = over();
-  if (info._over && !wide) {   // 좁은 화면: 넘치는 만큼 위로(가운데 커버 윗변까지)
+  if (!wide) {
+    /* 좁은 화면: 펼친 줄 높이(+간격)만큼 정확히 위로 늘린다. 그러면 Show More 아래는 제자리이고, 제목부터 표까지가
+       검은 영역 윗변과 한 덩어리로 같은 속도로 올라간다. 그래도 넘치면 넘치는 만큼 더(가운데 커버 윗변까지) */
     const mid = panels.querySelector('.box.mid'), cap = Math.max(0, info.offsetTop - (mid ? mid.offsetTop : 0));
-    info.style.marginTop = -Math.min(cap, info.scrollHeight - info.clientHeight) + 'px';
+    const ex = infoOpen ? info.querySelector('.extra') : null;
+    let grow = ex ? ex.offsetHeight + 6 : 0;
+    info.style.marginTop = -Math.min(cap, grow) + 'px';
+    if (over()) grow += info.scrollHeight - info.clientHeight;
+    info.style.marginTop = -Math.min(cap, grow) + 'px';
   }
   if (info._over && wide) {
     const need = info.scrollHeight - info.clientHeight;
