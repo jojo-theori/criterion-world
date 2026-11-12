@@ -161,9 +161,9 @@
   .info a.t { display: block; color: var(--fg); border: 0; text-decoration: underline dotted; text-decoration-color: transparent;
     text-decoration-thickness: 1.5px; text-underline-offset: .14em; transition: text-decoration-color .2s; }
   .info a.t:hover, .info a.t:focus-visible { color: var(--fg); text-decoration-color: currentColor; outline: none; }
-  /* 화살표: Lucide arrow-up-right 모양(24 격자의 7–17). 그려진 부분이 대문자 높이(약 .72em)가 되게 viewBox 를 5–19 로 자르고
-     아랫변을 글자 기준선에 맞춘다. 끝과 이음은 둥글게 */
-  .info a.t .out { width: 1em; height: 1em; margin-left: .12em; vertical-align: -.14em; opacity: 0; stroke-width: .62;
+  /* 화살표: Lucide arrow-up-right 모양(24 격자의 7–17, viewBox 5–19). 대문자 높이의 절반 크기로,
+     대문자 높이(약 .72em)의 가운데에 맞춘다. 끝과 이음은 둥글게, 선은 약 1px */
+  .info a.t .out { width: .5em; height: .5em; margin-left: .14em; vertical-align: .11em; opacity: 0; stroke-width: 1;
     stroke-linecap: round; stroke-linejoin: round; transition: opacity .2s; }
   .info a.t:hover .out, .info a.t:focus-visible .out { opacity: 1; }
   @media (hover: none) { .info a.t .out { opacity: .5; } }
