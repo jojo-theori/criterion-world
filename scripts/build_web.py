@@ -985,16 +985,23 @@ def equal_earth(lon: np.ndarray, lat: np.ndarray) -> tuple[np.ndarray, np.ndarra
     return x, y
 
 
+def mercator(lon: np.ndarray, lat: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    """가장 평범한 메르카토르 도법(웹 지도와 같은 방식). 입력 도, 출력 라디안 단위(y 는 북쪽이 +)."""
+    lat = np.clip(lat, -85, 85)
+    return np.radians(lon), np.log(np.tan(np.pi / 4 + np.radians(lat) / 2))
+
+
 def country_map(items: list[dict]) -> tuple:
-    """지도는 늘리거나 당기지 않는다(Equal Earth). 커버를 실제 국경 안에 채우고, 나라 넓이에 비해 영화가 많으면 그 나라 타일을 작게.
+    """지도는 늘리거나 당기지 않는다(메르카토르, 사용자 선택). 커버를 실제 국경 안에 채우고, 나라 넓이에 비해 영화가 많으면 그 나라 타일을 작게.
     좌표 단위: 지도 폭 1000. 반환 pos[i] = [x, y](타일 왼쪽 위), size[i] = 타일 너비."""
     feats = {f["properties"]["NAME"]: f["geometry"] for f in json.loads(BORDERS.read_text())["features"]}
     WMAP = 1000.0
-    xmax = equal_earth(np.array([180.0]), np.array([0.0]))[0][0]
-    ytop = equal_earth(np.array([0.0]), np.array([84.0]))[1][0]
-    ybot = equal_earth(np.array([0.0]), np.array([-58.0]))[1][0]
+    PROJ = mercator
+    xmax = PROJ(np.array([180.0]), np.array([0.0]))[0][0]
+    ytop = PROJ(np.array([0.0]), np.array([84.0]))[1][0]
+    ybot = PROJ(np.array([0.0]), np.array([-58.0]))[1][0]
     sc = WMAP / (2 * xmax)
-    to_map = lambda lon, lat: ((equal_earth(lon, lat)[0] + xmax) * sc, (ytop - equal_earth(lon, lat)[1]) * sc)
+    to_map = lambda lon, lat: ((PROJ(lon, lat)[0] + xmax) * sc, (ytop - PROJ(lon, lat)[1]) * sc)
     HMAP = (ytop - ybot) * sc
     TA = 1 / (1288 / 1600)                       # 타일 세로/가로
     GAPX, GAPY = 1.18, 1.18 * 1.42 / 1.18 * (1288 / 1600) * TA / TA   # 칸 간격(타일 너비 대비)
