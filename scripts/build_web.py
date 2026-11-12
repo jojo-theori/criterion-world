@@ -387,31 +387,66 @@ def item_categories(axis: str, ids: list[int], feat: dict[int, dict], X: np.ndar
                 out.append(("dec", f"{f['year'] // 10 * 10}s"))
             if f.get("country"):
                 out.append(("cty", f["country"]))
+            if f.get("genre"):
+                out.append(("gen", f["genre"]))
             out += [("obj", o) for o in f.get("objs", [])[:3]]
             return out
         base = Counter(x for i in ids for x in facets(F[i]))
-        names = {}
-        for c in range(k):
+        # 묶음마다 두드러진 특징(시대·나라·장르·물체) 둘. 이미 쓴 이름이면 다음 조합으로
+        from itertools import combinations
+        KIND = ["dec", "cty", "gen", "obj"]
+        names, used = {}, set()
+        for c in sorted(range(k), key=lambda c: -(lab == c).sum()):
             mem = [i for i, l in zip(ids, lab) if l == c]
             cnt = Counter(x for i in mem for x in facets(F[i]))
             score = sorted(((n / len(mem)) * np.log((n / len(mem)) / (base[x] / len(ids)) + 1e-9), x)
-                           for x, n in cnt.items() if n >= max(3, 0.25 * len(mem)))
-            picked, kinds = [], set()
-            for _, (kind, v) in score[::-1]:
-                if kind not in kinds:
-                    picked.append((kind, v)); kinds.add(kind)
-                if len(picked) == 2:
+                           for x, n in cnt.items() if n >= 2)[::-1][:8]
+            cands = [x for _, x in score]
+            name = None
+            for a_, b_ in combinations(cands, 2):
+                if a_[0] == b_[0]:
+                    continue
+                nm = " · ".join(v for _, v in sorted([a_, b_], key=lambda x: KIND.index(x[0])))
+                if nm not in used:
+                    name = nm
                     break
-            picked.sort(key=lambda x: ["dec", "cty", "obj"].index(x[0]))
-            names[c] = " · ".join(v for _, v in picked) or "Mixed"
-        # 같은 이름이 생기면 그대로 둔다(같은 이름 줄이 이어진다)
+            names[c] = name or (" · ".join(v for _, v in cands[:3]) or "Mixed")
+            used.add(names[c])
         return {i: names[l] for i, l in zip(ids, lab)}, list(dict.fromkeys(names[c] for c in range(k)))
     return {i: "" for i in ids}, [""]
 
 
-def category_rings(cats: dict[int, str], order: list[str], u: dict[int, tuple[float, float]]) -> tuple[list, list[str]]:
-    """같은 범주를 줄로 묶는다. 큰 범주는 지도 세로(u y) 순으로 ROW_LEN 안팎씩 나누고, 줄 안은 지도 가로(u x) 순.
+# 한 범주가 여러 줄로 나뉠 때 줄마다 붙일 두 번째 기준: (지표, 낮음→높음 낱말, 이름 만드는 법)
+SPLIT = {
+    "color": ("lum", None, None),   # 색 이름별 낱말은 COLOR_WORDS
+    "contrast": ("chroma", ["grayscale", "near-gray", "faded", "muted", "subdued", "toned", "colorful", "saturated", "vivid"], "{c}, {w}"),
+    "lines": ("sym", ["asymmetric", "lopsided", "skewed", "off-balance", "loosely balanced", "near-symmetric", "balanced", "symmetric", "mirrored"], "{c}, {w}"),
+    "text": ("tx", ["flush left", "far left", "left", "left of center", "centered", "right of center", "right", "far right", "flush right"], "{c}, {w}"),
+    "strokes": ("coh", ["scribbled", "messy", "rough", "loose", "steady", "even", "orderly", "precise", "rigid"], "{c}, {w}"),
+    "layout": ("fy", ["image at the top", "image high", "image upper", "image above center", "image centered", "image below center", "image lower", "image low", "image at the bottom"], "{c}, {w}"),
+}
+COLOR_WORDS = {   # 어두움 → 밝음
+    "Black": ["Jet black", "Ink black", "Onyx", "Black", "Soft black", "Charcoal", "Smoke"],
+    "Gray": ["Graphite", "Dark gray", "Slate", "Gray", "Ash", "Silver", "Light gray"],
+    "White": ["Bone", "Stone", "Off-white", "Cream", "Ivory", "White", "Paper white"],
+}
+TONE = ["Deepest", "Deep", "Dark", "Mid", "Light", "Pale", "Palest"]
+ROMAN = ["", " II", " III", " IV", " V", " VI", " VII", " VIII", " IX", " X"]
+
+
+def spread(words: list[str], n: int) -> list[str]:
+    """낱말 목록에서 n 개를 고르게(양 끝 포함) 뽑는다."""
+    if n == 1:
+        return [""]
+    return [words[round(k * (len(words) - 1) / (n - 1))] for k in range(n)]
+
+
+def category_rings(axis: str, cats: dict[int, str], order: list[str], u: dict[int, tuple[float, float]],
+                   feat: dict[int, dict]) -> tuple[list, list[str]]:
+    """같은 범주를 줄로 묶는다. 큰 범주는 두 번째 기준(SPLIT, 없으면 지도 세로) 순으로 ROW_LEN 안팎씩 나누고
+    그 기준을 이름에 붙여 줄 이름이 모두 다르게 한다. 줄 안은 지도 가로(u x) 순.
     줄의 x(위아래 이동 때 가까운 칸 찾기)는 지도 가로 위치 0–100."""
+    from collections import Counter
     rows, names = [], []
     rank = {c: n for n, c in enumerate(order)}
     groups: dict[str, list[int]] = {}
@@ -420,14 +455,50 @@ def category_rings(cats: dict[int, str], order: list[str], u: dict[int, tuple[fl
     small = [c for c, m in groups.items() if len(m) < 8 and c != "Various"]   # 너무 짧은 줄은 좌우가 금방 돈다
     for c in small:
         groups.setdefault("Various", []).extend(groups.pop(c))
+    key, words, fmt = SPLIT.get(axis, (None, None, None))
+    objs_used: set[str] = set()
     for c in sorted(groups, key=lambda c: (rank.get(c, len(rank)), c)):
-        mem = sorted(groups[c], key=lambda i: u[i][1])
-        n = max(1, round(len(mem) / ROW_LEN))
-        for part in np.array_split(np.array(mem), n):
-            row = sorted(part.tolist(), key=lambda i: u[i][0])
+        n = max(1, round(len(groups[c]) / ROW_LEN))
+        if key:
+            mem = sorted(groups[c], key=lambda i: (feat.get(i, {}).get(key) is None, feat.get(i, {}).get(key) or 0))
+        else:
+            mem = sorted(groups[c], key=lambda i: u[i][1])
+        parts = [p.tolist() for p in np.array_split(np.array(mem), n)]
+        if axis == "color":
+            ws = spread(COLOR_WORDS[c], n) if c in COLOR_WORDS else [f"{w} {c.lower()}" if w else c for w in spread(TONE, n)]
+            labels = [w or c for w in ws]
+        elif words and n > 1:
+            labels = [fmt.format(c=c, w=w) for w in spread(words, n)]
+        elif axis == "look" and n > 1:   # 큰 묶음은 줄마다 그 줄에서 가장 많은 물체·장르로 구분
+            labels, taken = [], set()
+            for part in parts:
+                cnt = Counter(v for i in part for v in [feat.get(i, {}).get("genre"), *feat.get(i, {}).get("objs", [])[:3]]
+                              if v and v not in c and v not in taken)
+                v = next((v for v, _ in cnt.most_common()), None)
+                if v:
+                    taken.add(v)
+                labels.append(f"{c} · {v}" if v else c)
+        elif axis == "objects" and n > 1:   # 같은 물체 줄은 그 줄에 함께 많이 나온 다른 물체로 구분
+            labels = []
+            for part in parts:
+                cnt = Counter(o for i in part for o in feat.get(i, {}).get("objs", []) if o != c and o not in objs_used)
+                o = next((o for o, _ in cnt.most_common()), None)
+                if o:
+                    objs_used.add(o)
+                labels.append(f"{c} · {o}" if o else c)
+        else:
+            labels = [c] * n
+        for part, lab in zip(parts, labels):
+            row = sorted(part, key=lambda i: u[i][0])
             rows.append([[int(i), int(round(u[i][0] * 100))] for i in row])
-            names.append(c)
-    return rows, names
+            names.append(lab)
+    # 그래도 겹치는 이름은 차례로 II, III … (마지막 수단)
+    seen: Counter = Counter()
+    out = []
+    for nm in names:
+        seen[nm] += 1
+        out.append(nm + ROMAN[min(seen[nm] - 1, len(ROMAN) - 1)] if names.count(nm) > 1 else nm)
+    return rows, out
 
 
 def main() -> None:
@@ -510,7 +581,7 @@ def main() -> None:
             fl = f["lines"]
             feat.setdefault(i, {}).update(light=f["contrast"]["lightness_mean"], rms=f["contrast"]["rms_contrast"],
                                           lh=fl["horizontal_share"], lv=fl["vertical_share"], ld=fl["diagonal_share"],
-                                          dens=fl["density"])
+                                          dens=fl["density"], chroma=f["color"]["colorfulness"], sym=f["lr_symmetry"])
             it["mode"] = f["color"]["color_mode"]
             it["rms"] = f["contrast"]["rms_contrast"]
         r = json.loads(rj.read_text()) if rj.exists() else None
@@ -536,7 +607,9 @@ def main() -> None:
             trace["strokes"] = True
             it["st"] = [st["ink_share"], st["coherence"], st["width_mean"]]
             it["ly"] = [ly["shares"]["text"], ly["shares"]["figure"], ly["shares"]["empty"]]
-            feat.setdefault(i, {}).update(band=ly["title_band"], tshare=ly["shares"]["text"], fig=ly["shares"]["figure"],
+            tc, fc = ly.get("text_centroid") or [None, None], ly.get("figure_centroid") or [None, None]
+            feat.setdefault(i, {}).update(tx=tc[0], fy=fc[1], coh=st["coherence"],
+                                          band=ly["title_band"], tshare=ly["shares"]["text"], fig=ly["shares"]["figure"],
                                           empty=ly["shares"]["empty"], ink=st["ink_share"], width=st["width_mean"],
                                           shv=st["horizontal_share"], svv=st["vertical_share"])
         if p.name in emb:
@@ -550,7 +623,7 @@ def main() -> None:
         traces.append(trace)
         hue.append((h, lmean, gray))
         feat.setdefault(i, {}).update(hue=h, lum=lmean, gray=gray, year=year, country=(countries or "").split("|")[0].split(",")[0].strip(),
-                                      objs=it.get("objs", []))
+                                      objs=it.get("objs", []), genre=((it.get("genre") or [""])[0].removesuffix(" film") or None))
 
     # 물체 벡터: 라벨별 max(점수 × (0.5 + √면적)), 흔한 라벨(face, person)은 IDF 로 낮춘다
     if obj_raw:
@@ -589,7 +662,7 @@ def main() -> None:
     names: dict[str, list[str]] = {}
     cc, co = item_categories("color", list(range(len(items))), feat, None)
     rings: dict[str, list] = {}
-    rings["color"], names["color"] = category_rings(cc, co, {i: (float(xy[i][1]), float(xy[i][0])) for i in range(len(items))})
+    rings["color"], names["color"] = category_rings("color", cc, co, {i: (float(xy[i][1]), float(xy[i][0])) for i in range(len(items))}, feat)
     gpos: dict[str, dict[int, list[int]]] = {"color": dict(enumerate(cg))}
     for k, v in ax.items():
         if k == "color" or len(v) <= 20:
@@ -604,7 +677,7 @@ def main() -> None:
         grids[k], gpos[k] = [gc, gr], dict(zip(ids, g))
         # 순회용 빈칸 없는 정사각 격자: 같은 지도를 칸 수 ≈ 커버 수로 다시 배정한다
         cats, order = item_categories(k, ids, feat, X if k == "look" else None)
-        rings[k], names[k] = category_rings(cats, order, {i: (float(a), float(b)) for i, (a, b) in zip(ids, u)})
+        rings[k], names[k] = category_rings(k, cats, order, {i: (float(a), float(b)) for i, (a, b) in zip(ids, u)}, feat)
         print(f"  map {k}: {len(ids)} covers, grid {gc}x{gr}", flush=True)
 
     nb = {k: neighbors(v, "cos" if k in COS else "hel") for k, v in ax.items()}
@@ -628,6 +701,12 @@ def main() -> None:
     (WEB / "data.js").write_text("window.META = " + json.dumps(meta) + ";\nwindow.COVERS = "
                                  + json.dumps(items, ensure_ascii=False, separators=(",", ":")) + ";\n")
     print(f"{len(items)} covers, axes {meta['axes']} -> {WEB / 'data.js'}")
+    # 첫 로딩 화면이 진행률을 계산할 크기(풀린 바이트)를 index.html 에 적는다
+    import re as _re
+    sizes = {f: (WEB / f).stat().st_size for f in ("data.js", "atlas/cover_s.webp") if (WEB / f).exists()}
+    html = (WEB / "index.html").read_text(encoding="utf-8")
+    html = _re.sub(r"/\*SIZES\*/.*?/\*END\*/", "/*SIZES*/" + json.dumps(sizes) + "/*END*/", html, count=1)
+    (WEB / "index.html").write_text(html, encoding="utf-8")
 
 
 if __name__ == "__main__":

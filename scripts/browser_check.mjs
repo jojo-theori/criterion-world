@@ -1,6 +1,6 @@
 // 실제 시간으로 헤드리스 Chrome 을 띄워 뷰어를 조작하고 스크린샷을 찍는다.
 // 사용: node cdp.mjs <url> <outdir> <steps.json>
-// steps: [{wait:ms} | {shot:name} | {move:[x,y]} | {click:[x,y]} | {moveTile:i} | {clickTile:i} | {key:"ArrowUp", code?, shift?} | {type:"text"} | {clickSel:"css"} | {burst:"name", n} | {eval:"js"}]
+// steps: [{throttle:bytesPerSec} | {navigate:url} | {wait:ms} | {shot:name} | {move:[x,y]} | {click:[x,y]} | {moveTile:i} | {clickTile:i} | {key:"ArrowUp", code?, shift?} | {type:"text"} | {clickSel:"css"} | {burst:"name", n} | {eval:"js"}]
 // click/clickSel 다음 단계에 burst 를 두면 전환 중 프레임을 연달아 찍는다
 import { spawn } from 'node:child_process';
 import { writeFileSync, mkdtempSync, readFileSync } from 'node:fs';
@@ -38,6 +38,11 @@ await send('Emulation.setDeviceMetricsOverride', { width: 1600, height: 1000, de
 await send('Page.navigate', { url });
 await sleep(1500);
 for (const s of steps) {
+  if (s.throttle) {   // 느린 회선 흉내: {throttle: 초당 바이트}. 그 다음 {navigate: url} 로 다시 연다
+    await send('Network.enable');
+    await send('Network.emulateNetworkConditions', { offline: false, latency: 80, downloadThroughput: s.throttle, uploadThroughput: s.throttle });
+  }
+  if (s.navigate) { await send('Page.navigate', { url: s.navigate }); }
   if (s.wait) await sleep(s.wait);
   if (s.shot) { const r = await send('Page.captureScreenshot', { format: 'png' }); writeFileSync(join(outdir, s.shot + '.png'), Buffer.from(r.result.data, 'base64')); }
   if (s.clickSel) {

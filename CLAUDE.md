@@ -73,6 +73,8 @@
 - 레포 https://github.com/thumbjiho/criterion-world (public). 배포는 scripts/deploy.sh: git 에 올라간 web/ 만 모아 Cloudflare Workers 정적 자산(Worker 이름 criterion-world, 도메인 cc.umjo.me)으로 올린다. wrangler 4.160 은 pages project create 를 Workers 로 넘겨서 Pages 대신 이 방식. GitHub 와 자동 연결은 없다(커밋·푸시 후 deploy.sh). .gitignore 가 원본·레퍼런스·중간 결과·file:// 용 산출물(atlas *.js/*.jpg, strokes *.png)을 뺀다. 레포 약 123MB, 5,300 파일.
 - http 에서는 아틀라스를 WebP 로 읽고 원본 아틀라스는 반 크기(cover_s.webp 0.75MB)를 먼저 올린다. 흔적 아틀라스 미리 받기는 큰 원본 아틀라스가 온 뒤. 캐시는 web/_headers.
 - 로컬에서 file:// 로 열면 예전처럼 data URL JS 를 쓴다.
+- 첫 로딩 화면(#boot): http 에서는 data.js 와 cover_s.webp 를 fetch 로 받으며 실제 진행률(풀린 바이트 기준, 크기는 build_web.py 가 index.html 의 /*SIZES*/ 에 적음)을 보이고, 다 받으면 본 스크립트(<script type="text/plain" id="main">)를 실행한다. file:// 에서는 ⌘⇧R 때만 더미 진행.
+- 줄 이름은 모두 다르게(사용자 요청): 큰 범주는 두 번째 지표(SPLIT: 색=밝기, 대비=채도, 구도선=좌우 대칭, Type=글자 가로 위치, 획=결, Layout=그림 세로 위치)로 나누고 9단계 낱말을 붙인다. Look·Objects 는 그 줄에 많은 장르·물체를 붙인다. 마지막 수단으로 II, III.
 - 버전: 오른쪽 아래 'v0.1.0 · data 2026-11-12'. 화면·동작을 바꿔 배포할 때 web/index.html 의 VERSION 을 올린다. 데이터 날짜는 build_web.py 가 META.built 에 적는다.
 
 ## 주의할 점

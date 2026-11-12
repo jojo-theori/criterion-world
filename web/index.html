@@ -187,6 +187,16 @@
     *, *::before, *::after { transition-duration: 0s !important; transition-delay: 0s !important;
       animation-duration: 0s !important; animation-delay: 0s !important; }
   }
+  /* 첫 로딩 */
+  #boot { position: fixed; inset: 0; z-index: 100; background: #000; display: none; flex-direction: column; align-items: center;
+    justify-content: center; gap: 14px; transition: opacity .6s var(--out); }
+  #boot.on { display: flex; }
+  #boot.done { opacity: 0; pointer-events: none; }
+  #boot .name { font-size: 13px; color: var(--dim); letter-spacing: .02em; }
+  #boot .bar { width: 180px; height: 1px; background: #222; overflow: hidden; }
+  #boot .bar i { display: block; height: 100%; background: var(--fg); transform: scaleX(0); transform-origin: 0 50%; transition: transform .2s linear; }
+  #boot .pct { display: flex; gap: 12px; font-size: 11px; color: #555; font-variant-numeric: tabular-nums; }
+  #boot #bootPct { color: var(--fg); }
 </style>
 </head>
 <body>
@@ -232,11 +242,63 @@
   </footer>
 </div>
 
-<script src="data.js"></script>
+<div id="boot" aria-live="polite">
+  <div class="name">Criterion World</div>
+  <div class="bar"><i></i></div>
+  <div class="pct"><span id="bootPct">0%</span><span id="bootMB"></span></div>
+</div>
 <script>
+/* ---------- 첫 로딩 ----------
+   배포(http): data.js 와 반 크기 커버 아틀라스를 직접 받아 받은 양을 보여준다. 크기는 build_web.py 가 SIZES 에 적는다
+   (brotli 로 오더라도 읽는 쪽은 풀린 바이트라 원래 크기와 비교한다). 다 받으면 본 스크립트(#main)를 실행한다.
+   로컬(file://): fetch 를 못 써서 예전처럼 script 로 읽는다. ⌘⇧R(강한 새로고침) 때만 더미 진행을 보여준다 */
+const SIZES = /*SIZES*/{"data.js": 1629751, "atlas/cover_s.webp": 768618}/*END*/;
+window.PRELOAD = {};
+(() => {
+  const boot = document.getElementById('boot'), pctEl = document.getElementById('bootPct'), mbEl = document.getElementById('bootMB');
+  const bar = boot.querySelector('.bar i');
+  const show = (done, total) => {
+    const p = total ? Math.min(100, Math.floor(done / total * 100)) : 0;
+    pctEl.textContent = p + '%'; bar.style.transform = `scaleX(${p / 100})`;
+    mbEl.textContent = total ? `${(done / 1e6).toFixed(1)} / ${(total / 1e6).toFixed(1)} MB` : '';
+  };
+  const runMain = () => { const sc = document.createElement('script'); sc.textContent = document.getElementById('main').textContent; document.body.appendChild(sc); };
+  const finish = () => requestAnimationFrame(() => requestAnimationFrame(() => { boot.classList.add('done'); setTimeout(() => boot.remove(), 700); }));
+  addEventListener('keydown', e => { if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.code === 'KeyR') sessionStorage.setItem('hardReload', '1'); });
+
+  if (location.protocol.startsWith('http')) {
+    boot.classList.add('on');
+    const files = ['data.js', 'atlas/cover_s.webp'], got = {};
+    const total = files.reduce((a, f) => a + (SIZES[f] || 0), 0);
+    const tick = () => show(Object.values(got).reduce((a, b) => a + b, 0), total);
+    const pull = async f => {
+      const r = await fetch(f); const rd = r.body.getReader(), parts = [];
+      got[f] = 0;
+      for (;;) { const { done, value } = await rd.read(); if (done) break; parts.push(value); got[f] += value.length; tick(); }
+      return new Blob(parts, { type: r.headers.get('content-type') || '' });
+    };
+    Promise.all(files.map(pull)).then(async ([data, cover]) => {
+      window.PRELOAD.cover_s = URL.createObjectURL(cover);
+      const sc = document.createElement('script'); sc.textContent = await data.text(); document.body.appendChild(sc);
+      show(total, total); runMain(); finish();
+    }).catch(() => {   // 받는 중 실패하면 예전 방식으로
+      const sc = document.createElement('script'); sc.src = 'data.js'; sc.onload = () => { runMain(); finish(); }; document.body.appendChild(sc);
+    });
+  } else {
+    const fake = sessionStorage.getItem('hardReload'); sessionStorage.removeItem('hardReload');
+    const sc = document.createElement('script'); sc.src = 'data.js';
+    if (!fake) { boot.remove(); sc.onload = runMain; document.body.appendChild(sc); return; }
+    boot.classList.add('on');
+    const T = 1400, t0 = performance.now(), total = (SIZES['data.js'] || 1.6e6) + (SIZES['atlas/cover_s.webp'] || 0.8e6);
+    const step = now => { const p = Math.min(1, (now - t0) / T), e = 1 - Math.pow(1 - p, 2); show(e * total, total); if (p < 1) requestAnimationFrame(step); else { runMain(); finish(); } };
+    sc.onload = () => requestAnimationFrame(step); document.body.appendChild(sc);
+  }
+})();
+</script>
+<script type="text/plain" id="main">
 const M = window.META, C = window.COVERS, N = C.length;
 // 버전: 화면·동작이 바뀌면 올린다. 데이터 날짜는 build_web.py 가 META.built 에 적는다
-const VERSION = '0.1.3';
+const VERSION = '0.2.0';
 document.getElementById('ver').textContent = `v${VERSION}`;
 document.getElementById('ver').title = M.built ? `data ${M.built}` : '';
 const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -355,7 +417,7 @@ const atlasReq = {};
 const HTTP = location.protocol.startsWith('http');
 function loadAtlas(name) {
   if (HTTP) return atlasReq[name] ??= new Promise(res => {
-    const im = new Image(); im.src = `atlas/${name}.webp`;
+    const im = new Image(); im.src = window.PRELOAD?.[name] || `atlas/${name}.webp`;
     im.decode().then(() => res(im), () => res(null));
   });
   return atlasReq[name] ??= new Promise(res => {
