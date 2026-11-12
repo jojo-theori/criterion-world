@@ -429,7 +429,7 @@
 /* 빌드마다 바뀌는 값(data.js 크기)을 data.js 와 아틀라스 주소에 붙인다. 커버가 늘면 아틀라스 칸 순서가 바뀌는데,
    브라우저가 이전 아틀라스를 캐시에서 쓰면 칸마다 엉뚱한 커버가 그려진다 */
 window.BUILD = '';
-const SIZES = /*SIZES*/{"data.js": 1795503, "atlas/cover_s.webp": 780562}/*END*/;
+const SIZES = /*SIZES*/{"data.js": 1795484, "atlas/cover_s.webp": 780562}/*END*/;
 window.PRELOAD = {};
 window.BUILD = '?v=' + (SIZES['data.js'] || 0);
 (() => {
@@ -476,7 +476,7 @@ window.BUILD = '?v=' + (SIZES['data.js'] || 0);
 <script type="text/plain" id="main">
 const M = window.META, C = window.COVERS, N = C.length;
 // 버전: 화면·동작이 바뀌면 올린다. 데이터 날짜는 build_web.py 가 META.built 에 적는다
-const VERSION = '1.4.0';
+const VERSION = '1.4.2';
 document.getElementById('ver').textContent = `v${VERSION}`;
 document.getElementById('ver').title = M.built ? `data ${M.built}` : '';
 const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -961,6 +961,9 @@ const G = (() => {
   const axX = document.createElement('div'), axY = document.createElement('div');
   axX.className = 'gaxis x'; axY.className = 'gaxis y'; stage.append(axX, axY);
   function placeRegions(k, L) {
+    // 축이 바뀌면 이전 축의 클러스터 강조(나머지 어둡게)를 풀어 준다(검색 중이면 검색 강조는 그대로)
+    if (hotR >= 0 && !qEl.value.trim()) G.highlight(null, true);
+    hotR = -1;
     bgG.querySelectorAll('path.region').forEach(r => r.remove()); topG.querySelectorAll('path').forEach(r => r.remove());
     stage.querySelectorAll('.rlabel').forEach(r => r.remove());
     regions = (M.gridExtra?.[k]?.regions || []).filter(g => g.outline).map(g => {

@@ -1437,6 +1437,10 @@ def free_layouts(items: list[dict], tropes: dict, look: dict[int, np.ndarray], u
     zf = np.array([z.get("face_close", 0.0) for z in Z])
     cnt = np.where((cnt == 0) & np.isin(cat, ["Big face", "Lone figure", "Figures", "Couple", "Talking heads", "Crowd"]), 1, cnt)
     occ = np.where(np.array(cat) == "Big face", np.maximum(occ, np.clip(0.35 + 0.4 * zf, 0.35, 1.0)), occ)
+    # 사람이 고른 사람 수(data/labels/people.json → tropes 의 human)가 있으면 그 수를 쓴다
+    HUMAN_N = {"none": 0, "animal": 0, "some": 0.6, "one": 1, "two": 2}
+    hl = [tropes[items[i]["file"]].get("human") for i in ids]
+    cnt = np.array([HUMAN_N[h] if h in HUMAN_N else (max(c, 5) if h == "many" else c) for h, c in zip(hl, cnt)], float)
     XMAX = np.log1p(max(cnt.max(), 12))                 # 12 명에서 자르지 않는다
     xn = np.log1p(cnt) / XMAX
     yn = np.sqrt(occ)
