@@ -84,7 +84,7 @@
   5. 범주가 사용자 눈에 맞으면 build_web.py 를 새 7개 축으로 바꾸고(격자 배치 = 범주별 묶음, 줄 = 범주, 줄 이름 = 범주 이름) 흔적을 옮긴다.
 - 2026-11-12 저녁: 원본 커버(1,344편, 빈 칸 채움 포함)로 전체 파이프라인을 다시 돌렸다. 바뀐 판정 규칙: People 에 Couple(큰 얼굴 2개가 맞닿거나 OWLv2 couple embracing ≥ 0.3), 검출기가 놓친 얼굴은 SigLIP 단서(face_close, people)로 보완. Composition 은 Grid / collage(길게 뻗은 가로·세로 선) · Symmetric(글자 가린 윤곽 지도와 거울의 상관 ≥ 0.55) · Single object · Open space · Diagonal · Full-bleed image · Other 로 다시 짰다. Medium 제로샷은 커버 전체에 대한 z-점수. 결과: People Crowd 103 · Couple 97 · Talking heads 182 · Big face 318 · Lone figure 88 · Figures 335 · No one 221 / Type Type only 22 · Big centered 204 · Big 119 · Quiet 171 · Top 281 · Middle 289 · Bottom 258 / Composition Grid 50 · Symmetric 81 · Single object 112 · Open space 138 · Diagonal 177 · Full-bleed 158 · Other 628(가장 큰 남은 과제) / Medium Photo 434 · Illustration 222 · Painting 274 · Graphic 203 · Typographic 211. 확인 페이지는 posters 에서 만든 썸네일과 DB 제목을 쓴다(out/tropes/thumbs).
 - 나라 축(사용자 제안, 메타 묶음: Spine · Year · Country): 격자는 세계 지도처럼 나라 자리에 커버를 모아 지역이 덩어리로 보이게, 세 폭 보기 순회는 지역 줄(East Asia, South Asia, Western Europe, Nordic, Eastern Europe, Africa, Middle East, Latin America, North America, Oceania …) 안에서 나라 → 연도 순. 격자 xy 로 움직이지 않는다(사용자: "지역 그룹별로 순회해야지 지도를 xy좌표로 움직이는 방식으로 작동하면 안되거든"). 지금 구조(격자 = c.g, 순회 = META.rings 범주 줄)가 이미 그렇다. 미국 533편은 시대별 줄로 나눌 것. 공동 제작은 첫 번째 나라.
-- 이름: 사이트 이름을 Criterion Collection World(CCW)로 바꿀 예정(사용자). 바꿀 곳: index.html title·로딩 화면·크레딧('Criterion World by umjo.me')·og/description, README, 원하면 도메인.
+- 이름: Criterion Collection World(CCW)(2026-11-12 사용자, 이전 Criterion World). 화면 title·로딩·크레딧·og 를 바꿨고 GitHub 레포도 ccw 로 바꿨다(옛 주소는 GitHub 가 넘겨준다). Cloudflare Worker 이름 criterion-world 와 도메인 cc.umjo.me 는 그대로.
 
 ## 다음 할 일
 
@@ -99,7 +99,7 @@
 
 ## 배포 (2026-11-12 준비)
 
-- 레포 https://github.com/thumbjiho/criterion-world (public). 배포는 scripts/deploy.sh: git 에 올라간 web/ 만 모아 Cloudflare Workers 정적 자산(Worker 이름 criterion-world, 도메인 cc.umjo.me)으로 올린다. wrangler 4.160 은 pages project create 를 Workers 로 넘겨서 Pages 대신 이 방식. GitHub 와 자동 연결은 없다(커밋·푸시 후 deploy.sh). .gitignore 가 원본·레퍼런스·중간 결과·file:// 용 산출물(atlas *.js/*.jpg, strokes *.png)을 뺀다. 레포 약 123MB, 5,300 파일.
+- 레포 https://github.com/thumbjiho/ccw (public). 배포는 scripts/deploy.sh: git 에 올라간 web/ 만 모아 Cloudflare Workers 정적 자산(Worker 이름 criterion-world, 도메인 cc.umjo.me)으로 올린다. wrangler 4.160 은 pages project create 를 Workers 로 넘겨서 Pages 대신 이 방식. GitHub 와 자동 연결은 없다(커밋·푸시 후 deploy.sh). .gitignore 가 원본·레퍼런스·중간 결과·file:// 용 산출물(atlas *.js/*.jpg, strokes *.png)을 뺀다. 레포 약 123MB, 5,300 파일.
 - http 에서는 아틀라스를 WebP 로 읽고 원본 아틀라스는 반 크기(cover_s.webp 0.75MB)를 먼저 올린다. 흔적 아틀라스 미리 받기는 큰 원본 아틀라스가 온 뒤. 캐시는 web/_headers.
 - 로컬에서 file:// 로 열면 예전처럼 data URL JS 를 쓴다.
 - 첫 로딩 화면(#boot): http 에서는 data.js 와 cover_s.webp 를 fetch 로 받으며 실제 진행률(풀린 바이트 기준, 크기는 build_web.py 가 index.html 의 /*SIZES*/ 에 적음)을 보이고, 다 받으면 본 스크립트(<script type="text/plain" id="main">)를 실행한다. file:// 에서는 ⌘⇧R 때만 더미 진행.

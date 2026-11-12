@@ -42,6 +42,11 @@ for (const s of steps) {
     await send('Network.enable');
     await send('Network.emulateNetworkConditions', { offline: false, latency: 80, downloadThroughput: s.throttle, uploadThroughput: s.throttle });
   }
+  if (s.viewport) {   // {viewport: [너비, 높이, 폰 여부]}
+    const [width, height, mobile = false] = s.viewport;
+    await send('Emulation.setDeviceMetricsOverride', { width, height, deviceScaleFactor: mobile ? 2 : 1, mobile });
+    if (mobile) await send('Emulation.setTouchEmulationEnabled', { enabled: true });
+  }
   if (s.navigate) { await send('Page.navigate', { url: s.navigate }); }
   if (s.wait) await sleep(s.wait);
   if (s.shot) { const r = await send('Page.captureScreenshot', { format: 'png' }); writeFileSync(join(outdir, s.shot + '.png'), Buffer.from(r.result.data, 'base64')); }
