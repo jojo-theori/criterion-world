@@ -297,16 +297,17 @@
 
     /* 세 폭 보기: 이전 · 지금 · 다음을 한 줄에(양옆은 안쪽 가장자리만), 위·아래 띠, 그 밑에 정보 */
     #panels { --gap: 12px; --edge: 44px; top: 60px; bottom: calc(98px + env(safe-area-inset-bottom));
-      grid-template-columns: var(--sw) var(--bw) var(--sw);
+      grid-template-columns: var(--swl) var(--bw) var(--swr); justify-content: end;   /* 왼쪽만 줄 이름 여백, 오른쪽은 화면 끝까지 */
       grid-template-rows: var(--edge) var(--bh) var(--edge) minmax(0, 1fr); align-content: start; }
-    .box.side { width: var(--sw); }
+    .box.side[data-role="left"] { width: var(--swl); }
+    .box.side[data-role="right"] { width: var(--swr); }
     .box.side img, .box.side canvas { inset: auto; top: 0; left: 0; width: var(--bw); height: var(--bh); }
     .box.side[data-role="left"] img, .box.side[data-role="left"] canvas { left: auto; right: 0; }
     .peek[data-col="1"] img, .peek[data-col="1"] canvas { left: auto; right: 0; }
     /* 정보 영역은 검은 덮개 층: 아래 띠에서 날아오르는 커버가 그 뒤에서 나오고(flyWithin z 5 < 6),
        넘치면 글자 크기를 바꾸지 않고 margin-top 을 음수로 해 위로 늘어나 아래 띠를 덮는다 */
-    .info { grid-row: 4; grid-column: 1 / -1; padding: 14px calc(16px + var(--gut, 26px)) 12px; background: #000;
-      margin-left: calc(-1 * var(--gut, 26px)); margin-right: calc(-1 * var(--gut, 26px));   /* 양옆 여백까지 덮는다 */ position: relative; z-index: 6;
+    .info { grid-row: 4; grid-column: 1 / -1; padding: 14px 16px 12px calc(16px + var(--gut, 26px)); background: #000;
+      margin-left: calc(-1 * var(--gut, 26px));   /* 왼쪽 여백까지 덮는다 */ position: relative; z-index: 6;
       transition: margin-top .42s var(--out); }
     .info .body { margin-top: 0; }
     .info .t { margin-bottom: 6px; }
@@ -1199,9 +1200,11 @@ function triSize() {
     const bw = Math.max(80, Math.floor(Math.min(W * .62, (H - 2 * edge - 3 * gap - NARROW_INFO) * ASPECT)));
     panels.style.setProperty('--bw', bw + 'px');
     panels.style.setProperty('--bh', Math.round(bw / ASPECT) + 'px');
-    const sw = Math.max(0, Math.floor((W - bw - 2 * gap) / 2));
-    panels.style.setProperty('--sw', sw + 'px');
-    panels.style.setProperty('--gut', Math.ceil((panels.clientWidth - 2 * sw - bw - 2 * gap) / 2) + 'px');   // 실제 양옆 여백
+    // 가운데 커버는 화면 가운데. 오른쪽 칸은 화면 끝까지, 왼쪽 칸은 줄 이름 여백만큼 좁다
+    const full = panels.clientWidth, swr = Math.max(0, Math.floor((full - bw) / 2 - gap)), swl = Math.max(0, swr - NARROW_GUTTER);
+    panels.style.setProperty('--swl', swl + 'px');
+    panels.style.setProperty('--swr', swr + 'px');
+    panels.style.setProperty('--gut', (full - swl - bw - swr - 2 * gap) + 'px');   // 실제 왼쪽 여백
     return;
   }
   const W = panels.clientWidth - 64, H = panels.clientHeight;
