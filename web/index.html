@@ -157,6 +157,14 @@
   .info .kv span:last-child { color: #b5b5b5; }
   .info a { color: var(--dim); text-decoration: none; border-bottom: 1px solid #333; transition: color .2s, border-color .2s; }
   .info a:hover { color: var(--fg); border-color: var(--fg); }
+  /* 제목이 criterion.com 링크. 평소엔 제목 그대로, 가리키면 밑줄과 화살표 */
+  .info a.t { display: block; color: var(--fg); border: 0; text-decoration: underline; text-decoration-color: transparent;
+    text-decoration-thickness: 1px; text-underline-offset: .12em; transition: text-decoration-color .2s; }
+  .info a.t:hover, .info a.t:focus-visible { color: var(--fg); text-decoration-color: currentColor; outline: none; }
+  .info a.t .out { width: .36em; height: .36em; margin-left: .18em; vertical-align: .55em; opacity: 0; stroke-width: 1.4;
+    transition: opacity .2s; }
+  .info a.t:hover .out, .info a.t:focus-visible .out { opacity: 1; }
+  @media (hover: none) { .info a.t .out { opacity: .5; } }
   /* 바깥 링크 표시: 대각선은 짧게, 꺾인 두 끝은 길게(글꼴의 ↗ 는 비율이 반대) */
   .info a .out { width: 9px; height: 9px; margin-left: 4px; vertical-align: 0; fill: none; stroke: currentColor;
     stroke-width: 1; stroke-linecap: square; stroke-linejoin: miter; shape-rendering: geometricPrecision; }
@@ -1150,13 +1158,13 @@ function infoHTML(c) {
   const rows = [kv('Country', c.countries), kv('Runtime', c.rt ? `${c.rt} min` : ''), kv('Aspect ratio', c.ar), kv('Language', c.language)].filter(Boolean);
   const extra = [kv('Color', c.clr), kv('Cinematography', c.dop), kv('Music', c.music), kv('Written by', c.writer)].filter(Boolean);
   return `<div class="no">#${c.spine}</div>
-    <div class="t">${esc(c.title)}</div>
+    ${url ? `<a class="t" href="${url}" target="_blank" rel="noopener" aria-label="${esc(c.title)} on criterion.com">${esc(c.title)}<svg class="out" viewBox="0 0 9 9" aria-hidden="true"><path d="M3.5 1.5h4v4M7.5 1.5 3.5 5.5"/></svg></a>` : `<div class="t">${esc(c.title)}</div>`}
     ${c.orig ? `<div class="o">${esc(c.orig)}</div>` : ''}
     <div>${[c.directors, c.year].filter(Boolean).map(esc).join(' · ')}</div>
     <div class="body">${rows.length || extra.length ? '<div class="sp"></div>' + rows.join('') : ''}
     ${extra.length ? `<div class="extra" id="infoExtra">${extra.join('')}</div>` : ''}
     ${extra.length || infoOpen ? `<div class="m"><button class="more" aria-expanded="${infoOpen}" aria-controls="infoExtra">${infoOpen ? 'Show Less' : 'Show More'}</button></div>` : ''}
-    <div class="n">${url ? `<a href="${url}" target="_blank" rel="noopener">criterion.com<svg class="out" viewBox="0 0 9 9" aria-hidden="true"><path d="M3.5 1.5h4v4M7.5 1.5 3.5 5.5"/></svg></a>` : ''}</div></div>`;
+    </div>`;
 }
 /* 정보 칸은 스크롤하지 않고 크기도 바꾸지 않는다(넓은 화면 = 커버 높이, 좁은 화면 = NARROW_INFO).
    넘치면 칸 안에서만 줄인다: 값을 한 줄로 → 제목을 줄이고 → 줄 간격을 좁히고 → 그래도 넘치면 아래 줄부터 뺀다 */
