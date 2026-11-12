@@ -250,10 +250,10 @@
   .axlist .sep { height: 1px; margin: 4px 10px; background: #333; }
   .axlist button { height: 28px; padding: 0 14px; border: 0; border-radius: 999px; background: transparent; text-align: left;
     color: var(--dim); font: inherit; font-size: var(--t3); white-space: nowrap; cursor: pointer; transition: color .3s var(--out), background .3s var(--out); }
-  .axlist button:not(:disabled):not(.on):hover { color: var(--fg); }
+  .axlist button:not(:disabled):not(.on):hover { color: var(--fg); background: #1f1f1f; }
   .axlist button.on { color: #000; background: var(--fg); }
   .axlist button:disabled { opacity: .3; cursor: default; }
-  .axlist button:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
+  .axlist button:focus-visible { outline: 1px solid var(--fg); outline-offset: -1px; }   /* 키보드일 때만, 크기는 그대로 */
 
   .nogl { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; text-align: center;
     padding: 0 16px; font-size: var(--t4); color: var(--dim); }
@@ -287,16 +287,16 @@
     #results { width: 100%; }
     body.tri-open .close { margin-left: 0; }
 
-    /* 크레딧은 왼쪽 두 줄(이름 / 버전) · 오른쪽 두 줄로 나란히. 360px 폰에서도 겹치지 않는다 */
-    #stage { top: 60px; left: 16px; right: 16px; bottom: calc(108px + env(safe-area-inset-bottom)); }
-    footer { left: 16px; right: 16px; bottom: calc(48px + env(safe-area-inset-bottom)); }
-    #credit { left: 16px; bottom: calc(8px + env(safe-area-inset-bottom)); line-height: 1.6; }
-    #credit i { display: none; }
-    #credit .ver { display: block; }
-    #credit2 { right: 16px; bottom: calc(8px + env(safe-area-inset-bottom)); }
+    /* 크레딧: 왼쪽 한 줄(이름 · 버전), 오른쪽 네 줄(링크 앞에서 줄바꿈). 360px 폰에서도 겹치지 않는다 */
+    #stage { top: 60px; left: 16px; right: 16px; bottom: calc(98px + env(safe-area-inset-bottom)); }
+    footer { left: 16px; right: 16px; bottom: calc(38px + env(safe-area-inset-bottom)); }
+    #credit { left: 16px; bottom: calc(8px + env(safe-area-inset-bottom)); line-height: 1.5; }
+    #credit2 { right: 16px; bottom: calc(8px + env(safe-area-inset-bottom)); line-height: 1.3; }
+    #credit2 a { display: block; }
+    #credit2 > div + div { margin-top: 6px; }
 
     /* 세 폭 보기: 이전 · 지금 · 다음을 한 줄에(양옆은 안쪽 가장자리만), 위·아래 띠, 그 밑에 정보 */
-    #panels { --gap: 12px; --edge: 44px; top: 60px; bottom: calc(108px + env(safe-area-inset-bottom));
+    #panels { --gap: 12px; --edge: 44px; top: 60px; bottom: calc(98px + env(safe-area-inset-bottom));
       grid-template-columns: var(--sw) var(--bw) var(--sw);
       grid-template-rows: var(--edge) var(--bh) var(--edge) minmax(0, 1fr); align-content: start; }
     .box.side { width: var(--sw); }
@@ -311,6 +311,11 @@
     .info .t { margin-bottom: 6px; }
     .rowname { grid-row: 2 / 5; }   /* 폰: 정보 영역 옆 여백까지 */
     .rowname span { margin-right: 6px; }
+  }
+  /* 아주 좁은 폰(380px 미만): 큰 축 이름이 오른쪽 크레딧 네 줄과 겹치지 않게 그 위로 올린다 */
+  @media (max-width: 379px) {
+    footer { bottom: calc(68px + env(safe-area-inset-bottom)); }
+    #stage, #panels { bottom: calc(128px + env(safe-area-inset-bottom)); }
   }
   /* 터치: 확대 미리보기를 누르면 연다 */
   @media (hover: none) { #lens { pointer-events: auto; cursor: pointer; } }
@@ -497,12 +502,13 @@ const axMenu = document.getElementById('axmenu'), axBtn = document.getElementByI
   if (n) { const h = document.createElement('span'); h.className = 'sep'; axList.appendChild(h); }
   ks.forEach(k => { const b = document.createElement('button'); b.dataset.axis = k; b.textContent = AXES[k].label; b.setAttribute('role', 'menuitemradio'); axList.appendChild(b); });
 });
-function axOpen(on) {
+// 키보드로 열었을 때만 목록 안으로 포커스를 옮긴다(클릭·탭이면 선택 항목에 포커스 테두리가 생기지 않게)
+function axOpen(on, byKey = false) {
   axMenu.classList.toggle('open', on); axBtn.setAttribute('aria-expanded', on);
-  if (on) (axList.querySelector('button.on') || axList.querySelector('button:not(:disabled)'))?.focus({ preventScroll: true });
+  if (on && byKey) (axList.querySelector('button.on') || axList.querySelector('button:not(:disabled)'))?.focus({ preventScroll: true });
 }
-axBtn.addEventListener('click', () => axOpen(!axMenu.classList.contains('open')));
-axList.addEventListener('click', e => { const b = e.target.closest('button'); if (b && !b.disabled) { axOpen(false); setAxis(b.dataset.axis); axBtn.focus({ preventScroll: true }); } });
+axBtn.addEventListener('click', e => axOpen(!axMenu.classList.contains('open'), e.detail === 0));
+axList.addEventListener('click', e => { const b = e.target.closest('button'); if (b && !b.disabled) { axOpen(false); setAxis(b.dataset.axis); if (e.detail === 0) axBtn.focus({ preventScroll: true }); } });
 document.addEventListener('pointerdown', e => { if (axMenu.classList.contains('open') && !axMenu.contains(e.target)) axOpen(false); });
 // 축 버튼 묶음이 머리줄에 다 들어가는지 잰다(넘치면 드롭다운)
 function fitAxes() {
