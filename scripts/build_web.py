@@ -768,6 +768,32 @@ def text_tilt(r: dict, frame_rects: list) -> float:
     return float(acc / wsum) if wsum else 0.0
 
 
+def relax(ids: list[int], tg: np.ndarray, iters: int = 90) -> tuple[dict[int, list[float]], list[int]]:
+    """화면 단위 목표 좌표 → 소수점 칸 좌표. 타일(너비 1, 높이 1.242)이 서로 겹치지 않을 만큼만 밀어낸다."""
+    from scipy.spatial import cKDTree
+    V = tg.astype(float).copy()
+    TWv, THv = 1.0, 1 / (1288 / 1600)
+    for _ in range(iters):
+        pairs = cKDTree(V).query_pairs(r=np.hypot(TWv, THv), output_type="ndarray")
+        if not len(pairs):
+            break
+        a, b = pairs[:, 0], pairs[:, 1]
+        d = V[b] - V[a]
+        ox, oy = TWv - np.abs(d[:, 0]), THv - np.abs(d[:, 1])
+        hit = (ox > 0) & (oy > 0)
+        if not hit.any():
+            break
+        a, b, d, ox, oy = a[hit], b[hit], d[hit], ox[hit], oy[hit]
+        alongx = ox < oy                                  # 덜 움직여도 되는 방향으로
+        mv = np.zeros_like(d)
+        mv[alongx, 0] = np.sign(d[alongx, 0] + 1e-9) * ox[alongx] / 2 * 1.05
+        mv[~alongx, 1] = np.sign(d[~alongx, 1] + 1e-9) * oy[~alongx] / 2 * 1.05
+        np.add.at(V, a, -mv); np.add.at(V, b, mv)
+    P = V / np.array([CELL_X, CELL_Y]); P -= P.min(0)
+    pos = {i: [round(float(x), 3), round(float(y), 3)] for i, (x, y) in zip(ids, P)}
+    return pos, [int(np.ceil(P[:, 0].max())) + 1, int(np.ceil(P[:, 1].max())) + 1]
+
+
 def dense_region(pos: dict[int, list[int]], mem: list[int], name: str, keep: float = 0.7) -> dict | None:
     """클러스터 영역: 그 무리가 가장 빽빽한 곳을 중심으로 가까운 keep 비율의 '그 무리 커버 칸'만. 사이에 낀 다른 커버는 들지 않는다.
     라벨 자리는 영역 위쪽 가운데."""
@@ -782,7 +808,8 @@ def dense_region(pos: dict[int, list[int]], mem: list[int], name: str, keep: flo
     mx = Q[:, 0].mean()
     col = Q[np.abs(Q[:, 0] - mx) <= 2]                  # 가운데 열들 중 가장 위 칸 바로 위
     top = (col if len(col) else Q)[:, 1].min()
-    return {"name": name, "cells": Q.astype(int).tolist(), "label": [float(mx + .5), float(top - .4)]}
+    core = [i for i, dd in zip(mem, d) if dd <= np.quantile(d, keep)]
+    return {"name": name, "cells": np.round(Q, 2).tolist(), "ids": core, "label": [float(mx + .5), float(top - .4)]}
 
 
 def soft_axes(X: np.ndarray, anchor: np.ndarray, pull: float = 0.35) -> np.ndarray:
@@ -1011,7 +1038,7 @@ def country_map(items: list[dict]) -> tuple:
         c = it.get("country") or ""
         groups.setdefault(MAP_GROUP.get(c, c), []).append(i)
     pos, size, labels = {}, {}, []
-    film_paths, label_boxes = [], []
+    cty_path, cty_label = {}, {}
     for c, mem in sorted(groups.items(), key=lambda kv: -len(kv[1])):
         rings = country_rings(SHAPE_OF.get(c, [c]), feats)
         n = len(mem)
@@ -1061,13 +1088,13 @@ def country_map(items: list[dict]) -> tuple:
         for k, i in enumerate(mem_sorted):
             pos[i] = [round(float(pts[order[k]][0]), 2), round(float(pts[order[k]][1]), 2)]
             size[i] = round(float(s), 3)
-        if n >= 12:   # 클러스터 라벨: 나라 위쪽 가운데. 겹치면 뺀다(글자 하나 ≈ 4.2 단위)
-            lx, ly = float(pts[:, 0].mean() + s / 2), float(pts[:, 1].min() - 2.5)
-            w = len(c) * 4.2 + 6
-            if not any(abs(lx - a) < (w + b) / 2 and abs(ly - y2) < 9 for a, y2, b in label_boxes):
-                labels.append([round(lx, 2), round(ly, 2), c, "center"]); label_boxes.append((lx, ly, w))
-        for q in polys:
-            film_paths.append("M" + "L".join(f"{x:.1f} {y:.1f}" for x, y in q[::max(1, len(q) // 400)]) + "Z")
+        # 클러스터 라벨 자리: 나라(또는 그 나라 커버 무리) 위쪽 가운데. 화면에는 호버할 때만
+        tops = [p_[:, 1].min() for p_ in polys] if polys else []
+        cty_label[c] = [round(float(pts[:, 0].mean() + s / 2), 2), round(float(min([pts[:, 1].min(), *tops]) - 1.5), 2)]
+        cty_path[c] = "".join("M" + "L".join(f"{x:.1f} {y:.1f}" for x, y in q[::max(1, len(q) // 400)]) + "Z" for q in polys)
+        if not polys:   # 국경 데이터가 없는 나라: 커버 무리를 감싸는 작은 네모
+            x0_, y0_ = pts.min(0) - s * .4; x1_, y1_ = pts.max(0) + s * 1.4
+            cty_path[c] = f"M{x0_:.1f} {y0_:.1f}H{x1_:.1f}V{y1_:.1f}H{x0_:.1f}Z"
     # 모든 나라(흐리게)
     world = []
     for f in json.loads(BORDERS.read_text())["features"]:
@@ -1083,7 +1110,7 @@ def country_map(items: list[dict]) -> tuple:
                     pts_.append(f"{x:.1f} {y:.1f}"); last = (x, y)
             if len(pts_) >= 3:
                 world.append("M" + "L".join(pts_) + "Z")
-    return pos, size, {"free": True, "w": WMAP, "h": round(HMAP, 1)}, labels, {"world": "".join(world), "films": "".join(film_paths)}
+    return pos, size, {"free": True, "w": WMAP, "h": round(HMAP, 1)}, [], {"world": "".join(world), "countries": cty_path, "labels": cty_label}
 
 
 def free_layouts(items: list[dict], tropes: dict, look: dict[int, np.ndarray], u_look: dict[int, tuple[float, float]], ax: dict) -> dict[str, tuple]:
@@ -1176,7 +1203,7 @@ def free_layouts(items: list[dict], tropes: dict, look: dict[int, np.ndarray], u
     zc = lambda key: np.array([z.get(key, 0.0) for z in Z])
     sq, lg = np.sqrt, np.log1p
     spec = {
-        "people": ([col("faces", lg), col("face_max", sq), col("face_sum", sq), col("big_faces"), col("faces_touch"), col("embrace"),
+        "people": ([col("faces", lg), col("face_max", sq), col("face_sum", sq), col("big_faces"),
                     col("face_y_spread"), col("person_max", sq), col("persons", lg), col("subj_cx"), col("subj_area", sq),
                     zc("face_close"), zc("people")], []),
         "type": ([col("text_area", sq), col("title_h"), col("title_cx"), col("title_cy"), col("title_w"), col("text_share"),
@@ -1202,9 +1229,10 @@ def free_layouts(items: list[dict], tropes: dict, look: dict[int, np.ndarray], u
         u = u / span * np.array([1.5, 1.0])
         area = len(ids) * CELL_X * CELL_Y * 1.6
         u = u * np.sqrt(area / 1.5)
-        pos, size = pack(ids, u, margin=1)
+        pos, size = relax(ids, u)
         groups = {c: [i for i in ids if tropes[items[i]["file"]].get(fam) == c] for c in TROPE_ORDER[fam]}
-        out[fam] = (pos, size, centroid_labels(pos, groups))
+        regs = [r for r in (dense_region(pos, m, c) for c, m in groups.items()) if r]
+        out[fam] = (pos, size, [], "", {"regions": regs})
 
     # People 은 뜻이 분명한 두 좌표로: 가로 = 사람 수(로그), 세로 = 사람이 화면을 차지하는 비율(위로 클수록).
     # 같은 값끼리는 겉모습 지도 순으로 조금 흩어 둔다. 딱 두 사람이 적당히 큰 자리에 Couple 영역(배경 네모)을 둔다
@@ -1227,10 +1255,7 @@ def free_layouts(items: list[dict], tropes: dict, look: dict[int, np.ndarray], u
     span = P2.max(0) - P2.min(0)
     Wv = np.sqrt(len(ids) * CELL_X * CELL_Y * 1.9 * 1.7); Hv = Wv / 1.7
     tg = np.stack([(P2[:, 0] - P2[:, 0].min()) / span[0] * Wv, (1 - (P2[:, 1] - P2[:, 1].min()) / span[1]) * Hv], 1)
-    pos, size = pack(ids, tg, margin=1)
-    off = pack.offset
-    cell = lambda vx, vy: (vx / CELL_X - off[0], vy / CELL_Y - off[1])
-    bottom = max(v[1] for v in pos.values()) + 1.6
+    pos, size = relax(ids, tg)
     labels = []   # 축이 느슨해 눈금은 두지 않는다(방향만 축 이름으로)
     cp = np.array([pos[i] for i in ids if tropes[items[i]["file"]].get("people") == "Couple"], float)
     regions = []
@@ -1251,11 +1276,12 @@ def free_layouts(items: list[dict], tropes: dict, look: dict[int, np.ndarray], u
     P2 = soft_axes(Xt, np.stack([tx_, ty_], 1))
     span = P2.max(0) - P2.min(0)
     tg = np.stack([(P2[:, 0] - P2[:, 0].min()) / span[0] * Wv, (1 - (P2[:, 1] - P2[:, 1].min()) / span[1]) * Hv], 1)
-    pos, size = pack(ids, tg, margin=1)
+    pos, size = relax(ids, tg)
     groups = {c: [i for i in ids if tropes[items[i]["file"]].get("type") == c] for c in TROPE_ORDER["type"]}
     tregions = [r for r in (dense_region(pos, [i for i, d in zip(ids, diag) if d >= .8], "Diagonal type"),
                             dense_region(pos, [i for i, v in zip(ids, vert) if v >= .8], "Vertical type")) if r]
-    out["type"] = (pos, size, centroid_labels(pos, groups), "", {"axes": ["Title lower", "Larger type"], "regions": tregions})
+    tregions = [r for r in (dense_region(pos, m, c) for c, m in groups.items()) if r] + tregions
+    out["type"] = (pos, size, [], "", {"axes": ["Title lower", "Larger type"], "regions": tregions})
     return out
 
 

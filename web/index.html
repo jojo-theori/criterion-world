@@ -240,11 +240,14 @@
   #stage.zoomed #grid { cursor: grab; }
   #grid.grabbing { cursor: grabbing !important; }
   /* 영역 네모(People 의 Couple): 평소엔 거의 보이지 않고, 호버하면 밝아지며 이름이 뜬다 */
-  #gridbg path.region { fill: rgba(235,235,235,.045); stroke: none; transition: fill .35s var(--out); }
+  #gridbg path.region { fill: rgba(235,235,235,.035); stroke: none; transition: fill .35s var(--out), stroke .35s var(--out); }
   #gridbg path.region.hot { fill: rgba(235,235,235,.13); }
-  .rlabel { position: absolute; transform: translateX(-50%); font-size: var(--t1); color: var(--fg); opacity: .45; pointer-events: none;
-    background: rgba(0,0,0,.7); padding: 0 4px; border-radius: 2px; transition: opacity .3s var(--out); white-space: nowrap; }
-  .rlabel.hot { opacity: 1; }
+  #gridbg path.region.cty { fill: #111; stroke: #3a3a3a; stroke-width: 1; stroke-linejoin: round; }
+  #gridbg path.region.cty.hot { fill: #262626; stroke: #8a8a8a; }
+  .rlabel { position: absolute; translate: -50% 4px; font-size: var(--t2); color: var(--fg); opacity: 0; pointer-events: none; z-index: 5;
+    background: rgba(0,0,0,.75); padding: 1px 6px; border-radius: 3px; white-space: nowrap;
+    transition: opacity .3s var(--out), translate .4s var(--out), left .35s var(--out), top .35s var(--out); }
+  .rlabel.hot { opacity: 1; translate: -50% 0; }
   /* 좌표 뜻: 가로는 아래 가운데, 세로는 왼쪽 가운데(아래에서 위로 읽는다) */
   .gaxis { position: absolute; font-size: var(--t1); color: var(--dim); pointer-events: none; opacity: 0; transition: opacity .5s var(--out); white-space: nowrap; }
   #stage.has-axes .gaxis { opacity: 1; }
@@ -254,7 +257,7 @@
   #gridbg.on { opacity: 1; }
   #gridbg path { fill: #111; stroke: #3a3a3a; stroke-width: 1; stroke-linejoin: round; }
   #gridbg path.world { fill: #0a0a0a; stroke: #1e1e1e; }   /* 영화가 없는 나라까지 모든 나라: 위계가 낮게 */
-  .axis.free { transform: translateX(-50%); white-space: nowrap; background: rgba(0,0,0,.7); padding: 0 4px; border-radius: 2px; }
+  .axis.free { translate: -50% 0; white-space: nowrap; background: rgba(0,0,0,.7); padding: 0 4px; border-radius: 2px; }
   #boot { position: fixed; inset: 0; z-index: 100; background: #000; display: none; flex-direction: column; align-items: center;
     justify-content: center; gap: 14px; transition: opacity .6s var(--out); }
   #boot.on { display: flex; }
@@ -419,7 +422,7 @@
 /* 빌드마다 바뀌는 값(data.js 크기)을 data.js 와 아틀라스 주소에 붙인다. 커버가 늘면 아틀라스 칸 순서가 바뀌는데,
    브라우저가 이전 아틀라스를 캐시에서 쓰면 칸마다 엉뚱한 커버가 그려진다 */
 window.BUILD = '';
-const SIZES = /*SIZES*/{"data.js": 1717925, "atlas/cover_s.webp": 780562}/*END*/;
+const SIZES = /*SIZES*/{"data.js": 1824816, "atlas/cover_s.webp": 780562}/*END*/;
 window.PRELOAD = {};
 window.BUILD = '?v=' + (SIZES['data.js'] || 0);
 (() => {
@@ -466,7 +469,7 @@ window.BUILD = '?v=' + (SIZES['data.js'] || 0);
 <script type="text/plain" id="main">
 const M = window.META, C = window.COVERS, N = C.length;
 // 버전: 화면·동작이 바뀌면 올린다. 데이터 날짜는 build_web.py 가 META.built 에 적는다
-const VERSION = '1.0.2';
+const VERSION = '1.1.2';
 document.getElementById('ver').textContent = `v${VERSION}`;
 document.getElementById('ver').title = M.built ? `data ${M.built}` : '';
 const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -813,14 +816,17 @@ const G = (() => {
       return cache[k] = { px, py, tw: 4, tws, labels: lab, bg: [ox, oy, sc, sc] };
     }
     // 세로로 긴 화면(폰)에서는 가로로 긴 지도를 전치한다. 왼쪽 숫자 자리는 좁은 화면에서만 따로 남긴다(넓으면 여백에 들어간다)
-    const tall = Hc > Wc * 1.1, labW = narrow() ? 26 : 0;
+    const tall = Hc > Wc * 1.1, labW = 34;   // 왼쪽 번호·연도 자리(격자 밖은 잘리므로 늘 남긴다)
     let f, minX = 0, oyBg = 0;
     if (k === 'spine') {
-      let best = null;
-      for (let cols = 10; cols <= 200; cols++) {
-        const rows = Math.ceil(M.maxSpine / cols), ff = fitH(cols, rows, Hc - 18, Wc - labW);
-        if (!best || ff.w > best.f.w) best = { cols, rows, f: ff };
+      // 한 줄 = 10 의 배수(몇 번이 어디쯤인지 짐작할 수 있게). 5 의 배수가 타일을 12% 넘게 키우면 5 의 배수
+      let best = null, best10 = null;
+      for (let cols = 5; cols <= 200; cols += 5) {
+        const rows = Math.ceil(M.maxSpine / cols), ff = fitH(cols, rows, Hc - 18, Wc - labW), b = { cols, rows, f: ff };
+        if (!best || ff.w > best.f.w) best = b;
+        if (cols % 10 === 0 && (!best10 || ff.w > best10.f.w)) best10 = b;
       }
+      if (best10 && best10.f.w * 1.12 >= best.f.w) best = best10;
       f = best.f;
       C.forEach((c, i) => { const n = c.spine - 1; px[i] = (n % best.cols) * (f.w + f.g); py[i] = Math.floor(n / best.cols) * (f.h + f.g); });
       for (let r = 0; r < best.rows; r += Math.max(1, Math.round(best.rows / 8))) lab.push([-6, r * (f.h + f.g) + f.h / 2, String(r * best.cols + 1), 'right']);
@@ -952,8 +958,22 @@ const G = (() => {
       r.setAttribute('d', g.cells.map(([x, y]) => `M${x - .3} ${y - .3}h1.45v1.47h-1.45Z`).join(''));
       r.classList.add('region'); bgG.appendChild(r);
       const lab = document.createElement('div'); lab.className = 'rlabel'; lab.textContent = g.name; stage.appendChild(lab);
-      return { cells: new Set(g.cells.map(([x, y]) => x + ',' + y)), at: g.label, r, lab };
+      return { cells: new Set(g.cells.map(([x, y]) => Math.floor(x) + ',' + Math.floor(y))), ids: new Set(g.ids || []), at: g.label, r, lab };
     });
+    if (k === 'year') {
+      const [ox, oy, sx, sy] = L.bg, w = L.tw / sx, h = L.tw / ASPECT / sy, dec = {};
+      C.forEach((c, i) => { if (L.px[i] === L.px[i]) (dec[Math.floor(c.year / 10) * 10] ||= []).push(i); });
+      for (const [d, mem] of Object.entries(dec)) {
+        const P = mem.map(i => [(L.px[i] - ox) / sx, (L.py[i] - oy) / sy]);
+        const x0 = Math.min(...P.map(p => p[0])) - .2, x1 = Math.max(...P.map(p => p[0])) + w + .2;
+        const y0 = Math.min(...P.map(p => p[1])) - .2, y1 = Math.max(...P.map(p => p[1])) + h + .2;
+        const r = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        r.setAttribute('d', P.map(([x, y]) => `M${x - .2} ${y - .2}h${w + .4}v${h + .4}h${-(w + .4)}Z`).join(''));
+        r.classList.add('region'); bgG.appendChild(r);
+        const lab = document.createElement('div'); lab.className = 'rlabel'; lab.textContent = `${d}s`; stage.appendChild(lab);
+        regions.push({ ids: new Set(mem), at: [(x0 + x1) / 2, y0 - .4], r, lab, hit: (x, y) => x >= x0 && x <= x1 && y >= y0 && y <= y1 });
+      }
+    }
     hotR = -1;
     const ax = M.gridExtra?.[k]?.axes;
     axX.textContent = ax ? `${ax[0]} →` : ''; axY.textContent = ax ? `${ax[1]} →` : '';
@@ -961,23 +981,40 @@ const G = (() => {
     if (regions.length) { const [ox, oy, sx, sy] = L.bg; bgG.setAttribute('transform', `translate(${ox} ${oy}) scale(${sx} ${sy})`); bgSvg.classList.add('on'); }
     placeRegionLabels();
   }
+  const MAPNAME = { 'West Germany': 'Germany' };
+  function addCountryRegions(d) {
+    const byC = {};
+    C.forEach((c, i) => { const n = MAPNAME[c.country] || c.country; (byC[n] ||= new Set()).add(i); });
+    for (const [name, path] of Object.entries(d.countries)) {
+      const r = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      r.setAttribute('d', path); r.setAttribute('vector-effect', 'non-scaling-stroke'); r.classList.add('region', 'cty');
+      bgG.appendChild(r);
+      const lab = document.createElement('div'); lab.className = 'rlabel'; lab.textContent = name; stage.appendChild(lab);
+      regions.push({ ids: byC[name] || new Set(), at: d.labels[name], r, lab, hit: (x, y) => r.isPointInFill(new DOMPoint(x, y)) });
+    }
+    placeRegionLabels();
+  }
   function placeRegionLabels() {
     const L = cache[axis]; if (!L) return;
     const [ox, oy, sx, sy] = L.bg;
-    regions.forEach(g => {
-      g.lab.style.left = ((ox + g.at[0] * sx) * vs + vx) + 'px';
-      g.lab.style.top = Math.max(2, (oy + g.at[1] * sy) * vs + vy - 16) + 'px';
+    regions.forEach((g, k) => {
+      let x = (ox + g.at[0] * sx) * vs + vx, y = (oy + g.at[1] * sy) * vs + vy - 16;
+      if (k === hotR) { const w = g.lab.offsetWidth / 2 + 6; x = Math.min(Wc - w, Math.max(w, x)); y = Math.min(Hc - 24, Math.max(4, y)); }
+      g.lab.style.left = x + 'px'; g.lab.style.top = y + 'px';
     });
   }
   // 화면 좌표 → 지금 축의 칸 좌표
-  function hotAt(mx, my) {
+  function hotAt(mx, my, tile = -1) {
     const L = cache[axis]; if (!L || !regions.length) return;
     const [ox, oy, sx, sy] = L.bg, cx = ((mx - vx) / vs - ox) / sx, cy = ((my - vy) / vs - oy) / sy;
-    const key = (x, y) => Math.floor(x) + ',' + Math.floor(y);
-    const n = regions.findIndex(g => g.cells.has(key(cx, cy)) || g.cells.has(key(cx + .3, cy + .3)) || g.cells.has(key(cx - .3, cy - .3)));
+    // 커버 위면 그 커버가 속한 무리, 아니면 그 자리의 영역(나라는 국경 안)
+    let n = tile >= 0 ? regions.findIndex(g => g.ids.has(tile)) : -1;
+    if (n < 0) n = regions.findIndex(g => g.hit ? g.hit(cx, cy) : null);
+    if (n < 0) { const key = (x, y) => Math.floor(x) + ',' + Math.floor(y); n = regions.findIndex(g => g.cells && (g.cells.has(key(cx, cy)) || g.cells.has(key(cx - .4, cy - .4)))); }
     if (n === hotR) return;
     regions.forEach((g, k) => { g.r.classList.toggle('hot', k === n); g.lab.classList.toggle('hot', k === n); });
     hotR = n;
+    placeRegionLabels();
   }
   function placeBg(k, L) {
     placeRegions(k, L);
@@ -989,6 +1026,7 @@ const G = (() => {
       if (bgP._k !== k) {
         bgP.setAttribute('d', typeof d === 'string' ? d : d.films || ''); bgW.setAttribute('d', typeof d === 'string' ? '' : d.world || ''); bgP._k = k;
       }
+      if (d.countries) addCountryRegions(d);
       bgSvg.classList.add('on');
     });
     const [ox, oy, sx, sy] = L.bg;
@@ -999,6 +1037,9 @@ const G = (() => {
     stage.querySelectorAll('.axis').forEach(a => a.remove());
     labels.forEach(([lx, ly, t, align]) => {
       lx = lx * vs + vx; ly = ly * vs + vy;
+      if (vs > 1.001) {
+        if (align === 'right') lx = Math.min(Wc - 4, Math.max(34, lx)); else ly = Math.min(Hc - 4, Math.max(10, ly));
+      }
       const a = document.createElement('div');
       a.className = 'axis'; a.textContent = t; a.style.top = (ly - 6) + 'px';
       if (align === 'right') a.style.right = `calc(100% - ${lx}px)`; else a.style.left = lx + 'px';
@@ -1212,7 +1253,7 @@ const fromTouch = () => performance.now() - lastTouch < 800;
 cv.addEventListener('mousemove', e => {
   if (fromTouch() || panning) return;
   const r = stage.getBoundingClientRect(), i = G.hit(e.clientX - r.left, e.clientY - r.top);
-  G.hotAt(e.clientX - r.left, e.clientY - r.top);
+  G.hotAt(e.clientX - r.left, e.clientY - r.top, i);
   if (i < 0) { tip.classList.remove('show'); hideLens(); return; }
   G.setHover(i); cv.classList.add('hover');
   if (i !== lensOn) showLens(i);
