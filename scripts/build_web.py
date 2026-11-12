@@ -853,6 +853,86 @@ def smooth_outline(Pc: np.ndarray, res: float = 0.25, sigma: float = 2.0, level:
     return path, float(pts[:, 1].min())
 
 
+def partition_regions(pos: dict, groups: dict[str, list[int]], res: float = 0.25, sigma: float = 2.2,
+                      level: float = 0.33, tol: float = 1.8) -> list[dict]:
+    """클러스터 영역을 서로 겹치지 않게: 범주마다 밀도 지도를 만들고, 각 지점은 밀도가 가장 높은 범주 하나가 차지한다.
+    범주의 땅(가장 큰 덩어리)을 꼭짓점이 적은 다각형(직선)으로 단순화한다. 반환 [{name, outline, all, label}]."""
+    from scipy.ndimage import gaussian_filter, label as cc_label, binary_fill_holes
+    groups = {k: [i for i in v if i in pos] for k, v in groups.items()}
+    groups = {k: v for k, v in groups.items() if len(v) >= 8}
+    if not groups:
+        return []
+    allp = np.array([pos[i] for v in groups.values() for i in v], float) + np.array([0.42, 0.44])
+    pad = 3.0
+    mn = allp.min(0) - pad; mx = allp.max(0) + pad
+    W_, H_ = int((mx[0] - mn[0]) / res) + 1, int((mx[1] - mn[1]) / res) + 1
+    names = list(groups)
+    D = np.zeros((len(names), H_, W_))
+    for k, nm in enumerate(names):
+        P = np.array([pos[i] for i in groups[nm]], float) + np.array([0.42, 0.44])
+        ix = ((P - mn) / res).astype(int)
+        np.add.at(D[k], (ix[:, 1], ix[:, 0]), 1.0)
+        D[k] = gaussian_filter(D[k], sigma / res)
+    win = D.argmax(0)
+    BLK = 3.0                                           # 계단 한 칸(칸 단위)
+    bp = int(round(BLK / res))
+    hb, wb = H_ // bp, W_ // bp
+    tiles = np.array(list(pos.values()), float) + np.array([0.42, 0.44])
+    tb = ((tiles - mn) / BLK).astype(int)
+    out = []
+    for k, nm in enumerate(names):
+        m = (win == k) & (D[k] >= level * D[k].max())
+        B = m[:hb * bp, :wb * bp].reshape(hb, bp, wb, bp).mean((1, 3)) >= 0.4
+        lab, n = cc_label(B)
+        if not n:
+            continue
+        B = binary_fill_holes(lab == (np.argmax(np.bincount(lab.ravel())[1:]) + 1))
+        # 영역 안 포스터 중 이 범주 비율(자연스럽게 모인 무리만)
+        ok = (tb[:, 0] >= 0) & (tb[:, 0] < wb) & (tb[:, 1] >= 0) & (tb[:, 1] < hb)
+        inside = np.zeros(len(tiles), bool); inside[ok] = B[tb[ok, 1], tb[ok, 0]]
+        mem = np.array([pos[i] for i in groups[nm]], float) + np.array([0.42, 0.44])
+        mb = ((mem - mn) / BLK).astype(int)
+        okm = (mb[:, 0] >= 0) & (mb[:, 0] < wb) & (mb[:, 1] >= 0) & (mb[:, 1] < hb)
+        n_mem = int(B[mb[okm, 1], mb[okm, 0]].sum())
+        if inside.sum() == 0 or n_mem / inside.sum() < 0.45 or n_mem < 6:
+            continue
+        pts = rect_outline(B)
+        if len(pts) < 4:
+            continue
+        pts = pts * BLK + mn
+        path = "M" + "L".join(f"{x:.2f} {y:.2f}" for x, y in pts) + "Z"
+        top = pts[:, 1].min(); cx = pts[pts[:, 1] <= top + 0.01][:, 0].mean()
+        out.append({"name": nm, "outline": path, "all": groups[nm], "label": [float(cx), float(top - .4)]})
+    return out
+
+
+def rect_outline(B: np.ndarray) -> np.ndarray:
+    """블록 격자(참 = 땅)의 바깥 경계를 수직·수평선 다각형 꼭짓점(블록 좌표 x, y)으로. 같은 방향으로 이어지는 점은 뺀다."""
+    nxt = {}
+    h, w = B.shape
+    for i in range(h):
+        for j in range(w):
+            if not B[i, j]:
+                continue
+            if i == 0 or not B[i - 1, j]: nxt[(j, i)] = (j + 1, i)
+            if j == w - 1 or not B[i, j + 1]: nxt[(j + 1, i)] = (j + 1, i + 1)
+            if i == h - 1 or not B[i + 1, j]: nxt[(j + 1, i + 1)] = (j, i + 1)
+            if j == 0 or not B[i, j - 1]: nxt[(j, i + 1)] = (j, i)
+    if not nxt:
+        return np.zeros((0, 2))
+    start = min(nxt, key=lambda v: (v[1], v[0]))
+    loop, v = [start], nxt[start]
+    while v != start and len(loop) < 10000:
+        loop.append(v); v = nxt.get(v, start)
+    P = np.array(loop, float)
+    keep = []
+    for k in range(len(P)):
+        a, b, c = P[k - 1], P[k], P[(k + 1) % len(P)]
+        if not ((a[0] == b[0] == c[0]) or (a[1] == b[1] == c[1])):
+            keep.append(b)
+    return np.array(keep)
+
+
 def dense_region(pos: dict[int, list[int]], mem: list[int], name: str, keep: float = 0.7) -> dict | None:
     """클러스터 영역: 그 무리가 가장 빽빽한 곳을 중심으로 가까운 keep 비율의 '그 무리 커버 칸'만. 사이에 낀 다른 커버는 들지 않는다.
     라벨 자리는 영역 위쪽 가운데."""
@@ -1315,7 +1395,7 @@ def free_layouts(items: list[dict], tropes: dict, look: dict[int, np.ndarray], u
         u = u * np.sqrt(area / 1.5)
         pos, size = relax(ids, u)
         groups = {c: [i for i in ids if tropes[items[i]["file"]].get(fam) == c] for c in TROPE_ORDER[fam]}
-        regs = [r for r in (dense_region(pos, m, c) for c, m in groups.items()) if r]
+        regs = partition_regions(pos, groups)
         out[fam] = (pos, size, [], "", {"regions": regs})
 
     # People 은 뜻이 분명한 두 좌표로: 가로 = 사람 수(로그), 세로 = 사람이 화면을 차지하는 비율(위로 클수록).
@@ -1342,30 +1422,30 @@ def free_layouts(items: list[dict], tropes: dict, look: dict[int, np.ndarray], u
     pos, size = relax(ids, tg)
     labels = []   # 축이 느슨해 눈금은 두지 않는다(방향만 축 이름으로)
     cp = np.array([pos[i] for i in ids if tropes[items[i]["file"]].get("people") == "Couple"], float)
-    regions = []
-    for cat_, name_ in (("No one", "No people"), ("Big face", "Big face"), ("Couple", "Couple"), ("Crowd", "Crowd")):
-        r = dense_region(pos, [i for i in ids if tropes[items[i]["file"]].get("people") == cat_], name_)
-        if r:
-            regions.append(r)
+    pcat = lambda i: tropes[items[i]["file"]].get("people")
+    regions = partition_regions(pos, {"No people": [i for i in ids if pcat(i) == "No one"],
+                                      "Big face": [i for i in ids if pcat(i) in ("Big face", "Couple")],   # 커플(큰 얼굴 둘)도 함께
+                                      "Crowd": [i for i in ids if pcat(i) == "Crowd"]})   # Couple 은 따로 두지 않는다(사용자: 억지스럽다)
     out["people"] = (pos, size, labels, "", {"axes": ["More people", "Larger in the frame"], "regions": regions})
 
     # Type: 느슨한 축(가로 = 제목이 아래로, 세로 = 글자가 클수록 위) + 기울기·글자 분포·겉모습으로 뭉친다
     deg = np.array([TEXT_TILT.get(i, 0.0) for i in ids])
     diag = np.clip(np.minimum(deg - 8, 82 - deg) / 20, 0, 1)        # 15–75° 쯤이 1(대각선 글자)
     vert = np.clip((deg - 70) / 15, 0, 1)                           # 세로쓰기
-    Xt = np.stack([*spec["type"][0], diag, diag, vert], 1)          # 대각선은 두 번 넣어 무게를 준다
+    big = np.sqrt(col("title_h") + 0.5 * col("text_area"))
+    Xt = np.stack([*spec["type"][0], diag, diag, vert, big, big, big], 1)   # 대각선은 두 번, 제목 크기는 세 번 넣어 무게를 준다
     Xt = np.concatenate([Xt, pca(ax["text"], ids, 10), 0.5 * pca(look, ids, 6)], 1)
     Xt = np.clip((Xt - Xt.mean(0)) / (Xt.std(0) + 1e-9), -3, 3)
-    tx_ = col("title_cy"); ty_ = np.sqrt(col("title_h") + 0.5 * col("text_area"))
+    tx_ = col("title_cx"); ty_ = 1 - col("title_cy")          # 격자를 포스터 한 장처럼: 제목이 놓인 자리
     P2 = soft_axes(Xt, np.stack([tx_, ty_], 1))
     span = P2.max(0) - P2.min(0)
     tg = np.stack([(P2[:, 0] - P2[:, 0].min()) / span[0] * Wv, (1 - (P2[:, 1] - P2[:, 1].min()) / span[1]) * Hv], 1)
     pos, size = relax(ids, tg)
     groups = {c: [i for i in ids if tropes[items[i]["file"]].get("type") == c] for c in TROPE_ORDER["type"]}
-    tregions = [r for r in (dense_region(pos, [i for i, d in zip(ids, diag) if d >= .8], "Diagonal type"),
-                            dense_region(pos, [i for i, v in zip(ids, vert) if v >= .8], "Vertical type")) if r]
-    tregions = [r for r in (dense_region(pos, m, c) for c, m in groups.items()) if r] + tregions
-    out["type"] = (pos, size, [], "", {"axes": ["Title lower", "Larger type"], "regions": tregions})
+    groups["Diagonal type"] = [i for i, d in zip(ids, diag) if d >= .8]
+    groups["Vertical type"] = [i for i, v in zip(ids, vert) if v >= .8]
+    tregions = partition_regions(pos, groups)
+    out["type"] = (pos, size, [], "", {"axes": ["Title to the right", "Title higher"], "regions": tregions})
     return out
 
 
