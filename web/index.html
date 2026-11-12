@@ -139,7 +139,8 @@
   .info { grid-row: 2; grid-column: 3; display: flex; flex-direction: column; gap: 6px; min-height: 0; overflow: hidden;
     padding: 0 4px 2px; font-size: 14px; line-height: 1.45; color: var(--dim); }
   .info > * { flex: none; }
-  .info > :first-child { margin-top: auto; }   /* 아래로 붙인다. justify-content: flex-end 는 넘친 높이를 잴 수 없다 */
+  /* 번호·제목·감독 줄은 커버 윗변에, 표와 링크(.body)는 아랫변에 붙인다. justify-content 로 나누면 넘친 높이를 잴 수 없다 */
+  .info .body { margin-top: auto; display: flex; flex-direction: column; gap: 6px; }
   .info .no { font-size: 13px; margin-bottom: -2px; }
   .info .t { font-size: 30px; line-height: 1.12; color: var(--fg); margin-bottom: 10px; }
   .info.small .t { font-size: 22px; }
@@ -250,7 +251,7 @@
     .box.side[data-role="left"] img, .box.side[data-role="left"] canvas { left: auto; right: 0; }
     .peek[data-col="1"] img, .peek[data-col="1"] canvas { left: auto; right: 0; }
     .info { grid-row: 4; grid-column: 1 / -1; overflow-y: auto; padding: 6px 16px 12px; }
-    .info > :first-child { margin-top: 0; }
+    .info .body { margin-top: 0; }
     .info .t { font-size: 22px; margin-bottom: 6px; }
     .rowname { grid-column: 1 / -1 !important; }
     .rowname span { right: auto; left: 8px; margin: 0; writing-mode: horizontal-tb; transform: none; max-height: none;
@@ -1130,21 +1131,20 @@ function rowName(k, r) {
 }
 function infoHTML(c) {
   const kv = (k, v) => v && v.length ? `<div class="kv" data-k="${k}"><span>${k}</span><span>${esc([].concat(v).join(', '))}</span></div>` : '';
-  const spec = [c.rt && `${c.rt} min`, ...(c.ar || []), c.clr].filter(Boolean).join(' · ');
-  const fmt = (c.fmt || []).join(' · ');
+  // c.writer, c.cast, c.fmt, c.genre 는 데이터에 남아 있고 화면에만 쓰지 않는다
   const url = criterionUrl(c);
-  const rows = [kv('Film', spec), kv('Edition', fmt), kv('Language', c.language), kv('Written by', c.writer), kv('Cinematography', c.dop),
-    kv('Music', c.music), kv('Cast', c.cast), kv('Genre', c.genre), kv('Box set', c.box ? (c.kind === 'box' ? 'Box set' : c.box) : '')].filter(Boolean);
+  const rows = [kv('Country', c.countries), kv('Runtime', c.rt ? `${c.rt} min` : ''), kv('Aspect ratio', c.ar), kv('Color', c.clr),
+    kv('Language', c.language), kv('Cinematography', c.dop), kv('Music', c.music), kv('Box set', c.box ? (c.kind === 'box' ? 'Box set' : c.box) : '')].filter(Boolean);
   return `<div class="no">#${c.spine}</div>
     <div class="t">${esc(c.title)}</div>
     ${c.orig ? `<div class="o">${esc(c.orig)}</div>` : ''}
-    <div>${[c.directors, c.year, c.countries].filter(Boolean).map(esc).join(' · ')}</div>
-    ${rows.length ? '<div class="sp"></div>' + rows.join('') : ''}
-    ${url ? `<div class="n"><a href="${url}" target="_blank" rel="noopener">criterion.com<svg class="out" viewBox="0 0 10 10" aria-hidden="true"><path d="M4.5 5.5 7.5 2.5M3 2.5h4.5V7"/></svg></a></div>` : ''}`;
+    <div>${[c.directors, c.year].filter(Boolean).map(esc).join(' · ')}</div>
+    <div class="body">${rows.length ? '<div class="sp"></div>' + rows.join('') : ''}
+    ${url ? `<div class="n"><a href="${url}" target="_blank" rel="noopener">criterion.com<svg class="out" viewBox="0 0 10 10" aria-hidden="true"><path d="M4.5 5.5 7.5 2.5M3 2.5h4.5V7"/></svg></a></div>` : ''}</div>`;
 }
 /* 정보가 칸(커버 높이)을 넘으면: 값을 한 줄로 줄이고, 덜 중요한 줄 넷까지 빼고, 그래도 넘치면 제목을 줄인 뒤 나머지 줄을 뺀다.
    좁은 화면은 정보 칸이 스크롤되므로 그대로 둔다 */
-const INFO_DROP = ['Genre', 'Music', 'Cinematography', 'Written by', 'Language', 'Cast', 'Edition', 'Box set', 'Film'];
+const INFO_DROP = ['Music', 'Cinematography', 'Language', 'Box set', 'Color', 'Aspect ratio', 'Runtime', 'Country'];
 function fillInfo(info, c) {
   info.className = 'info'; info.innerHTML = infoHTML(c);
   if (narrow()) return;
@@ -1152,7 +1152,7 @@ function fillInfo(info, c) {
   const drop = keys => { for (const k of keys) { if (!over()) return; info.querySelector(`.kv[data-k="${k}"]`)?.remove(); } };
   if (!over()) return;
   info.classList.add('tight');
-  drop(INFO_DROP.slice(0, 4));
+  drop(INFO_DROP.slice(0, 2));
   if (!over()) return;
   info.innerHTML = infoHTML(c); info.classList.add('small');
   drop(INFO_DROP);
@@ -1238,7 +1238,7 @@ function showTri({ kind = 'axis', from = null } = {}) {
   });
   panels.querySelectorAll('.rowname').forEach(el => rise(el, BASE + { up: 0, mid: 3, down: 6 }[el.dataset.row] * STEP));
   if (!from && kind !== 'axis') rise(midBox, BASE + ORDER.indexOf('mid') * STEP);   // 날아올 자리가 없을 때(뒤로 가기 등)
-  if (kind !== 'axis') [...info.children].forEach((line, n) => rise(line, BASE + ORDER.length * STEP + 160 + n * 70));
+  if (kind !== 'axis') [...info.children].flatMap(el => el.classList.contains('body') ? [...el.children] : [el]).forEach((line, n) => rise(line, BASE + ORDER.length * STEP + 160 + n * 70));
 }
 /* 띠는 포스터를 잘라 보여준다. 날아가기 출발점은 띠가 아니라 잘린 포스터 전체(img)의 사각형이다.
    영역 밖으로 나간 부분은 #panels 의 overflow: clip 이 가린다 */
