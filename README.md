@@ -289,7 +289,7 @@ open web/index.html                           # 서버 없이 file:// 로 열린
 
 확인: `node scripts/browser_check.mjs <file://…/web/index.html#축> <출력 폴더> <steps.json>` 이 실제 시간으로 헤드리스 Chrome 을 띄워 클릭·키·입력·스크린샷을 재현한다(steps: wait, shot, moveTile, clickTile, clickSel, key, type, burst, eval). 전환은 burst(연속 촬영)로 프레임을 보고 판단한다. `--virtual-time-budget` 스크린샷은 캔버스 rAF·CSS 전환과 맞지 않아 쓰지 않는다.
 
-- thumbs/, large/, strokes/, atlas/ 는 커버에서 나온 이미지다. 2026-11-12 결정으로 일단 cc.umjo.me 에 공개한다(원본 posters/ 는 올리지 않는다). trace/ 와 data.js 는 기계가 추출한 흔적과 메타데이터다.
+- thumbs/, large/, strokes/, atlas/ 는 커버에서 나온 이미지다. 2026-11-12 결정으로 일단 ccw.umjo.me 에 공개한다(원본 posters/ 는 올리지 않는다). trace/ 와 data.js 는 기계가 추출한 흔적과 메타데이터다.
 
 ## 알려진 한계
 

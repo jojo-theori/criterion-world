@@ -27,7 +27,7 @@
 - 박스 세트도 포함한다(2026-11-12 사용자: "박스팩 다 포함해", 이전 결정 '박스 세트 수록작은 뺀다'를 뒤집음). DB 에 kind(film/box)와 box_set 열. 박스 수록 영화(자기 spine 있는 것) + 박스 자체(spine). spine 없이 박스에만 든 영화(Wikipedia 두 번째 박스 표, 약 128행)는 아직 안 넣었다.
 - 텍스트 영역에는 크라이테리온 세로 띠, 상단 띠 글자도 포함한다(디자인이 시기마다 달라서).
 - 무료 오픈 모델만 쓴다. 분석은 로컬에서 일괄 처리해 JSON 으로 저장하고, 웹은 그 데이터를 읽기만 한다.
-- 저작권: 고해상도 원본(posters/)과 레퍼런스 사진은 공개 레포·서버에 올리지 않는다. 뷰어용 커버(web/large 480px, thumbs, 아틀라스)는 2026-11-12 사용자 결정으로 일단 공개(cc.umjo.me), 장기적으로 다시 고민한다. 메인 화면은 기계가 추출한 흔적(팔레트, 영역, 선)으로 구성하는 방향이 리스크와 컨셉 양쪽에 맞다고 논의됨.
+- 저작권: 고해상도 원본(posters/)과 레퍼런스 사진은 공개 레포·서버에 올리지 않는다. 뷰어용 커버(web/large 480px, thumbs, 아틀라스)는 2026-11-12 사용자 결정으로 일단 공개(ccw.umjo.me), 장기적으로 다시 고민한다. 메인 화면은 기계가 추출한 흔적(팔레트, 영역, 선)으로 구성하는 방향이 리스크와 컨셉 양쪽에 맞다고 논의됨.
 
 ## 현재 상태 (2026-11-11)
 
@@ -84,7 +84,7 @@
   5. 범주가 사용자 눈에 맞으면 build_web.py 를 새 7개 축으로 바꾸고(격자 배치 = 범주별 묶음, 줄 = 범주, 줄 이름 = 범주 이름) 흔적을 옮긴다.
 - 2026-11-12 저녁: 원본 커버(1,344편, 빈 칸 채움 포함)로 전체 파이프라인을 다시 돌렸다. 바뀐 판정 규칙: People 에 Couple(큰 얼굴 2개가 맞닿거나 OWLv2 couple embracing ≥ 0.3), 검출기가 놓친 얼굴은 SigLIP 단서(face_close, people)로 보완. Composition 은 Grid / collage(길게 뻗은 가로·세로 선) · Symmetric(글자 가린 윤곽 지도와 거울의 상관 ≥ 0.55) · Single object · Open space · Diagonal · Full-bleed image · Other 로 다시 짰다. Medium 제로샷은 커버 전체에 대한 z-점수. 결과: People Crowd 103 · Couple 97 · Talking heads 182 · Big face 318 · Lone figure 88 · Figures 335 · No one 221 / Type Type only 22 · Big centered 204 · Big 119 · Quiet 171 · Top 281 · Middle 289 · Bottom 258 / Composition Grid 50 · Symmetric 81 · Single object 112 · Open space 138 · Diagonal 177 · Full-bleed 158 · Other 628(가장 큰 남은 과제) / Medium Photo 434 · Illustration 222 · Painting 274 · Graphic 203 · Typographic 211. 확인 페이지는 posters 에서 만든 썸네일과 DB 제목을 쓴다(out/tropes/thumbs).
 - 나라 축(사용자 제안, 메타 묶음: Spine · Year · Country): 격자는 세계 지도처럼 나라 자리에 커버를 모아 지역이 덩어리로 보이게, 세 폭 보기 순회는 지역 줄(East Asia, South Asia, Western Europe, Nordic, Eastern Europe, Africa, Middle East, Latin America, North America, Oceania …) 안에서 나라 → 연도 순. 격자 xy 로 움직이지 않는다(사용자: "지역 그룹별로 순회해야지 지도를 xy좌표로 움직이는 방식으로 작동하면 안되거든"). 지금 구조(격자 = c.g, 순회 = META.rings 범주 줄)가 이미 그렇다. 미국 533편은 시대별 줄로 나눌 것. 공동 제작은 첫 번째 나라.
-- 이름: Criterion Collection World(CCW)(2026-11-12 사용자, 이전 Criterion World). 화면 title·로딩·크레딧·og 를 바꿨고 GitHub 레포도 ccw 로 바꿨다(옛 주소는 GitHub 가 넘겨준다). Cloudflare Worker 이름 criterion-world 와 도메인 cc.umjo.me 는 그대로.
+- 이름: Criterion Collection World(CCW)(2026-11-12 사용자, 이전 Criterion World). 화면 title·로딩·크레딧·og 를 바꿨고 GitHub 레포도 ccw 로 바꿨다(옛 주소는 GitHub 가 넘겨준다). 주소는 ccw.umjo.me(옛 cc.umjo.me 는 Worker 에 그대로 붙어 있고 index.html 맨 앞 스크립트가 새 주소로 넘긴다). Cloudflare Worker 이름 criterion-world 는 그대로.
 
 ## 다음 할 일
 
