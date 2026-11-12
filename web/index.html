@@ -180,11 +180,11 @@
     border-bottom: 1px solid #333; transition: color .2s, border-color .2s; }
   .info .more:hover { color: var(--fg); border-color: var(--fg); }
   .info .more:focus-visible { outline: 1px solid var(--fg); outline-offset: 3px; }
-  /* 줄 이름: 가운데 줄 것만, 1열 왼쪽 여백에 세로로 크게. 가운데 커버 윗변에서 시작해 아래 띠 끝까지 쓸 수 있고,
-     글자 크기는 fitRowName 이 그 길이에 맞춘다 */
+  /* 줄 이름: 가운데 줄 것만, 1열 왼쪽 여백에 세로로. 가운데 커버 윗변에서 시작해 아래 띠 끝까지 쓸 수 있다 */
   .rowname { grid-column: 1; grid-row: 2 / 4; position: relative; pointer-events: none; z-index: 2; }
   .rowname span { position: absolute; right: 100%; top: 0; margin-right: 9px; writing-mode: vertical-rl; transform: rotate(180deg);
-    font-size: 20px; line-height: 1; letter-spacing: .01em; white-space: nowrap; color: var(--dim); }
+    font-size: var(--t1); letter-spacing: .02em; white-space: nowrap; color: var(--dim);
+    max-height: 100%; overflow: hidden; text-overflow: ellipsis; }
   /* 오른쪽 아래 만든 이 */
   /* 만든 이: 왼쪽 아래 축 이름 밑에 한 줄 */
   #credit2 { position: fixed; right: 32px; bottom: 16px; z-index: 30; font-size: var(--t1); line-height: 1.6; color: #4a4a4a; white-space: nowrap; text-align: right; }
@@ -305,11 +305,12 @@
     .peek[data-col="1"] img, .peek[data-col="1"] canvas { left: auto; right: 0; }
     /* 정보 영역은 검은 덮개 층: 아래 띠에서 날아오르는 커버가 그 뒤에서 나오고(flyWithin z 5 < 6),
        넘치면 글자 크기를 바꾸지 않고 margin-top 을 음수로 해 위로 늘어나 아래 띠를 덮는다 */
-    .info { grid-row: 4; grid-column: 1 / -1; padding: 20px 16px 12px; background: #000; position: relative; z-index: 6;
+    .info { grid-row: 4; grid-column: 1 / -1; padding: 20px calc(16px + var(--gut, 26px)) 12px; background: #000;
+      margin-left: calc(-1 * var(--gut, 26px)); margin-right: calc(-1 * var(--gut, 26px));   /* 양옆 여백까지 덮는다 */ position: relative; z-index: 6;
       transition: margin-top .42s var(--out); }
     .info .body { margin-top: 0; }
     .info .t { margin-bottom: 6px; }
-    .rowname { grid-row: 2 / 5; }   /* 폰: 정보 영역 옆 여백까지 */
+    .rowname { grid-row: 2 / 5; z-index: 7; }   /* 폰: 정보 영역 옆 여백까지, 검은 정보 영역 위에 */
     .rowname span { margin-right: 6px; }
   }
   /* 아주 좁은 폰(380px 미만): 큰 축 이름이 오른쪽 크레딧 네 줄과 겹치지 않게 그 위로 올린다 */
@@ -1198,7 +1199,9 @@ function triSize() {
     const bw = Math.max(80, Math.floor(Math.min(W * .62, (H - 2 * edge - 3 * gap - NARROW_INFO) * ASPECT)));
     panels.style.setProperty('--bw', bw + 'px');
     panels.style.setProperty('--bh', Math.round(bw / ASPECT) + 'px');
-    panels.style.setProperty('--sw', Math.max(0, Math.floor((W - bw - 2 * gap) / 2)) + 'px');
+    const sw = Math.max(0, Math.floor((W - bw - 2 * gap) / 2));
+    panels.style.setProperty('--sw', sw + 'px');
+    panels.style.setProperty('--gut', Math.ceil((panels.clientWidth - 2 * sw - bw - 2 * gap) / 2) + 'px');   // 실제 양옆 여백
     return;
   }
   const W = panels.clientWidth - 64, H = panels.clientHeight;
@@ -1288,13 +1291,7 @@ function fillInfo(info, c, animate = false) {
   } else { void info.offsetHeight; info.style.transition = ''; }
 }
 function fitInfo(info, c) { fillInfo(info, c); }
-// 줄 이름: 최대 크기(넓은 화면 20px, 좁은 화면 15px)로 두고, 쓸 수 있는 길이를 넘으면 그 비율만큼 줄인다
-function fitRowName(el) {
-  const sp = el.querySelector('span'), max = narrow() ? 15 : 20;
-  sp.style.fontSize = max + 'px';
-  const len = sp.getBoundingClientRect().height, room = el.clientHeight;
-  if (len > room && room > 0) sp.style.fontSize = Math.max(9, Math.floor(max * room / len * 10) / 10) + 'px';
-}
+
 function showTri({ kind = 'axis', from = null } = {}) {
   const c = C[cur], [l, r] = pair(cur, axis);
   swapText(document.getElementById('triName'), AXES[axis].name);
@@ -1337,7 +1334,6 @@ function showTri({ kind = 'axis', from = null } = {}) {
       el.className = 'rowname'; el.dataset.row = 'mid';
       el.innerHTML = `<span>${esc(t)}</span>`;
       panels.append(el);
-      fitRowName(el);
     }
   }
   ['up', 'down'].forEach(row => exits[row].forEach((ex, col) => {
@@ -1680,7 +1676,7 @@ addEventListener('resize', () => {
   clearTimeout(rz);
   rz = setTimeout(() => {
     G.size(); G.go(axis, false); movePill(axesEl, true); fitAxes();
-    if (cur !== null) { if (narrow() !== wasNarrow) showTri({ kind: 'axis' }); else { triSize(); const info = panels.querySelector('.info'); if (info) fitInfo(info, C[cur]); panels.querySelectorAll('.rowname').forEach(fitRowName); } }
+    if (cur !== null) { if (narrow() !== wasNarrow) showTri({ kind: 'axis' }); else { triSize(); const info = panels.querySelector('.info'); if (info) fitInfo(info, C[cur]); } }
     wasNarrow = narrow();
   }, 60);
 });
