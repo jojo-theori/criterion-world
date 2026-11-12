@@ -768,30 +768,89 @@ def text_tilt(r: dict, frame_rects: list) -> float:
     return float(acc / wsum) if wsum else 0.0
 
 
-def relax(ids: list[int], tg: np.ndarray, iters: int = 90) -> tuple[dict[int, list[float]], list[int]]:
-    """화면 단위 목표 좌표 → 소수점 칸 좌표. 타일(너비 1, 높이 1.242)이 서로 겹치지 않을 만큼만 밀어낸다."""
+def deoverlap(P: np.ndarray, W: np.ndarray, H: np.ndarray, gap: float = 0.06, max_iter: int = 4000) -> np.ndarray:
+    """왼쪽 위 좌표 P, 크기 W×H 인 타일들이 서로 겹치지 않을 때까지(틈 gap) 덜 움직여도 되는 방향으로 밀어낸다."""
     from scipy.spatial import cKDTree
-    V = tg.astype(float).copy()
-    TWv, THv = 1.0, 1 / (1288 / 1600)
-    for _ in range(iters):
-        pairs = cKDTree(V).query_pairs(r=np.hypot(TWv, THv), output_type="ndarray")
+    P = P.astype(float).copy()
+    r = float(np.hypot(W.max(), H.max())) * 1.1 + gap
+    for _ in range(max_iter):
+        Cn = P + np.stack([W, H], 1) / 2
+        pairs = cKDTree(Cn).query_pairs(r=r, output_type="ndarray")
         if not len(pairs):
             break
-        a, b = pairs[:, 0], pairs[:, 1]
-        d = V[b] - V[a]
-        ox, oy = TWv - np.abs(d[:, 0]), THv - np.abs(d[:, 1])
-        hit = (ox > 0) & (oy > 0)
+        a_, b_ = pairs[:, 0], pairs[:, 1]
+        d = Cn[b_] - Cn[a_]
+        ox = (W[a_] + W[b_]) / 2 + gap - np.abs(d[:, 0])
+        oy = (H[a_] + H[b_]) / 2 + gap - np.abs(d[:, 1])
+        hit = (ox > 1e-4) & (oy > 1e-4)
         if not hit.any():
             break
-        a, b, d, ox, oy = a[hit], b[hit], d[hit], ox[hit], oy[hit]
-        alongx = ox < oy                                  # 덜 움직여도 되는 방향으로
+        a_, b_, d, ox, oy = a_[hit], b_[hit], d[hit], ox[hit], oy[hit]
+        alongx = ox < oy
         mv = np.zeros_like(d)
-        mv[alongx, 0] = np.sign(d[alongx, 0] + 1e-9) * ox[alongx] / 2 * 1.05
-        mv[~alongx, 1] = np.sign(d[~alongx, 1] + 1e-9) * oy[~alongx] / 2 * 1.05
-        np.add.at(V, a, -mv); np.add.at(V, b, mv)
+        sx = np.where(np.abs(d[:, 0]) > 1e-9, np.sign(d[:, 0]), np.where(a_ % 2, 1, -1))
+        sy = np.where(np.abs(d[:, 1]) > 1e-9, np.sign(d[:, 1]), np.where(a_ % 2, 1, -1))
+        mv[alongx, 0] = sx[alongx] * ox[alongx] * 0.52
+        mv[~alongx, 1] = sy[~alongx] * oy[~alongx] * 0.52
+        np.add.at(P, a_, -mv); np.add.at(P, b_, mv)
+    # 그래도 남은 겹침(같은 자리에서 맴도는 쌍): 뒤의 타일을 겹치지 않는 가장 가까운 자리로 옮긴다
+    from scipy.spatial import cKDTree as _T
+    for _ in range(200):
+        Cn = P + np.stack([W, H], 1) / 2
+        pairs = _T(Cn).query_pairs(r=r, output_type="ndarray")
+        if not len(pairs):
+            break
+        d = np.abs(Cn[pairs[:, 1]] - Cn[pairs[:, 0]])
+        bad = pairs[(d[:, 0] < (W[pairs[:, 0]] + W[pairs[:, 1]]) / 2 + gap - 1e-4) & (d[:, 1] < (H[pairs[:, 0]] + H[pairs[:, 1]]) / 2 + gap - 1e-4)]
+        if not len(bad):
+            break
+        j = bad[0, 1]
+        others = np.delete(np.arange(len(P)), j)
+        for rad in np.arange(0.2, 40, 0.2):
+            done = False
+            for ang in np.linspace(0, 2 * np.pi, 24, endpoint=False):
+                q = P[j] + rad * np.array([np.cos(ang) * W[j], np.sin(ang) * H[j]])
+                cq = q + np.array([W[j], H[j]]) / 2
+                dd = np.abs(Cn[others] - cq)
+                if not ((dd[:, 0] < (W[others] + W[j]) / 2 + gap) & (dd[:, 1] < (H[others] + H[j]) / 2 + gap)).any():
+                    P[j] = q; done = True; break
+            if done:
+                break
+    return P
+
+
+def relax(ids: list[int], tg: np.ndarray) -> tuple[dict[int, list[float]], list[int]]:
+    """화면 단위 목표 좌표(타일 중심) → 소수점 칸 좌표. 겹치는 타일이 하나도 없을 때까지 밀어낸다."""
+    TWv, THv = 1.0, 1 / (1288 / 1600)
+    n = len(ids)
+    V = deoverlap(tg - np.array([TWv, THv]) / 2, np.full(n, TWv), np.full(n, THv))
     P = V / np.array([CELL_X, CELL_Y]); P -= P.min(0)
     pos = {i: [round(float(x), 3), round(float(y), 3)] for i, (x, y) in zip(ids, P)}
     return pos, [int(np.ceil(P[:, 0].max())) + 1, int(np.ceil(P[:, 1].max())) + 1]
+
+
+def smooth_outline(Pc: np.ndarray, res: float = 0.25, sigma: float = 2.0, level: float = 0.3) -> tuple[str, float | None]:
+    """점들(칸 좌표)의 밀도 지도에서 등고선 하나(가장 큰 것)를 뽑아 부드러운 곡선 테두리 path 로. 반환: (path, 가장 위 y)."""
+    from scipy.ndimage import gaussian_filter
+    from skimage import measure
+    pad = 3.0
+    mn = Pc.min(0) - pad; mx = Pc.max(0) + pad
+    W_, H_ = int((mx[0] - mn[0]) / res) + 1, int((mx[1] - mn[1]) / res) + 1
+    g = np.zeros((H_, W_))
+    ix = ((Pc - mn) / res).astype(int)
+    np.add.at(g, (ix[:, 1], ix[:, 0]), 1.0)
+    g = gaussian_filter(g, sigma / res)
+    cs = measure.find_contours(g, level * g.max())
+    if not cs:
+        return "", None
+    cmax = max(cs, key=len)
+    pts = cmax[:, ::-1] * res + mn                          # (x, y)
+    pts = pts[::max(1, len(pts) // 60)]
+    for _ in range(3):   # 차이킨 다듬기: 모서리를 깎아 둥글게
+        q = np.roll(pts, -1, 0)
+        pts = np.stack([0.75 * pts + 0.25 * q, 0.25 * pts + 0.75 * q], 1).reshape(-1, 2)
+    path = "M" + "L".join(f"{x:.2f} {y:.2f}" for x, y in pts) + "Z"
+    return path, float(pts[:, 1].min())
 
 
 def dense_region(pos: dict[int, list[int]], mem: list[int], name: str, keep: float = 0.7) -> dict | None:
@@ -809,7 +868,9 @@ def dense_region(pos: dict[int, list[int]], mem: list[int], name: str, keep: flo
     col = Q[np.abs(Q[:, 0] - mx) <= 2]                  # 가운데 열들 중 가장 위 칸 바로 위
     top = (col if len(col) else Q)[:, 1].min()
     core = [i for i, dd in zip(mem, d) if dd <= np.quantile(d, keep)]
-    return {"name": name, "cells": np.round(Q, 2).tolist(), "ids": core, "label": [float(mx + .5), float(top - .4)]}
+    outline, top_ = smooth_outline(Q + np.array([0.42, 0.44]))     # 칸 중심
+    return {"name": name, "outline": outline, "ids": core, "all": mem,
+            "label": [float(mx + .5), float((top_ if top_ is not None else top) - .4)]}
 
 
 def soft_axes(X: np.ndarray, anchor: np.ndarray, pull: float = 0.35) -> np.ndarray:
@@ -1072,6 +1133,24 @@ def country_map(items: list[dict]) -> tuple:
                     hi = mid
             s = min(lo, 4.5)                             # 땅이 넓어 영화가 드문 나라도 타일이 너무 커지지 않게
             pts = lattice(s)
+            if len(pts) > n * 1.15 or n <= 3:
+                # 땅에 비해 영화가 적은 나라: 격자 앞쪽부터 고르면 구석에 몰린다. 나라 안을 촘촘한 점으로 채우고
+                # 영화 수만큼 가장 고르게 퍼진 자리(k-평균 중심, 국경 안 점으로 맞춤)를 쓴다. 1 편이면 나라 한가운데
+                yy, xx = np.nonzero(mask)
+                S_ = np.stack([(xx - 1) / K + mn[0], (yy - 1) / K + mn[1]], 1)
+                if len(S_) > 8000:
+                    S_ = S_[np.random.default_rng(0).choice(len(S_), 8000, replace=False)]
+                if n == 1:
+                    cen = S_.mean(0, keepdims=True)
+                else:
+                    from sklearn.cluster import KMeans
+                    cen = KMeans(n_clusters=n, n_init=4, random_state=0).fit(S_).cluster_centers_
+                cen = S_[np.argmin(((cen[:, None] - S_[None]) ** 2).sum(-1), 1)]     # 국경 안 점으로
+                if n > 1:   # 이웃과 겹치지 않는 가장 큰 타일
+                    dx = np.abs(cen[:, None, 0] - cen[None, :, 0]); dy = np.abs(cen[:, None, 1] - cen[None, :, 1])
+                    lim = np.maximum(dx / 1.18, dy / (TA + 0.18)); np.fill_diagonal(lim, np.inf)
+                    s = min(4.5, float(lim.min()))
+                pts = cen - np.array([s / 2, s * TA / 2])
         else:
             pts, s = np.zeros((0, 2)), 0
         SMIN = 1.1
@@ -1095,6 +1174,11 @@ def country_map(items: list[dict]) -> tuple:
         if not polys:   # 국경 데이터가 없는 나라: 커버 무리를 감싸는 작은 네모
             x0_, y0_ = pts.min(0) - s * .4; x1_, y1_ = pts.max(0) + s * 1.4
             cty_path[c] = f"M{x0_:.1f} {y0_:.1f}H{x1_:.1f}V{y1_:.1f}H{x0_:.1f}Z"
+    # 나라끼리 겹친 타일(국경 근처, 최소 크기로 모은 작은 나라)도 풀어 준다(크기는 나라마다 다르다)
+    keys = list(pos)
+    Pc = deoverlap(np.array([pos[i] for i in keys]), np.array([size[i] for i in keys]),
+                   np.array([size[i] * TA for i in keys]), gap=0.12)
+    pos = {i: [round(float(x), 2), round(float(y), 2)] for i, (x, y) in zip(keys, Pc)}
     # 모든 나라(흐리게)
     world = []
     for f in json.loads(BORDERS.read_text())["features"]:
