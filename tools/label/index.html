@@ -2,18 +2,21 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>People labeling — CCW</title>
+<title>CCW Lab · Label</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
   :root { --fg: #ebebeb; --dim: #8a8a8a; --out: cubic-bezier(.22,1,.36,1); }
   * { box-sizing: border-box; }
   body { margin: 0; background: #000; color: var(--fg); font: 14px/1.4 "Helvetica Neue", Helvetica, Arial, sans-serif; height: 100vh; display: flex; flex-direction: column; align-items: center; overflow: hidden; }
-  header { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 16px 28px; color: var(--dim); }
+  header { width: 100%; display: flex; justify-content: space-between; align-items: center; height: 56px; padding: 0 32px; color: var(--dim); }
+  header a { color: var(--dim); text-decoration: none; background: #111; border-radius: 999px; height: 36px; padding: 0 16px; display: inline-flex; align-items: center; }
+  header a:hover { color: var(--fg); }
+  .line { position: absolute; top: calc(100% + 56px); left: -40px; right: -40px; text-align: center; color: #bdbdbd; font-size: 12px; line-height: 1.45; }
   header b { color: var(--fg); font-weight: 400; }
   .bar { width: 220px; height: 2px; background: #222; }
   .bar i { display: block; height: 100%; background: var(--fg); width: 0; transition: width .3s var(--out); }
   main { flex: 1; display: flex; align-items: center; justify-content: center; position: relative; width: 100%; }
-  .card { position: absolute; height: min(68vh, 640px); aspect-ratio: 1288 / 1600; background: #111 center / cover no-repeat;
+  .card { position: absolute; height: min(60vh, 600px); aspect-ratio: 1288 / 1600; background: #111 center / cover no-repeat;
     box-shadow: 0 20px 60px rgba(0,0,0,.8); transition: transform .45s var(--out), opacity .45s var(--out); }
   .card.out { opacity: 0; }
   .meta { position: absolute; bottom: -46px; left: 0; right: 0; text-align: center; color: var(--dim); font-size: 12px; }
@@ -21,7 +24,7 @@
   .stamp { position: absolute; top: 18px; left: 50%; translate: -50% 0; padding: 4px 12px; border: 2px solid var(--fg); border-radius: 4px;
     font-size: 20px; letter-spacing: .04em; background: rgba(0,0,0,.6); opacity: 0; transition: opacity .15s; }
   .card.stamped .stamp { opacity: 1; }
-  footer { display: flex; gap: 8px; padding: 70px 0 28px; }
+  footer { display: flex; gap: 8px; padding: 110px 0 28px; }
   footer button { background: #111; color: var(--fg); border: 1px solid #2a2a2a; border-radius: 999px; padding: 10px 16px; font: inherit; cursor: pointer;
     transition: background .2s, border-color .2s; }
   footer button:hover, footer button.hint { border-color: #777; }
@@ -35,20 +38,18 @@
 </head>
 <body>
 <header>
-  <div><b>People</b> · who is on the cover?</div>
+  <div style="display:flex;gap:14px;align-items:center"><a href="/">Map</a><span><b>People</b> · who is on the cover?</span></div>
   <div style="display:flex;gap:14px;align-items:center"><span id="prog">0 / 100</span><div class="bar"><i id="barI"></i></div><span id="tot"></span></div>
 </header>
 <main id="stage"></main>
 <footer id="btns"></footer>
-<div class="help">0 1 2 3 = number of people · 9 some human · A animal · ← or backspace undo · space skip · the model's guess is outlined</div>
+<div class="help">1 None · 2 No face (back view, hands only) · 3 One · 4 Two · 5 Three or more · 6 Ambiguous (statue, mask, shadow) · ← undo · space skip · the description's guess is outlined</div>
 <script>
-// 키 = 사람 수(0 없음, 1 한 사람, 2 두 사람, 3 셋 이상), 9 일부만, A 동물
+// People v2 범주. 키 번호는 Lab 지도의 범례 번호와 같다(Edit 모드)
 const CH = [
-  ['none', 'No human', '0', 'Digit0'], ['one', 'One person', '1', 'Digit1'], ['two', 'Two people', '2', 'Digit2'],
-  ['many', 'Many people', '3', 'Digit3'], ['some', 'Some human', '9', 'Digit9'], ['animal', 'Animal', 'A', 'KeyA'],
+  ['None', 'None', '1', 'Digit1'], ['No-face', 'No face', '2', 'Digit2'], ['One', 'One', '3', 'Digit3'],
+  ['Two', 'Two', '4', 'Digit4'], ['3+', 'Three or more', '5', 'Digit5'], ['Ambiguous', 'Ambiguous', '6', 'Digit6'],
 ];
-// 모델 판정 → 가장 가까운 선택지(힌트로 테두리만)
-const GUESS = { 'No one': 'none', 'Some human': 'some', 'Big face': 'one', 'Lone figure': 'one', 'Figures': 'one', 'Couple': 'two', 'Talking heads': 'two', 'Crowd': 'many' };
 const BATCH = 100;
 let Q = [], k = 0, hist = [], total = 0;
 const stage = document.getElementById('stage'), btns = document.getElementById('btns');
@@ -62,11 +63,12 @@ const cards = new Map();   // 파일 → 카드
 function pose(c, z) {
   c.style.transform = `translateY(${z * 10}px) scale(${1 - z * .04})`; c.style.zIndex = 10 - z; c.style.opacity = z ? .35 : 1;
   c.querySelector('.meta').style.visibility = z ? 'hidden' : 'visible';   // 글자는 맨 앞 카드만
+  c.querySelector('.line').style.visibility = z ? 'hidden' : 'visible';
 }
 function makeCard(item) {
   const c = document.createElement('div'); c.className = 'card'; c._item = item;
   c.style.backgroundImage = `url("large/${enc(item.file)}")`;
-  c.innerHTML = `<div class="stamp"></div><div class="meta"><b>#${item.spine}</b> · model: ${item.model || '—'}</div>`;
+  c.innerHTML = `<div class="stamp"></div><div class="meta"><b>#${item.spine}</b> · description: ${item.model || '—'}${item.old && item.old !== item.model ? ' · old label: ' + item.old : ''}</div><div class="line">${item.line || ''}</div>`;
   c.style.opacity = 0; c.style.transform = 'translateY(30px) scale(.88)';
   stage.prepend(c);                       // 뒤에 붙인다
   return c;
@@ -83,7 +85,7 @@ function render() {
     d.innerHTML = `<b>${k} labeled</b>${Q.length - k > 0 ? 'press enter for the next 100' : 'all covers labeled'}`;
     stage.appendChild(d);
   } else {
-    const g = GUESS[Q[k].model];
+    const g = Q[k].model;
     btns.querySelectorAll('button').forEach(b => b.classList.toggle('hint', b.dataset.id === g));
   }
   document.getElementById('prog').textContent = `${k} / ${end}`;
@@ -101,7 +103,7 @@ function choose(id) {
   const item = Q[k], top = cards.get(item.file);
   const n = CH.findIndex(c => c[0] === id), b = btns.querySelector(`[data-id="${id}"]`);
   b.classList.add('hit'); setTimeout(() => b.classList.remove('hit'), 220);
-  post('/api/label', { file: item.file, label: id, model: item.model }).then(r => { total = r.done; document.getElementById('tot').textContent = `${total} total`; });
+  post('/api/label', { scheme: 'People', file: item.file, cat: id }).then(r => { total = r.done; document.getElementById('tot').textContent = `${total} total`; });
   hist.push(item); k++;
   if (top) {
     cards.delete(item.file); top.classList.add('leaving');
@@ -115,7 +117,7 @@ function choose(id) {
 function undo() {
   if (!hist.length) return;
   const item = hist.pop(); k--;
-  post('/api/undo', { file: item.file }).then(r => { total = r.done; render(); });
+  post('/api/undo', { scheme: 'People', file: item.file }).then(r => { total = r.done; render(); });
   render();
 }
 function skip() { if (k < Q.length) { const it = Q.splice(k, 1)[0]; Q.push(it); cards.get(it.file)?.remove(); cards.delete(it.file); render(); } }

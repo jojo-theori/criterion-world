@@ -525,6 +525,7 @@ TROPE_ORDER = {   # build_tropes.py FAMILIES 와 같은 순서
 # 묘사 기반 판정·지도(2026-11-13). 파일이 있으면 tropes 의 people·medium 을 덮어쓰고, 지도는 묘사 그 줄의 임베딩으로 그린다
 PEOPLE_V2 = ROOT / "data" / "analysis" / "people_v2.json"
 MEDIUM_V2 = ROOT / "data" / "analysis" / "medium_v2.json"
+LAB_LABELS = ROOT / "data" / "labels" / "lab.json"     # Lab(scripts/lab_server.py)에서 사람이 고친 범주. 모델 판정보다 앞선다
 CAPTION_EMB = {"people": ROOT / "data" / "analysis" / "embed" / "gemma2-cap-people.npz",
                "medium": ROOT / "data" / "analysis" / "embed" / "gemma2-cap-medium.npz"}
 TROPE_SUB = {"people": "medium", "type": "medium", "composition": "medium", "medium": "people"}   # 큰 범주를 나눌 두 번째 말
@@ -1558,6 +1559,12 @@ def main() -> None:
         for f, c in json.loads(MEDIUM_V2.read_text()).items():
             if f in tropes:
                 tropes[f]["medium"] = c
+    if LAB_LABELS.exists():
+        for scheme, d in json.loads(LAB_LABELS.read_text()).get("labels", {}).items():
+            fam = {"People": "people", "Medium": "medium", "Composition": "composition", "Type": "type"}.get(scheme)
+            for f, c in (d.items() if fam else []):
+                if f in tropes and c in TROPE_ORDER[fam]:
+                    tropes[f][fam] = c
     obj_raw: dict[int, list] = {}
 
     items, hue, traces = [], [], []

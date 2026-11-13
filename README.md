@@ -29,6 +29,12 @@ scripts/
   detect_objects.py      OWLv2 물체 검출 (.venv-ml)
   analyze_strokes_layout.py  획(선화 통계), 레이아웃(글자·그림·빈 공간 칸) (.venv-ml)
   fetch_box_covers.py    박스 세트 커버 시험 수집 → posters_box/
+  caption_prompt.txt     커버 묘사(Sonnet 에이전트) 지시문, merge_captions.py 로 합침
+  embed_captions.py      묘사 글 임베딩(EmbeddingGemma 2, 전체·줄별·글+이미지) (.venv-ml)
+  people_v2.py, medium_v2.py  묘사에서 People·Medium 범주
+  build_lab.py, lab_server.py Lab: 실험 지도 + 라벨링, http://localhost:8777 (이 Mac 에서만)
+docs/references.md       참고 자료 요약·우선순위
+tools/label/             Lab 라벨링 화면
 web/                     뷰어 (index.html, data.js, trace/, atlas/, thumbs/, large/, strokes/)
 out/
   compare/               확인용 이미지

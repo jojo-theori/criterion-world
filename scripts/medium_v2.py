@@ -1,6 +1,6 @@
 """Medium 범주 v2: 묘사의 Medium 줄에서 가장 먼저 나오는 매체 낱말로 고른다(토큰 없음, 대략적인 판정).
 
-범주: Photo · Painting · Drawing · Print · Collage · Graphic · Other (preview_maps.py 도 이 규칙을 가져다 쓴다)
+범주: Photo · Painting · Drawing · Print · Collage · Graphic · Other 
 출력: data/analysis/medium_v2.json {파일: 범주}
 사용: python3 scripts/medium_v2.py   (.venv-ml 아니어도 된다)
 """
