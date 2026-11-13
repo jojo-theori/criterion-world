@@ -234,6 +234,11 @@
   #stage { overflow: hidden; }
   html, body { touch-action: pan-x pan-y; }   /* 폰: 페이지 핀치·두 번 탭 확대 금지 */
   #hires { position: absolute; inset: 0; pointer-events: none; }
+  /* 터치: 화면 정가운데 점. 점이 닿은 커버·클러스터에 호버 효과(확대했을 때만) */
+  #reticle { position: absolute; left: 50%; top: 50%; width: 6px; height: 6px; margin: -3px 0 0 -3px; border-radius: 50%; background: #ebebeb;
+    box-shadow: 0 0 0 1.5px rgba(0,0,0,.6); pointer-events: none; z-index: 6; opacity: 0; scale: .4; transition: opacity .25s, scale .3s cubic-bezier(.22,1,.36,1); }
+  body.touchmode #stage.zoomed #reticle { opacity: 1; scale: 1; }
+  body.tri-open #reticle { opacity: 0 !important; }
   #hires img { position: absolute; left: 0; top: 0; object-fit: cover; opacity: 0; transition: opacity .25s; }
   #hires img.ok { opacity: 1; }
   #hires img.hov { outline: 1px solid #ebebeb; outline-offset: -1px; }
@@ -391,7 +396,7 @@
   </div>
   <button class="close" id="close" aria-label="Close" data-key="esc" data-tip="Close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7 7 17"/></svg></button>
 </header>
-<div id="stage"><canvas id="grid" tabindex="0" aria-label="Cover grid. Arrow keys move, Enter opens"></canvas></div>
+<div id="stage"><div id="reticle"></div><canvas id="grid" tabindex="0" aria-label="Cover grid. Arrow keys move, Enter opens"></canvas></div>
 <div id="zoom"><button id="zoomIn" aria-label="Zoom in" data-key="+" data-tip="Zoom in">+</button><button id="zoomOut" aria-label="Zoom out" data-key="−" data-tip="Zoom out">−</button></div>
 <footer>
   <div class="k">Arranged by</div>
@@ -476,7 +481,7 @@ window.BUILD = '?v=' + (SIZES['data.js'] || 0);
 <script type="text/plain" id="main">
 const M = window.META, C = window.COVERS, N = C.length;
 // 버전: 화면·동작이 바뀌면 올린다. 데이터 날짜는 build_web.py 가 META.built 에 적는다
-const VERSION = '1.4.2';
+const VERSION = '1.4.3';
 document.getElementById('ver').textContent = `v${VERSION}`;
 document.getElementById('ver').title = M.built ? `data ${M.built}` : '';
 const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -1140,6 +1145,7 @@ const G = (() => {
     placeLabels(curLabels); placeRegionLabels();
     stage.classList.toggle('zoomed', vs > 1.001);
     updateHi();
+    window.onViewChange?.();
     kick();
   }
   function setView(s, x, y, ms = 0) {
@@ -1275,7 +1281,7 @@ function openFromGrid(i) {
 let lastTouch = -1e9;
 const fromTouch = () => performance.now() - lastTouch < 800;
 cv.addEventListener('mousemove', e => {
-  if (fromTouch() || panning) return;
+  if (fromTouch() || panning || touchMode) return;
   const r = stage.getBoundingClientRect(), i = G.hit(e.clientX - r.left, e.clientY - r.top);
   G.hotAt(e.clientX - r.left, e.clientY - r.top, i);
   if (i < 0) { tip.classList.remove('show'); hideLens(); return; }
@@ -1289,32 +1295,55 @@ cv.addEventListener('click', e => {
   const r = stage.getBoundingClientRect(), i = G.hit(e.clientX - r.left, e.clientY - r.top);
   if (i >= 0) openFromGrid(i);
 });
-/* 터치: 훑으면 미리보기가 따라오고, 미리보기 중인 커버를 한 번 더 누르거나 미리보기를 누르면 연다 */
-let downOn = null;
-function touchAt(e) {
-  const r = stage.getBoundingClientRect(), i = G.near(e.clientX - r.left, e.clientY - r.top, 18);
-  if (i < 0) { tip.classList.remove('show'); hideLens(); return -1; }
+/* 터치: 손가락 호버(미리보기·클러스터 설명)는 쓰지 않는다. 확대하면 화면 정가운데 점(#reticle)이 닿은 커버·클러스터에 호버 효과,
+   움직임이 멈추면 그 커버 이름을 점 아래에. 전체 보기에서 누르면 그 자리로 한 단계 확대, 확대 중엔 커버를 누르면 바로 연다 */
+let touchMode = false, retI = -1, retT = 0;
+function setTouchMode(on) {
+  if (on === touchMode) return;
+  touchMode = on; document.body.classList.toggle('touchmode', on);
+  if (!on) { retI = -1; clearTimeout(retT); tip.classList.remove('show'); G.setHover(-1); }
+  else reticleTick();
+}
+function reticleTick() {
+  if (!touchMode || cur !== null) return;
+  const [s] = G.view(), [W, H] = G.stageSize();
+  if (s <= 1.001) {
+    if (retI !== -2) { retI = -2; clearTimeout(retT); G.setHover(-1); tip.classList.remove('show'); G.hotAt(-1e6, -1e6, -1); }
+    return;
+  }
+  let i = G.hit(W / 2, H / 2); if (i < 0) i = G.near(W / 2, H / 2, 10);
+  G.hotAt(W / 2, H / 2, i);
   G.setHover(i);
-  if (i !== lensOn) showLens(i, true);
-  showTip(i, true);
-  return i;
+  if (i !== retI) { retI = i; tip.classList.remove('show'); }
+  clearTimeout(retT);
+  if (i >= 0) retT = setTimeout(() => retTip(i), 160);   // 움직임이 멈추면 이름
+}
+window.onViewChange = reticleTick;
+function retTip(i) {
+  if (!touchMode || cur !== null || panning || i !== retI) return;
+  const c = C[i], r = G.rect(i, false);
+  tip.innerHTML = `<b>${esc(c.title)}</b><br>#${c.spine} · ${c.year} · ${esc(c.directors)}`;
+  tip.classList.add('show');
+  const tw = tip.offsetWidth || 240, th = tip.offsetHeight;
+  tip.style.left = Math.max(4, Math.min(innerWidth - tw - 4, r.left + r.width / 2 - tw / 2)) + 'px';
+  tip.style.top = (r.top + r.height + 12 + th < innerHeight - 8 ? r.top + r.height + 12 : Math.max(60, r.top - th - 12)) + 'px';
 }
 cv.addEventListener('pointerdown', e => {
   if (e.pointerType === 'mouse') return;
-  lastTouch = performance.now(); downOn = lensOn;
-  cv.setPointerCapture(e.pointerId);
-  touchAt(e);
+  lastTouch = performance.now(); setTouchMode(true);
+  hideLens();
 });
-cv.addEventListener('pointermove', e => {
-  if (e.pointerType === 'mouse' || !cv.hasPointerCapture(e.pointerId)) return;
-  lastTouch = performance.now(); touchAt(e);
-});
-cv.addEventListener('pointerup', e => {
-  if (e.pointerType === 'mouse') return;
+cv.addEventListener('pointermove', e => { if (e.pointerType !== 'mouse') lastTouch = performance.now(); });
+cv.addEventListener('pointerup', e => {   // 끌기·핀치가 아닌 탭만 여기까지 온다(위 줌 처리기가 막는다)
+  if (e.pointerType === 'mouse' || cur !== null) return;
   lastTouch = performance.now();
-  const i = touchAt(e);
-  if (i >= 0 && i === downOn) openFromGrid(i);
+  const r = stage.getBoundingClientRect(), cx = e.clientX - r.left, cy = e.clientY - r.top;
+  if (G.view()[0] <= 1.001) { zoomStep(1, cx, cy); return; }
+  const i = G.near(cx, cy, 18);
+  if (i >= 0) openFromGrid(i);
 });
+// 진짜 마우스가 움직이면 호버 방식으로 돌아간다
+addEventListener('mousemove', () => { if (!fromTouch()) setTouchMode(false); }, true);
 lens.addEventListener('click', () => { if (lensOn !== null && cur === null) openFromGrid(lensOn); });
 
 /* ---------- 줌: 전체 → 2.2배 → 4.5배, 그보다 더 들어가면 그 자리 커버의 상세 화면 ----------

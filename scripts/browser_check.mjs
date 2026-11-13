@@ -54,6 +54,12 @@ for (const s of steps) {
     for (let k = 1; k <= 10; k++) { await send('Input.dispatchMouseEvent', { type: 'mouseMoved', x: x0 + (x1 - x0) * k / 10, y: y0 + (y1 - y0) * k / 10, button: 'left', buttons: 1 }); await sleep(16); }
     await send('Input.dispatchMouseEvent', { type: 'mouseReleased', x: x1, y: y1, button: 'left', clickCount: 1 });
   }
+  if (s.tap || s.tdrag) {   // {tap: [x, y]} 손가락 탭, {tdrag: [x0, y0, x1, y1]} 손가락으로 끌기
+    const [x0, y0, x1 = x0, y1 = y0] = s.tap || s.tdrag, n = s.tap ? 0 : 10;
+    await send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: x0, y: y0 }] });
+    for (let k = 1; k <= n; k++) { await send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: x0 + (x1 - x0) * k / n, y: y0 + (y1 - y0) * k / n }] }); await sleep(16); }
+    await send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+  }
   if (s.wheel) {   // {wheel: [x, y, dx, dy, ctrl]} 휠·트랙패드 핀치(ctrl)
     const [x, y, dx, dy, ctrl] = s.wheel;
     await send('Input.dispatchMouseEvent', { type: 'mouseWheel', x, y, deltaX: dx, deltaY: dy, modifiers: ctrl ? 2 : 0 });
