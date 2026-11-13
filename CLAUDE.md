@@ -118,7 +118,11 @@
 - 지도(scripts/preview_maps.py → out/gemma/maps.html, 겹침 없는 격자 + 확대·이동): 축마다 그 줄만 임베딩한 지도가 그 축으로 가장 잘 모인다. 이웃 8칸 같은 범주 비율 — People 줄 .65(무작위 .24), Medium 줄 .73(무작위 .35, 사진 · 콜라주 · 회화 · 그래픽·판화·드로잉이 덩어리로), Composition 줄 .26(무작위 .17), Typography 줄 .25(.17). Composition·Type 의 색칠 범주는 낱말 규칙이라 엉성하다 → Sonnet 이 글만 읽고 판정하게 한 뒤 다시 볼 것. Color 축은 기존 색상 × 명도 격자가 낫다.
 - People v2(scripts/people_v2.py → data/analysis/people_v2.json, 레포에 올림): None · No-face · One · Two · 3+ · Ambiguous. 사용자와 정한 기준: 그림이든 사진이든 사람이면 센다, 얼굴이 하나라도 보이면 얼굴 보이는 사람 수, 사람이 분명한데 얼굴이 전혀 없으면 No-face(뒷모습, 손·다리만), 사람인지부터 불분명하면 Ambiguous(조각상, 마네킹, 인형, 가면, 그림자, 이유는 reason), 같은 인물이 여러 번 나오면 보이는 수대로(세 번 이상 3+) + repeated 태그, 동물만 있으면 None + animal 태그. 먼저 Sonnet 이 People 줄 글만 읽고 none/animal/some/one/two/many 로 판정(data/analysis/people_from_captions.json, 로컬)하고, 토큰 없이 낱말 규칙으로 v2 로 옮겼다. 결과 One 423 · 3+ 396 · Two 267 · None 134 · No-face 70 · Ambiguous 54.
   - 사람 라벨과의 일치: 옛 범주 83%(애매함 없는 것 91%, 기존 검출기 판정은 52%). 사용자: 모델이 사람 라벨보다 맞게 본 사례가 꽤 많다. 그래서 묘사 판정을 기본으로 하고 사람 라벨은 사용자가 확인한 것만 덮어쓰기로. v2 기준으로는 76.9%(차이 대부분은 기준 변화: 예전에 뒷모습을 One 으로 라벨). 엇갈린 커버는 scripts/review_people.py → out/gemma/people_review.html.
-- 다음: (1) People(v2 범주 + People 줄 지도)·Medium(Medium 줄 지도)을 build_web.py 에 적용, (2) Composition·Type 범주를 Sonnet 이 글만 읽고 판정(축당 30만 토큰 안팎, 범주 목록은 사용자 확인), (3) 사람 라벨 덮어쓰기 목록 받기.
+- 사이트 적용(v1.4.4): build_web.py 가 people_v2.json·medium_v2.json(scripts/medium_v2.py, Medium 줄의 가장 먼저 나온 매체 낱말: Photo 716 · Painting 215 · Graphic 185 · Drawing 122 · Collage 49 · Print 36 · Other 21)이 있으면 tropes 의 people·medium 을 덮어쓰고, 두 축 격자를 묘사 줄 임베딩(gemma2-cap-people/medium.npz, embed_captions.py) UMAP 으로 그린다. 임베딩이 없으면 이전 방식. Type·Composition 은 묘사 줄 지도가 나아지지 않아(.25–.26) 그대로.
+  - 주의: 이 Mac 에서 build_web 을 통째로 돌리면 이 Mac 의 분석 데이터(글자 영역·레이아웃·물체·틀)가 사이트를 만든 컴퓨터와 달라 Type·Composition·Color 배치와 흔적 625개까지 바뀐다(틀 41편 사라짐 포함). 그래서 v1.4.4 는 새 빌드에서 people·medium 항목(META grids·rings·rowNames·gridExtra, COVERS g·nb)만 기존 data.js 에 옮겨 넣었고 흔적·아틀라스는 그대로 뒀다. 두 컴퓨터의 분석 데이터를 맞추기 전까지는 이렇게 부분만 옮긴다.
+  - 마우스 휠 = 한 칸에 한 단계 확대(커서 기준, 260ms 잠금). deltaMode 가 줄 단위이거나 가로 없이 큰 정수 칸이면 휠, 아니면 트랙패드(두 손가락 = 이동, 핀치 = 단계 확대).
+- 참고 자료: docs/references.md(우선순위·링크·자료별 요약). 원문 PDF 는 references/(git 제외). Composition·Type 개선 방향: 내용을 지운 구조 이미지(구도선·대칭·중요도 지도) 임베딩, 제목 상자 크롭 + 기하 값, 축별 세 장 비교 평가 세트를 먼저.
+- 다음: (1) Composition·Type 을 docs/references.md 우선순위대로 시험,(2) Composition·Type 범주를 Sonnet 이 글만 읽고 판정(축당 30만 토큰 안팎, 범주 목록은 사용자 확인), (3) 사람 라벨 덮어쓰기 목록 받기.
 
 ## 다음 할 일
 

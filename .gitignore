@@ -18,6 +18,7 @@ data/analysis/*
 # 다시 만들기 비싼 것(Sonnet 묘사)과 작은 판정 결과는 올린다
 !data/analysis/captions_sonnet_v3.json
 !data/analysis/people_v2.json
+!data/analysis/medium_v2.json
 data/regions/
 
 # 배포에 쓰지 않는 로컬(file://)용 산출물. http 에서는 webp 를 읽는다
@@ -31,3 +32,6 @@ data/models/
 posters_480/
 posters_missing/
 data_480/
+
+# 참고 자료 원문(논문 PDF 등). 저작권 때문에 로컬에만 두고 docs/references.md 에 요약·링크
+references/

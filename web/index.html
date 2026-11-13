@@ -434,7 +434,7 @@
 /* 빌드마다 바뀌는 값(data.js 크기)을 data.js 와 아틀라스 주소에 붙인다. 커버가 늘면 아틀라스 칸 순서가 바뀌는데,
    브라우저가 이전 아틀라스를 캐시에서 쓰면 칸마다 엉뚱한 커버가 그려진다 */
 window.BUILD = '';
-const SIZES = /*SIZES*/{"data.js": 1795484, "atlas/cover_s.webp": 780562}/*END*/;
+const SIZES = /*SIZES*/{"data.js": 1797059, "atlas/cover_s.webp": 780562}/*END*/;
 window.PRELOAD = {};
 window.BUILD = '?v=' + (SIZES['data.js'] || 0);
 (() => {
@@ -481,7 +481,7 @@ window.BUILD = '?v=' + (SIZES['data.js'] || 0);
 <script type="text/plain" id="main">
 const M = window.META, C = window.COVERS, N = C.length;
 // 버전: 화면·동작이 바뀌면 올린다. 데이터 날짜는 build_web.py 가 META.built 에 적는다
-const VERSION = '1.4.3';
+const VERSION = '1.4.4';
 document.getElementById('ver').textContent = `v${VERSION}`;
 document.getElementById('ver').title = M.built ? `data ${M.built}` : '';
 const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -1347,7 +1347,7 @@ addEventListener('mousemove', () => { if (!fromTouch()) setTouchMode(false); }, 
 lens.addEventListener('click', () => { if (lensOn !== null && cur === null) openFromGrid(lensOn); });
 
 /* ---------- 줌: 전체 → 2.2배 → 4.5배, 그보다 더 들어가면 그 자리 커버의 상세 화면 ----------
-   트랙패드 핀치(ctrl+휠, Safari 는 gesture), 터치 두 손가락, +/− 버튼과 키. 확대한 채 끌거나 두 손가락으로 밀면 이동 */
+   트랙패드 핀치(ctrl+휠, Safari 는 gesture), 마우스 휠(한 칸에 한 단계), 터치 두 손가락, +/− 버튼과 키. 확대한 채 끌거나 두 손가락으로 밀면 이동 */
 const ZOOMS = [1, 2, 4, 8, 16], ZMAX = ZOOMS[ZOOMS.length - 1];
 // 브라우저 자체 줌은 막는다: ctrl+휠(트랙패드 핀치), ⌘/ctrl + = - 0, Safari 제스처. 격자 위의 핀치는 아래에서 단계 줌으로 받는다
 addEventListener('wheel', e => { if (e.ctrlKey) e.preventDefault(); }, { passive: false });
@@ -1381,11 +1381,18 @@ function pinchBy(factor, cx, cy) {
   pinchAcc += Math.log(factor);
   if (Math.abs(pinchAcc) > .18) { zoomStep(pinchAcc > 0 ? 1 : -1, cx, cy); pinchAcc = 0; pinchLock = true; }
 }
+// 마우스 휠인지 트랙패드인지: 휠은 줄 단위(deltaMode 1)이거나, 가로 없이 큰 정수 칸(보통 100·120)으로 온다
+const isMouseWheel = e => e.deltaMode !== 0 || (e.deltaX === 0 && Number.isInteger(e.deltaY) && Math.abs(e.deltaY) >= 50);
+let wheelLock = 0;
 cv.addEventListener('wheel', e => {
   if (cur !== null) return;
   e.preventDefault();
   const [cx, cy] = stagePt(e), [s, x, y] = G.view();
   if (e.ctrlKey) pinchBy(Math.exp(-e.deltaY * .012), cx, cy);   // 트랙패드 핀치
+  else if (isMouseWheel(e)) {                                     // 마우스 휠: 한 칸에 한 단계, 커서 자리 기준(빨리 돌려도 260ms 에 한 단계)
+    const now = performance.now();
+    if (now >= wheelLock) { wheelLock = now + 260; zoomStep(e.deltaY < 0 ? 1 : -1, cx, cy); }
+  }
   else if (s > 1.001) {
     hideLens(); tip.classList.remove('show'); G.setView(s, x - e.deltaX, y - e.deltaY);
     const now = performance.now(), dt = Math.max(8, now - (wheelV.t || 0));

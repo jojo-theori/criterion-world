@@ -3,8 +3,8 @@
 지도: Gemma 이미지 / 묘사 전체 / 묘사 + 이미지 / 묘사의 한 줄만(People, Composition, Medium, Typography, Color). 위 탭으로 바꾼다.
 색칠: People(people_v2.json) · Composition · Medium · Type(묘사 그 줄의 낱말로 고른 대략적인 범주). 지도마다 기본 색칠이 있고 바꿀 수 있다.
 UMAP 결과는 out/gemma/umap_cache.npz 에 둔다(임베딩 파일이 바뀌면 다시 계산).
-배치: UMAP 2D → 빈칸을 조금 둔 격자 칸에 헝가리안 배정(포스터끼리 겹치지 않음).
-조작: 트랙패드 핀치·ctrl+휠 = 커서 기준 확대(최대 8배, 크게 보이면 web/large 480px 로 바꿔 끼움), 두 손가락 스크롤·끌기 = 이동, 더블클릭 = 확대, 0 = 전체, +/− 키.
+배치: 기본은 UMAP 좌표 그대로(겹침 허용, 거리가 정확). 'Grid' 를 켜면 빈칸을 조금 둔 격자 칸에 헝가리안 배정(겹치지 않음).
+조작: 마우스 휠·트랙패드 핀치 = 커서 기준 확대(최대 8배, 크게 보이면 web/large 480px 로 바꿔 끼움), 트랙패드 두 손가락·끌기 = 이동, 더블클릭 = 확대, 0 = 전체, +/− 키.
 People 색칠에서 'My labels' 를 켜면 사람 라벨이 있는 545편만 사람 라벨 색.
 범례를 누르면 그 범주만 밝게. 커버에 올리면 제목·범주·그 색칠의 묘사 줄.
 사용: .venv-ml/bin/python scripts/preview_maps.py
@@ -43,11 +43,7 @@ COMP = [("Grid", r"grid|panels|contact sheet|tiled|rows of|strip of|mosaic|check
         ("Circle", r"circle|circular|round |disc|oval|sphere|ring "), ("Symmetric", r"symmetr|mirror"),
         ("Diagonal", r"diagonal|tilted|slanted|angled"), ("Open space", r"empty space|negative space|vast|large (?:blank|empty)|mostly empty|sparse"),
         ("Centered", r"cent(?:er|re|ral|ered)")]
-MED = [("Collage", r"collage|cut-out|cut out|pasted|montage|photomontage"),
-       ("Print", r"woodcut|linocut|screen ?print|silkscreen|etching|engraving|lithograph|risograph|letterpress|block print"),
-       ("Drawing", r"pencil|pen and ink|pen-and-ink|ink line|charcoal|cross-?hatch|hatching|sketch|line drawing|crayon"),
-       ("Painting", r"paint|brushstroke|brush stroke|gouache|water ?colou?r|oil|acrylic|airbrush"),
-       ("Photo", r"photograph|photo|film grain|film still"), ("Graphic", r"flat|vector|solid ink|geometric|digital|graphic")]
+from medium_v2 import MED  # noqa: E402  Medium 범주 규칙은 한 곳에
 TYP = [("Vertical", r"vertical|stacked letter|reads downward|rotated 90"), ("Diagonal", r"diagonal|tilted|slanted|angled"),
        ("Hand-drawn", r"hand-?drawn|hand-?lettered|handwritten|brush lettering|scrawled|painted letter"),
        ("Top", r"\b(?:top|upper)\b"), ("Bottom", r"\b(?:bottom|lower|foot)\b"), ("Middle", r"middle|cent(?:er|re)|across the")]
@@ -117,7 +113,8 @@ def main() -> None:
             xy = umap.UMAP(n_neighbors=15, min_dist=0.1, metric="cosine", random_state=0).fit_transform(V)
             cache[key] = xy
         g, cols, rows = grid(xy)
-        maps[name] = {"pos": g.tolist(), "cols": cols, "rows": rows, "scheme": scheme}
+        q = (xy - xy.min(0)) / (xy.max(0) - xy.min(0))     # UMAP 좌표 그대로(겹침 허용, 'Exact')
+        maps[name] = {"pos": g.tolist(), "xy": np.round(q, 4).tolist(), "cols": cols, "rows": rows, "scheme": scheme}
         print(name, flush=True)
     np.savez(cache_f, **cache)
     items = []
@@ -147,11 +144,11 @@ header button{all:unset;cursor:pointer;color:var(--mute)}header button:hover,hea
 #vp{position:fixed;inset:0;cursor:grab}#vp.drag{cursor:grabbing}
 #stage{position:absolute;left:0;top:0;transform-origin:0 0}
 #stage img{position:absolute;object-fit:cover;outline-width:var(--ow,2px);outline-style:solid;outline-offset:0;transition:left .6s cubic-bezier(.2,.8,.2,1),top .6s cubic-bezier(.2,.8,.2,1),opacity .2s}
-#stage img.dim{opacity:.12}
+#stage img.dim{opacity:.12}#stage img:hover{z-index:2}
 #tip{position:fixed;z-index:6;max-width:320px;pointer-events:none;font-size:12px;line-height:1.45;color:#d6d6d6;background:#000c;padding:8px 10px;border-radius:6px;display:none}
 #tip b{display:block;color:#fff;font-weight:500;font-size:13px}#tip em{font-style:normal;color:var(--mute)}
 </style></head><body>
-<header><span id="tabs"></span><span class="sp"></span><span id="schemes"></span><span class="key" id="key"></span><button id="mine">My labels</button></header>
+<header><span id="tabs"></span><span class="sp"></span><span id="schemes"></span><span class="key" id="key"></span><button id="mine">My labels</button><button id="mode">Grid</button></header>
 <div id="vp"><div id="stage"></div></div><div id="tip"></div>
 <script>
 const D=/*DATA*/;
@@ -161,7 +158,12 @@ const imgs=D.items.map((it,i)=>{const im=new Image();im.src=it.src;im.decoding='
 function catOf(it){return mine&&sch==='People'?it.h:it.k[sch]}
 function paint(){imgs.forEach((im,i)=>{const it=D.items[i],c=catOf(it);im.style.outlineColor=c?D.schemes[sch][c]:'transparent';
   im.classList.toggle('dim',!!focus&&c!==focus)})}
-function place(){const m=D.maps[cur];imgs.forEach((im,i)=>{const [x,y]=m.pos[i];im.style.left=x*(D.tw+D.gap)+'px';im.style.top=y*(D.th+D.gap)+'px'})}
+// exact = UMAP 좌표 그대로(겹침 허용, 거리가 정확), 아니면 겹치지 않는 격자 칸
+let exact=true;
+function place(){const m=D.maps[cur],W=(m.cols-1)*(D.tw+D.gap),H=(m.rows-1)*(D.th+D.gap);
+  imgs.forEach((im,i)=>{let x,y;if(exact){[x,y]=m.xy[i];x*=W;y*=H}else{x=m.pos[i][0]*(D.tw+D.gap);y=m.pos[i][1]*(D.th+D.gap)}
+    im.style.left=x+'px';im.style.top=y+'px'})}
+document.getElementById('mode').onclick=e=>{exact=!exact;e.target.classList.toggle('on',!exact);place()};
 // 탭·범례
 const tabs=document.getElementById('tabs');
 names.forEach(n=>{const b=document.createElement('button');b.textContent=n;b.onclick=()=>{cur=n;[...tabs.children].forEach(x=>x.classList.toggle('on',x===b));setScheme(D.maps[n].scheme);place()};if(n===cur)b.classList.add('on');tabs.appendChild(b);tabs.append(' ')});
@@ -183,7 +185,12 @@ function tick(){if(!drag){TX+=vx;TY+=vy;vx*=.92;vy*=.92;if(Math.abs(vx)<.05)vx=0
 let hiT=0;function hires(){const now=performance.now();if(now-hiT<250)return;hiT=now;if(s*D.th<90)return;
   imgs.forEach(im=>{if(im.dataset.hi)return;const r=im.getBoundingClientRect();if(r.right<0||r.left>innerWidth||r.bottom<0||r.top>innerHeight)return;
     im.dataset.hi=1;const hi=new Image();hi.onload=()=>{im.src=hi.src};hi.src=D.large+im.src.split('/').pop()})}
-vp.addEventListener('wheel',e=>{e.preventDefault();if(e.ctrlKey||e.metaKey){zoomAt(Math.exp(-Math.max(-40,Math.min(40,e.deltaY))*.008),e.clientX,e.clientY)}else{TX-=e.deltaX;TY-=e.deltaY}},{passive:false});
+// 마우스 휠인지 트랙패드인지: 휠은 줄 단위(deltaMode 1)이거나, 가로 없이 큰 정수 칸(보통 100·120)으로 온다
+function isMouseWheel(e){return e.deltaMode!==0||(e.deltaX===0&&Number.isInteger(e.deltaY)&&Math.abs(e.deltaY)>=50)}
+vp.addEventListener('wheel',e=>{e.preventDefault();
+  if(e.ctrlKey||e.metaKey){zoomAt(Math.exp(-Math.max(-40,Math.min(40,e.deltaY))*.008),e.clientX,e.clientY)}   // 트랙패드 핀치
+  else if(isMouseWheel(e)){const d=e.deltaMode===1?e.deltaY*33:e.deltaY;zoomAt(Math.exp(-Math.sign(d)*Math.min(Math.abs(d),240)*.0035),e.clientX,e.clientY)}   // 마우스 휠 = 커서 기준 확대
+  else{TX-=e.deltaX;TY-=e.deltaY}},{passive:false});   // 트랙패드 두 손가락 = 이동
 let drag=null,last=null;
 vp.addEventListener('pointerdown',e=>{drag={x:e.clientX,y:e.clientY};last={x:e.clientX,y:e.clientY,t:performance.now()};vx=vy=0;vp.classList.add('drag');vp.setPointerCapture(e.pointerId)});
 vp.addEventListener('pointermove',e=>{if(drag){const dx=e.clientX-last.x,dy=e.clientY-last.y;TX+=dx;TY+=dy;tx+=dx;ty+=dy;vx=dx;vy=dy;last={x:e.clientX,y:e.clientY,t:performance.now()};tip.style.display='none';return}

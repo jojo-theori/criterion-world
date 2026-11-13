@@ -516,12 +516,17 @@ TROPES = ROOT / "data" / "analysis" / "tropes.json"
 FACES = ROOT / "data" / "analysis" / "faces.json"
 PERSON_LABELS = {"person", "silhouette of a person", "couple embracing", "child"}
 TROPE_ORDER = {   # build_tropes.py FAMILIES 와 같은 순서
-    "people": ["Crowd", "Couple", "Talking heads", "Big face", "Lone figure", "Figures", "Some human", "No one"],
+    "people": ["3+", "Two", "One", "No-face", "Ambiguous", "None"],          # People v2(묘사 판정, people_v2.json)
     "type": ["Type only", "Big centered title", "Big title", "Quiet type", "Title on top", "Title in the middle", "Title at the bottom"],
     "composition": ["Grid / collage", "Symmetric", "Off-center subject", "Silhouette", "Busy frame", "Close crop",
                     "Single object", "Open space", "Diagonal", "Wide scene"],
-    "medium": ["Photo", "Illustration", "Painting", "Graphic", "Typographic"],
+    "medium": ["Photo", "Painting", "Drawing", "Print", "Collage", "Graphic", "Other"],   # 묘사 Medium 줄(medium_v2.json)
 }
+# 묘사 기반 판정·지도(2026-11-13). 파일이 있으면 tropes 의 people·medium 을 덮어쓰고, 지도는 묘사 그 줄의 임베딩으로 그린다
+PEOPLE_V2 = ROOT / "data" / "analysis" / "people_v2.json"
+MEDIUM_V2 = ROOT / "data" / "analysis" / "medium_v2.json"
+CAPTION_EMB = {"people": ROOT / "data" / "analysis" / "embed" / "gemma2-cap-people.npz",
+               "medium": ROOT / "data" / "analysis" / "embed" / "gemma2-cap-medium.npz"}
 TROPE_SUB = {"people": "medium", "type": "medium", "composition": "medium", "medium": "people"}   # 큰 범주를 나눌 두 번째 말
 COUNTRY_FIX = {"Austrailia": "Australia", "Angolia": "Angola", "Bengladesh": "Bangladesh", "Republic of Macedonia": "North Macedonia"}
 REGION = {   # 나라 → 지역(줄 묶음). 순서가 줄 순서
@@ -1409,7 +1414,28 @@ def free_layouts(items: list[dict], tropes: dict, look: dict[int, np.ndarray], u
         "medium": ([*[zc(k) for k in ("Photo", "Illustration", "Painting", "Graphic", "Typographic")], col("ink"), col("gray")],
                    [("strokes", 8), ("dino", 8), ("siglip_art", 6)]),
     }
+    def caption_map(fam: str):
+        """묘사 그 줄의 임베딩(EmbeddingGemma 2)을 UMAP 으로 펼친 지도. 파일이 없으면 None"""
+        p = CAPTION_EMB.get(fam)
+        if not p or not p.exists():
+            return None
+        d = np.load(p, allow_pickle=True)
+        idx = {str(f): k for k, f in enumerate(d["files"])}
+        if not all(items[i]["file"] in idx for i in ids):
+            return None
+        V = d["vectors"].astype(np.float32)[[idx[items[i]["file"]] for i in ids]]
+        u = umap.UMAP(n_neighbors=20, min_dist=0.35, metric="cosine", random_state=0).fit_transform(V)
+        u = (u - u.mean(0)) / (u.std(0) + 1e-9)
+        span = u.max(0) - u.min(0)
+        u = u / span * np.array([1.5, 1.0])
+        return u * np.sqrt(len(ids) * CELL_X * CELL_Y * 1.6 / 1.5)
+
     for fam, (cols, vecs) in spec.items():
+        if fam == "medium" and (cu := caption_map("medium")) is not None:
+            pos, size = relax(ids, cu)
+            groups = {c: [i for i in ids if tropes[items[i]["file"]].get(fam) == c] for c in TROPE_ORDER[fam] if c != "Other"}
+            out[fam] = (pos, size, [], "", {"regions": partition_regions(pos, groups)})
+            continue
         X = np.stack(cols, 1)
         for name, k in vecs:
             if ax.get(name):
@@ -1428,41 +1454,50 @@ def free_layouts(items: list[dict], tropes: dict, look: dict[int, np.ndarray], u
         regs = partition_regions(pos, groups)
         out[fam] = (pos, size, [], "", {"regions": regs})
 
-    # People 은 뜻이 분명한 두 좌표로: 가로 = 사람 수(로그), 세로 = 사람이 화면을 차지하는 비율(위로 클수록).
-    # 같은 값끼리는 겉모습 지도 순으로 조금 흩어 둔다. 딱 두 사람이 적당히 큰 자리에 Couple 영역(배경 네모)을 둔다
-    cnt = np.array([max(f.get("faces", 0) or 0, f.get("persons", 0) or 0) for f in F], float)
-    occ = np.array([min(1.0, max(f.get("person_max", 0) or 0, 2.5 * (f.get("face_max", 0) or 0), 2 * (f.get("face_sum", 0) or 0))) for f in F])
-    # 검출기가 놓친 꽉 찬 얼굴·사람: 판정이 사람 쪽이면 최소 한 명, SigLIP 클로즈업 점수만큼 크게
-    cat = [tropes[items[i]["file"]].get("people") for i in ids]
-    zf = np.array([z.get("face_close", 0.0) for z in Z])
-    cnt = np.where((cnt == 0) & np.isin(cat, ["Big face", "Lone figure", "Figures", "Couple", "Talking heads", "Crowd"]), 1, cnt)
-    occ = np.where(np.array(cat) == "Big face", np.maximum(occ, np.clip(0.35 + 0.4 * zf, 0.35, 1.0)), occ)
-    # 사람이 고른 사람 수(data/labels/people.json → tropes 의 human)가 있으면 그 수를 쓴다
-    HUMAN_N = {"none": 0, "animal": 0, "some": 0.6, "one": 1, "two": 2}
-    hl = [tropes[items[i]["file"]].get("human") for i in ids]
-    cnt = np.array([HUMAN_N[h] if h in HUMAN_N else (max(c, 5) if h == "many" else c) for h, c in zip(hl, cnt)], float)
-    XMAX = np.log1p(max(cnt.max(), 12))                 # 12 명에서 자르지 않는다
-    xn = np.log1p(cnt) / XMAX
-    yn = np.sqrt(occ)
-    jit = np.array([u_look.get(i, (0.5, 0.5)) for i in ids]); jit = (jit - jit.mean(0)) / (jit.std(0) + 1e-9)
-    # 느슨한 축: 사람 수·비율은 방향만, 실제 자리는 얼굴·사람 신호 전체 + 겉모습이 비슷한 것끼리
-    Xp = np.stack(spec["people"][0], 1)
-    Xp = np.concatenate([Xp, 0.6 * pca(ax.get("siglip_art") or look, ids, 6)], 1)   # 겉모습은 글자를 지운 그림으로
-    Xp = np.clip((Xp - Xp.mean(0)) / (Xp.std(0) + 1e-9), -3, 3)
-    P2 = soft_axes(Xp, np.stack([xn, yn], 1), pull=0.5)   # 사람 수·크기 쪽으로 반쯤 붙잡는다
-    span = P2.max(0) - P2.min(0)
+    cu = caption_map("people")
+    if cu is not None:
+        # People v2: 묘사의 People 줄 임베딩 지도. 사람 없음 → 애매함·얼굴 없음 → 한 명 → 두 명 → 여럿이 이어진다
+        pos, size = relax(ids, cu)
+        pcat = lambda i: tropes[items[i]["file"]].get("people")
+        regions = partition_regions(pos, {c: [i for i in ids if pcat(i) == c] for c in TROPE_ORDER["people"]})
+        out["people"] = (pos, size, [], "", {"regions": regions})
     Wv = np.sqrt(len(ids) * CELL_X * CELL_Y * 1.9 * 1.7); Hv = Wv / 1.7
-    tg = np.stack([(P2[:, 0] - P2[:, 0].min()) / span[0] * Wv, (1 - (P2[:, 1] - P2[:, 1].min()) / span[1]) * Hv], 1)
-    pos, size = relax(ids, tg)
-    labels = []   # 축이 느슨해 눈금은 두지 않는다(방향만 축 이름으로)
-    cp = np.array([pos[i] for i in ids if tropes[items[i]["file"]].get("people") == "Couple"], float)
-    pcat = lambda i: tropes[items[i]["file"]].get("people")
-    regions = partition_regions(pos, {"No people": [i for i in ids if pcat(i) == "No one"],
-                                      "One big face": [i for i in ids if pcat(i) == "Big face"],
-                                      "Couples": [i for i in ids if pcat(i) == "Couple"],
-                                      "Crowd": [i for i in ids if pcat(i) == "Crowd"],
-                                      "Some human": [i for i in ids if pcat(i) == "Some human"]})   # Couple 은 따로 두지 않는다(사용자: 억지스럽다)
-    out["people"] = (pos, size, labels, "", {"axes": ["More people", "Larger in the frame"], "regions": regions})
+    if cu is None:
+        # (묘사가 없을 때) People 은 뜻이 분명한 두 좌표로: 가로 = 사람 수(로그), 세로 = 사람이 화면을 차지하는 비율(위로 클수록).
+        # 같은 값끼리는 겉모습 지도 순으로 조금 흩어 둔다. 딱 두 사람이 적당히 큰 자리에 Couple 영역(배경 네모)을 둔다
+        cnt = np.array([max(f.get("faces", 0) or 0, f.get("persons", 0) or 0) for f in F], float)
+        occ = np.array([min(1.0, max(f.get("person_max", 0) or 0, 2.5 * (f.get("face_max", 0) or 0), 2 * (f.get("face_sum", 0) or 0))) for f in F])
+        # 검출기가 놓친 꽉 찬 얼굴·사람: 판정이 사람 쪽이면 최소 한 명, SigLIP 클로즈업 점수만큼 크게
+        cat = [tropes[items[i]["file"]].get("people") for i in ids]
+        zf = np.array([z.get("face_close", 0.0) for z in Z])
+        cnt = np.where((cnt == 0) & np.isin(cat, ["Big face", "Lone figure", "Figures", "Couple", "Talking heads", "Crowd"]), 1, cnt)
+        occ = np.where(np.array(cat) == "Big face", np.maximum(occ, np.clip(0.35 + 0.4 * zf, 0.35, 1.0)), occ)
+        # 사람이 고른 사람 수(data/labels/people.json → tropes 의 human)가 있으면 그 수를 쓴다
+        HUMAN_N = {"none": 0, "animal": 0, "some": 0.6, "one": 1, "two": 2}
+        hl = [tropes[items[i]["file"]].get("human") for i in ids]
+        cnt = np.array([HUMAN_N[h] if h in HUMAN_N else (max(c, 5) if h == "many" else c) for h, c in zip(hl, cnt)], float)
+        XMAX = np.log1p(max(cnt.max(), 12))                 # 12 명에서 자르지 않는다
+        xn = np.log1p(cnt) / XMAX
+        yn = np.sqrt(occ)
+        jit = np.array([u_look.get(i, (0.5, 0.5)) for i in ids]); jit = (jit - jit.mean(0)) / (jit.std(0) + 1e-9)
+        # 느슨한 축: 사람 수·비율은 방향만, 실제 자리는 얼굴·사람 신호 전체 + 겉모습이 비슷한 것끼리
+        Xp = np.stack(spec["people"][0], 1)
+        Xp = np.concatenate([Xp, 0.6 * pca(ax.get("siglip_art") or look, ids, 6)], 1)   # 겉모습은 글자를 지운 그림으로
+        Xp = np.clip((Xp - Xp.mean(0)) / (Xp.std(0) + 1e-9), -3, 3)
+        P2 = soft_axes(Xp, np.stack([xn, yn], 1), pull=0.5)   # 사람 수·크기 쪽으로 반쯤 붙잡는다
+        span = P2.max(0) - P2.min(0)
+        Wv = np.sqrt(len(ids) * CELL_X * CELL_Y * 1.9 * 1.7); Hv = Wv / 1.7
+        tg = np.stack([(P2[:, 0] - P2[:, 0].min()) / span[0] * Wv, (1 - (P2[:, 1] - P2[:, 1].min()) / span[1]) * Hv], 1)
+        pos, size = relax(ids, tg)
+        labels = []   # 축이 느슨해 눈금은 두지 않는다(방향만 축 이름으로)
+        cp = np.array([pos[i] for i in ids if tropes[items[i]["file"]].get("people") == "Couple"], float)
+        pcat = lambda i: tropes[items[i]["file"]].get("people")
+        regions = partition_regions(pos, {"No people": [i for i in ids if pcat(i) == "No one"],
+                                          "One big face": [i for i in ids if pcat(i) == "Big face"],
+                                          "Couples": [i for i in ids if pcat(i) == "Couple"],
+                                          "Crowd": [i for i in ids if pcat(i) == "Crowd"],
+                                          "Some human": [i for i in ids if pcat(i) == "Some human"]})   # Couple 은 따로 두지 않는다(사용자: 억지스럽다)
+        out["people"] = (pos, size, labels, "", {"axes": ["More people", "Larger in the frame"], "regions": regions})
 
     # Type: 느슨한 축(가로 = 제목이 아래로, 세로 = 글자가 클수록 위) + 기울기·글자 분포·겉모습으로 뭉친다
     deg = np.array([TEXT_TILT.get(i, 0.0) for i in ids])
@@ -1513,6 +1548,16 @@ def main() -> None:
     objects = json.loads(OBJECTS.read_text()) if OBJECTS.exists() else {}
     faces = json.loads(FACES.read_text()) if FACES.exists() else {}
     tropes = json.loads(TROPES.read_text()) if TROPES.exists() else {}
+    if PEOPLE_V2.exists():
+        pv2 = json.loads(PEOPLE_V2.read_text())
+        for f, r in pv2.items():
+            if f in tropes:
+                tropes[f]["people_old"] = tropes[f].get("people")
+                tropes[f]["people"] = r["cat"]
+    if MEDIUM_V2.exists():
+        for f, c in json.loads(MEDIUM_V2.read_text()).items():
+            if f in tropes:
+                tropes[f]["medium"] = c
     obj_raw: dict[int, list] = {}
 
     items, hue, traces = [], [], []
