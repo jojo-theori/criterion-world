@@ -27,6 +27,7 @@
 - 박스 세트도 포함한다(2026-11-12 사용자: "박스팩 다 포함해", 이전 결정 '박스 세트 수록작은 뺀다'를 뒤집음). DB 에 kind(film/box)와 box_set 열. 박스 수록 영화(자기 spine 있는 것) + 박스 자체(spine). spine 없이 박스에만 든 영화(Wikipedia 두 번째 박스 표, 약 128행)는 아직 안 넣었다.
 - 텍스트 영역에는 크라이테리온 세로 띠, 상단 띠 글자도 포함한다(디자인이 시기마다 달라서).
 - 무료 오픈 모델만 쓴다. 분석은 로컬에서 일괄 처리해 JSON 으로 저장하고, 웹은 그 데이터를 읽기만 한다.
+  예외(2026-11-13 사용자): 커버 묘사(8줄 캡션)는 Claude Sonnet(구독 에이전트)으로 만든다 → data/analysis/captions_sonnet_v3.json. 로컬 Qwen3-VL-8B 는 매체·글자 묘사가 자주 틀려서 뺐다. 에이전트에 준 지시문은 scripts/caption_prompt.txt.
 - 저작권: 고해상도 원본(posters/)과 레퍼런스 사진은 공개 레포·서버에 올리지 않는다. 뷰어용 커버(web/large 480px, thumbs, 아틀라스)는 2026-11-12 사용자 결정으로 일단 공개(ccw.umjo.me), 장기적으로 다시 고민한다. 메인 화면은 기계가 추출한 흔적(팔레트, 영역, 선)으로 구성하는 방향이 리스크와 컨셉 양쪽에 맞다고 논의됨.
 
 ## 현재 상태 (2026-11-11)
@@ -106,6 +107,18 @@
 - Composition 재설계(2026-11-12 밤, 이 Mac 에서 원본 1,344편): Other 630편을 보고 범주를 사람이 쓰는 구도 말로 늘렸다. Grid / collage 119 · Symmetric 77 · Off-center subject 281(가장 큰 얼굴·사람 상자 중심이 가운데에서 0.17 넘게) · Silhouette 114 · Busy frame 111 · Close crop 214 · Single object 104 · Open space 87 · Diagonal 94 · Wide scene 143. Other 는 없앴다(기하 규칙이 안 걸리면 SigLIP 구도 문장 z-점수 최고 범주). 육안: Close crop·Wide scene 좋음, Silhouette 대체로, Busy frame 은 '반복 패턴'보다 '빽빽한 화면', Off-center 에 여러 인물 장면이 섞임. Full-bleed image 는 뺐다(구도 말이 아님). 사용자 확인 대기(out/tropes/index.html).
 - 나라 축(사용자 제안, 메타 묶음: Spine · Year · Country): 격자는 세계 지도처럼 나라 자리에 커버를 모아 지역이 덩어리로 보이게, 세 폭 보기 순회는 지역 줄(East Asia, South Asia, Western Europe, Nordic, Eastern Europe, Africa, Middle East, Latin America, North America, Oceania …) 안에서 나라 → 연도 순. 격자 xy 로 움직이지 않는다(사용자: "지역 그룹별로 순회해야지 지도를 xy좌표로 움직이는 방식으로 작동하면 안되거든"). 지금 구조(격자 = c.g, 순회 = META.rings 범주 줄)가 이미 그렇다. 미국 533편은 시대별 줄로 나눌 것. 공동 제작은 첫 번째 나라.
 - 이름: The Criterion Collection World(CCW)(2026-11-12 사용자, 이전 Criterion World). 화면 title·로딩·크레딧·og 를 바꿨고 GitHub 레포도 ccw 로 바꿨다(옛 주소는 GitHub 가 넘겨준다). 주소는 ccw.umjo.me(옛 cc.umjo.me 는 Worker 에 그대로 붙어 있고 index.html 맨 앞 스크립트가 새 주소로 넘긴다). Cloudflare Worker 이름 criterion-world 는 그대로.
+
+## 묘사·축별 임베딩(ccw-embeddings 브랜치, 2026-11-13)
+
+사용자 방향: 커버를 글로 자세히 묘사하고, 그 글을 임베딩해 범주 판정과 지도에 쓴다. 판단은 숫자보다 경향으로(사람 라벨에도 실수가 있다).
+
+- 묘사(data/analysis/captions_sonnet_v3.json, 1,344편, 레포에 올림): 원본 커버를 Sonnet 에이전트가 보고 여덟 줄을 쓴다(People, Composition, Medium, Typography, Color and light, Story it suggests, Visual idea, Feels like). 커버의 글자는 단서로 읽어도 되지만 영화 지식은 쓰지 않는다. 지시문 scripts/caption_prompt.txt, 30장씩 나눈 목록을 에이전트 여러 개에 주고 scripts/merge_captions.py 로 합친다. 장당 약 5,800 토큰, 전체 약 700만. 에이전트가 파일 이름 철자를 '고쳐' 쓰는 일이 있다(0250, 0791, 0832) → 합친 뒤 posters/ 와 키를 대조할 것. Visual idea·Feels like 는 만들되 아직 임베딩에 쓰지 않는다.
+- 임베딩: EmbeddingGemma 2(google/embeddinggemma-2, 768d). scripts/embed_gemma.py(이미지·방향 문장), scripts/embed_captions.py(묘사 글: 전체 cap-all, 한 줄씩 cap-people/composition/medium/typography/color, 글+이미지 cap-img). 글은 "title: none | text: …", 범주 문장은 "task: classification | query: …".
+- 평가(사람 People 라벨 545편, scripts/eval_captions.py --all): probe(선형 분류 균형 정확도)·문장 검색 p@30 — Gemma 이미지 .66·.47, 묘사 전체 .74·.67, People 줄만 .78·.48(예시 검색은 .55 로 최고), 묘사+이미지 .71·.63. 이미지를 더해도 People 에는 도움이 안 된다. 방향 문장(이미지 앞에 붙이는 글, scripts/steer_sweep.py) 6개는 모두 이미지만보다 낮아 그만뒀다.
+- 지도(scripts/preview_maps.py → out/gemma/maps.html, 겹침 없는 격자 + 확대·이동): 축마다 그 줄만 임베딩한 지도가 그 축으로 가장 잘 모인다. 이웃 8칸 같은 범주 비율 — People 줄 .65(무작위 .24), Medium 줄 .73(무작위 .35, 사진 · 콜라주 · 회화 · 그래픽·판화·드로잉이 덩어리로), Composition 줄 .26(무작위 .17), Typography 줄 .25(.17). Composition·Type 의 색칠 범주는 낱말 규칙이라 엉성하다 → Sonnet 이 글만 읽고 판정하게 한 뒤 다시 볼 것. Color 축은 기존 색상 × 명도 격자가 낫다.
+- People v2(scripts/people_v2.py → data/analysis/people_v2.json, 레포에 올림): None · No-face · One · Two · 3+ · Ambiguous. 사용자와 정한 기준: 그림이든 사진이든 사람이면 센다, 얼굴이 하나라도 보이면 얼굴 보이는 사람 수, 사람이 분명한데 얼굴이 전혀 없으면 No-face(뒷모습, 손·다리만), 사람인지부터 불분명하면 Ambiguous(조각상, 마네킹, 인형, 가면, 그림자, 이유는 reason), 같은 인물이 여러 번 나오면 보이는 수대로(세 번 이상 3+) + repeated 태그, 동물만 있으면 None + animal 태그. 먼저 Sonnet 이 People 줄 글만 읽고 none/animal/some/one/two/many 로 판정(data/analysis/people_from_captions.json, 로컬)하고, 토큰 없이 낱말 규칙으로 v2 로 옮겼다. 결과 One 423 · 3+ 396 · Two 267 · None 134 · No-face 70 · Ambiguous 54.
+  - 사람 라벨과의 일치: 옛 범주 83%(애매함 없는 것 91%, 기존 검출기 판정은 52%). 사용자: 모델이 사람 라벨보다 맞게 본 사례가 꽤 많다. 그래서 묘사 판정을 기본으로 하고 사람 라벨은 사용자가 확인한 것만 덮어쓰기로. v2 기준으로는 76.9%(차이 대부분은 기준 변화: 예전에 뒷모습을 One 으로 라벨). 엇갈린 커버는 scripts/review_people.py → out/gemma/people_review.html.
+- 다음: (1) People(v2 범주 + People 줄 지도)·Medium(Medium 줄 지도)을 build_web.py 에 적용, (2) Composition·Type 범주를 Sonnet 이 글만 읽고 판정(축당 30만 토큰 안팎, 범주 목록은 사용자 확인), (3) 사람 라벨 덮어쓰기 목록 받기.
 
 ## 다음 할 일
 

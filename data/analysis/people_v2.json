@@ -1,0 +1,9955 @@
+{
+"0001_grand-illusion.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0002_seven-samurai.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0003_the-lady-vanishes.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0004_amarcord.jpg": {
+"cat": "3+",
+"n": 5,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0005_the-400-blows.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0006_beauty-and-the-beast.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0007_a-night-to-remember.jpg": {
+"cat": "3+",
+"n": 30,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"0008_the-killer.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0009_hard-boiled.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0010_walkabout.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0011_the-seventh-seal.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0012_this-is-spinal-tap.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"0013_the-silence-of-the-lambs.jpg": {
+"cat": "Ambiguous",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "skeleton",
+"human": "None"
+},
+"0014_samurai-i-musashi-miyamoto.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0015_samurai-ii-duel-at-ichijoji-temple.jpg": {
+"cat": "3+",
+"n": 15,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"0016_samurai-iii-duel-at-ganryu-island.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0017_salo-or-the-120-days-of-sodom.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0018_the-naked-kiss.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0019_shock-corridor.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"0020_sid-nancy.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0021_dead-ringers.jpg": {
+"cat": "Ambiguous",
+"n": 1,
+"repeated": true,
+"animal": false,
+"reason": "ghost",
+"human": "Two"
+},
+"0022_summertime.jpg": {
+"cat": "3+",
+"n": 4,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0023_robocop.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0024_high-and-low.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0025_alphaville.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "No-face"
+},
+"0026_the-long-good-friday.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0027_flesh-for-frankenstein.jpg": {
+"cat": "3+",
+"n": 5,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0028_blood-for-dracula.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0029_picnic-at-hanging-rock.jpg": {
+"cat": "3+",
+"n": 8,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0030_m.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"0031_great-expectations.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0032_oliver-twist.jpg": {
+"cat": "3+",
+"n": 4,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0033_nanook-of-the-north.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0034_andrei-rublev.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0035_diabolique.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "No-face"
+},
+"0036_the-wages-for-fear.jpg": {
+"cat": "No-face",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "no face visible",
+"human": "None"
+},
+"0037_time-bandits.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0038_branded-to-kill.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0039_tokyo-drifter.jpg": {
+"cat": "3+",
+"n": 1,
+"repeated": true,
+"animal": false,
+"reason": "same person repeated"
+},
+"0040_armageddon.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0041_henry-v.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0042_fishing-with-john.jpg": {
+"cat": "3+",
+"n": 5,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0043_lord-of-the-flies.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0044_the-red-shoes.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0045_taste-of-cherry.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0046_the-most-dangerous-game.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"0047_insomnia.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0048_black-orpheus.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0049_nights-of-cabiria.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0050_and-the-ship-sails-on.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0051_brazil.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0052_yojimbo.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0053_sanjuro.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0054_for-all-mankind.jpg": {
+"cat": "No-face",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "no face visible",
+"human": "One"
+},
+"0055_the-unbearable-lightness-of-being.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"0056_the-39-steps.jpg": {
+"cat": "3+",
+"n": 5,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"0057_charade.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"0058_peeping-tom.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0059_the-night-porter.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0060_autumn-sonata.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0061_monty-python-s-life-of-brian.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"0062_the-passion-of-joan-of-arc.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0063_carnival-of-souls.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0064_the-third-man.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0065_rushmore.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0066_the-orphic-trilogy.jpg": {
+"cat": "Ambiguous",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "statue",
+"human": "No-face"
+},
+"0067_the-blood-of-a-poet.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0068_orpheus.jpg": {
+"cat": "Ambiguous",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "ghost"
+},
+"0069_testament-of-orpheus.jpg": {
+"cat": "Ambiguous",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "statue,mask"
+},
+"0070_the-last-temptation-of-christ.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0071_the-magic-flute.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0072_le-million.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0073_cleo-from-5-to-7.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0074_vagabond.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0075_chasing-amy.jpg": {
+"cat": "3+",
+"n": 5,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0076_brief-encounter.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"0077_and-god-created-woman.jpg": {
+"cat": "3+",
+"n": 4,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0078_the-bank-dick.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0079_w-c-fields-six-short-films.jpg": {
+"cat": "No-face",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "no face visible"
+},
+"0080_the-element-of-crime.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0081_variety-lights.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0082_hamlet.jpg": {
+"cat": "Ambiguous",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "skeleton"
+},
+"0083_the-harder-they-come.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0084_good-morning.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"0085_pygmalion.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0086_eisenstein-the-sound-years.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0087_alexander-nevsky.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0088_ivan-the-terrible-part-i.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0089_sisters.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0090_kwaidan.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0091_the-blob.jpg": {
+"cat": "3+",
+"n": 6,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0092_fiend-without-a-face.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0093_black-narcissus.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0094_i-know-where-i-m-going.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0095_all-that-heaven-allows.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0096_written-on-the-wind.jpg": {
+"cat": "3+",
+"n": 4,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0097_do-the-right-thing.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0098_l-avventura.jpg": {
+"cat": "No-face",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "no face visible",
+"human": "One"
+},
+"0099_gimme-shelter.jpg": {
+"cat": "3+",
+"n": 20,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0100_beastie-boys-video-anthology.jpg": {
+"cat": "3+",
+"n": 20,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0101_cries-and-whispers.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0102_the-discreet-charm-of-the-bourgeoisie.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "No-face"
+},
+"0103_the-lady-eve.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0104_double-suicide.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0105_spartacus.jpg": {
+"cat": "No-face",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "body part",
+"human": "No-face"
+},
+"0106_coup-de-torchon.jpg": {
+"cat": "3+",
+"n": 4,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"0107_mona-lisa.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"0108_the-rock.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0109_the-scarlet-empress.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0110_monsieur-hulot-s-holiday.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0111_mon-oncle.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0112_playtime.jpg": {
+"cat": "3+",
+"n": 20,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0113_big-deal-on-madonna-street.jpg": {
+"cat": "3+",
+"n": 4,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0114_my-man-godfrey.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0115_rififi.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "No-face"
+},
+"0116_the-hidden-fortress.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0117_diary-of-a-chambermaid.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0118_sullivan-s-travels.jpg": {
+"cat": "3+",
+"n": 8,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0119_withnail-and-i.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0120_how-to-get-ahead-in-advertising.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0121_billy-liar.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"0122_salesman.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0123_grey-gardens.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0124_carl-theodor-dreyer.jpg": {
+"cat": "3+",
+"n": 4,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0125_day-of-wrath.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0126_ordet.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"0127_gertrud.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0128_carl-th-dreyer-my-metier.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0129_le-trou.jpg": {
+"cat": "3+",
+"n": 4,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0130_the-shop-on-main-street.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0131_closely-watched-trains.jpg": {
+"cat": "No-face",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "no face visible"
+},
+"0132_the-ruling-class.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0133_the-vanishing.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0134_haxan.jpg": {
+"cat": "Ambiguous",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "mask"
+},
+"0135_rebecca.jpg": {
+"cat": "No-face",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "no face visible",
+"human": "One"
+},
+"0136_spellbound.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0137_notorious.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0138_rashomon.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": true,
+"animal": false,
+"reason": ""
+},
+"0139_wild-strawberries.jpg": {
+"cat": "Ambiguous",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "ghost"
+},
+"0140_812.jpg": {
+"cat": "3+",
+"n": 4,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0141_children-of-paradise.jpg": {
+"cat": "Ambiguous",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "statue",
+"human": "No-face"
+},
+"0142_the-last-wave.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0143_that-obscure-object-of-desire.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0144_loves-of-a-blonde.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0145_the-firemen-s-ball.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0146_the-cranes-are-flying.jpg": {
+"cat": "3+",
+"n": 6,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0147_in-the-mood-for-love.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0148_ballad-of-a-soldier.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"0149_juliet-of-the-spirits.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0150_bob-le-flambeur.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0151_traffic.jpg": {
+"cat": "Ambiguous",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "mask",
+"human": "One"
+},
+"0152_george-washington.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0153_general-idi-amin-dada-a-self-portrait.jpg": {
+"cat": "3+",
+"n": 20,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"0154_the-horse-s-mouth.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0155_tokyo-olympiad.jpg": {
+"cat": "3+",
+"n": 7,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"0156_hearts-and-minds.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"0157_the-royal-tenenbaums.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0158_the-importance-of-being-earnest.jpg": {
+"cat": "3+",
+"n": 6,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"0159_red-beard.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0160_a-nous-la-liberte.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0161_under-the-roofs-of-paris.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0162_ratcatcher.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0163_hopscotch.jpg": {
+"cat": "3+",
+"n": 6,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0164_solaris.jpg": {
+"cat": "Ambiguous",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "ghost",
+"human": "One"
+},
+"0165_man-bites-dog.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0166_down-by-law.jpg": {
+"cat": "3+",
+"n": 6,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0167_the-complete-monterey-pop-festival.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0168_monterey-pop.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0169_jimi-plays-monterey-shake-otis-at-monterey.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0170_trouble-in-paradise.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"0171_contempt.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0172_pepe-le-moko.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0173_the-life-and-death-of-colonel-blimp.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "No-face"
+},
+"0174_band-of-outsiders.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"0175_fear-and-loathing-in-las-vegas.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"0176_the-killers.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"0177_the-lost-honor-of-katharina-blum.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0178_my-life-as-a-dog.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0179_i-am-curious.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0180_i-am-curious-yellow.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0181_i-am-curious-blue.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0182_straw-dogs.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0183_les-dames-du-bois-de-boulogne.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0184_by-brakhage-an-anthology-volume-one.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0185_the-adventures-of-antoine-doinel.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0186_stolen-kisses.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0187_bed-and-board.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0188_love-on-the-run.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0189_the-white-sheik.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0190_throne-of-blood.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0191_jubilee.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0192_coup-de-grace.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0193_quai-des-orfevres.jpg": {
+"cat": "3+",
+"n": 4,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0194_il-posto.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"0195_i-fidanzati.jpg": {
+"cat": "3+",
+"n": 7,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"0196_hiroshima-mon-amour.jpg": {
+"cat": "No-face",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "body part",
+"human": "None"
+},
+"0197_night-and-fog.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0198_ali-fear-eats-the-soul.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"0199_schizopolis.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0200_the-honeymoon-killers.jpg": {
+"cat": "3+",
+"n": 5,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"0201_umberto-d.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0202_indiscretion-of-an-american-wife.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"0203_the-brd-trilogy.jpg": {
+"cat": "No-face",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "body part",
+"human": "No-face"
+},
+"0204_the-marriage-of-maria-braun.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0205_veronika-voss.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0206_lola.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0207_the-pornographers.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0208_a-film-trilogy-by-ingmar-bergman.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": true,
+"reason": "",
+"human": "None"
+},
+"0209_through-a-glass-darkly.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0210_winter-light.jpg": {
+"cat": "Ambiguous",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "shadow",
+"human": "One"
+},
+"0211_the-silence.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0212_ingmar-bergman-makes-a-movie.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0213_richard-iii.jpg": {
+"cat": "3+",
+"n": 5,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "No-face"
+},
+"0214_all-that-money-can-buy-a-k-a-the-devil-and-daniel-webster.jpg": {
+"cat": "Ambiguous",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "shadow",
+"human": "One"
+},
+"0215_knife-in-the-water.jpg": {
+"cat": "Ambiguous",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "shadow"
+},
+"0216_the-rules-of-the-game.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0217_tokyo-story.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0218_le-cercle-rouge.jpg": {
+"cat": "3+",
+"n": 4,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "No-face"
+},
+"0219_la-strada.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0220_naked-lunch.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0221_ikiru.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0222_diary-of-a-country-priest.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0223_maitresse.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0224_pickup-on-south-street.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0225_tunes-of-glory.jpg": {
+"cat": "3+",
+"n": 5,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0226_onibaba.jpg": {
+"cat": "Ambiguous",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "mask",
+"human": "No-face"
+},
+"0227_le-corbeau.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": true,
+"reason": "",
+"human": "None"
+},
+"0228_salvatore-giuliano.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0229_scenes-from-a-marriage.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0230_3-women.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0231_the-testament-of-dr-mabuse.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0232_floating-weeds.jpg": {
+"cat": "3+",
+"n": 4,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0233_stray-dog.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"0234_the-tin-drum.jpg": {
+"cat": "Ambiguous",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "skeleton"
+},
+"0235_the-leopard.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0236_mamma-roma.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0237_smiles-of-a-summer-night.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0238_a-woman-is-a-woman.jpg": {
+"cat": "3+",
+"n": 12,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"0239_the-lower-depths.jpg": {
+"cat": "3+",
+"n": 5,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0240_early-summer.jpg": {
+"cat": "3+",
+"n": 7,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0241_stage-and-spectacle-three-films-by-jean-renoir.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0242_the-golden-coach.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0243_french-cancan.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0244_elena-and-her-men.jpg": {
+"cat": "3+",
+"n": 4,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0245_port-of-shadows.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"0246_i-vitelloni.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0247_slacker.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0248_videodrome.jpg": {
+"cat": "No-face",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "no face visible"
+},
+"0249_the-battle-of-algiers.jpg": {
+"cat": "3+",
+"n": 10,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0250_john-cassavettes-five-films.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0251_shadows.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"0252_faces.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0253_a-woman-under-the-influence.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0254_the-killing-of-a-chinese-bookie.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "No-face"
+},
+"0255_opening-night.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0256_a-constant-forge.jpg": {
+"cat": "3+",
+"n": 1,
+"repeated": true,
+"animal": false,
+"reason": "same person repeated"
+},
+"0257_secret-honor.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0258_tanner-88.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0259_fat-girl.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0260_eyes-without-a-face.jpg": {
+"cat": "Ambiguous",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "mask"
+},
+"0261_fanny-and-alexander.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0262_fanny-and-alexander-theatrical-version.jpg": {
+"cat": "Ambiguous",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "ghost"
+},
+"0263_fanny-and-alexander-television-version.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0264_the-making-of-fanny-and-alexander.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0265_short-cuts.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0266_the-king-of-kings.jpg": {
+"cat": "No-face",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "no face visible",
+"human": "One"
+},
+"0267_kagemusha.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"0268_youth-of-the-beast.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0269_fighting-elegy.jpg": {
+"cat": "3+",
+"n": 10,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0270_casque-d-or.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0271_touchez-pas-au-grisbi.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0272_la-commare-secca.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0273_thieves-highway.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0274_night-and-the-city.jpg": {
+"cat": "3+",
+"n": 5,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"0275_tout-va-bien.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0276_the-river.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0277_my-own-private-idaho.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0278_l-eclisse.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0279_young-torless.jpg": {
+"cat": "3+",
+"n": 4,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0280_the-sword-of-doom.jpg": {
+"cat": "3+",
+"n": 4,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"0281_jules-and-jim.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0282_andrzej-wajda-three-war-films.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0283_a-generation.jpg": {
+"cat": "3+",
+"n": 5,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"0284_kanal.jpg": {
+"cat": "No-face",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "body part",
+"human": "No-face"
+},
+"0285_ashes-and-diamonds.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0286_divorce-italian-style.jpg": {
+"cat": "3+",
+"n": 6,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0287_burden-of-dreams.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0288_f-for-fake.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0289_hoop-dreams.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0290_the-phantom-of-liberty.jpg": {
+"cat": "Ambiguous",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "statue",
+"human": "No-face"
+},
+"0291_heaven-can-wait.jpg": {
+"cat": "3+",
+"n": 7,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0292_unfaithfully-yours.jpg": {
+"cat": "3+",
+"n": 5,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0293_the-flowers-of-st-francis.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0294_the-browning-version.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0295_crazed-fruit.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0296_le-notti-bianche.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0297_au-hasard-balthazar.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0298_gate-of-flesh.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0299_story-of-a-prostitute.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0300_the-life-aquatic-with-steve-zissou.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0301_an-angel-at-my-table.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0302_harikari.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0303_bad-timing.jpg": {
+"cat": "Ambiguous",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "ghost"
+},
+"0304_the-man-who-fell-to-earth.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0305_boudu-saved-from-drowning.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0306_le-samourai.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0307_naked.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0308_masculin-feminin.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0309_ugetsu.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0310_samurai-rebellion.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0311_sword-of-the-beast.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0312_samurai-spy.jpg": {
+"cat": "Ambiguous",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "mask"
+},
+"0313_kill.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0314_pickpocket.jpg": {
+"cat": "No-face",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "body part",
+"human": "No-face"
+},
+"0315_shoot-the-piano-player.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0316_ran.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0317_the-tales-of-hoffmann.jpg": {
+"cat": "3+",
+"n": 4,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"0318_forbidden-games.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0319_the-bad-sleep-well.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0320_young-mr-lincoln.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0321_the-virgin-spring.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0322_mr-arkadin.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0323_the-children-are-watching-us.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0324_la-bete-humaine.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0325_kind-hearts-and-coronets.jpg": {
+"cat": "3+",
+"n": 9,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0326_metropolitan.jpg": {
+"cat": "3+",
+"n": 5,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0327_3-films-by-louis-malle.jpg": {
+"cat": "3+",
+"n": 10,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0328_murmur-of-the-heart.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0329_lacombe-lucien.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0330_au-revoir-les-enfants.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0331_late-spring.jpg": {
+"cat": "3+",
+"n": 4,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0332_viridiana.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0333_fists-in-the-pocket.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0334_harlan-county-usa.jpg": {
+"cat": "3+",
+"n": 20,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"0335_elevator-to-the-gallows.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0336_dazed-and-confused.jpg": {
+"cat": "3+",
+"n": 9,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0337_a-nos-amours.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"0338_equinox.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"0339_yi-yi.jpg": {
+"cat": "No-face",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "no face visible",
+"human": "One"
+},
+"0340_koko-a-talking-gorilla.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": true,
+"reason": ""
+},
+"0341_a-canterbury-tale.jpg": {
+"cat": "3+",
+"n": 5,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0342_six-moral-tales.jpg": {
+"cat": "3+",
+"n": 8,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"0343_the-bakery-girl-of-monceau.jpg": {
+"cat": "3+",
+"n": 4,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0344_suzanne-s-career.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0345_my-night-at-maud-s.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0346_la-collectionneuse.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0347_claire-s-knee.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0348_love-in-the-afternoon.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0349_kicking-and-screaming.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0350_seduced-and-abandoned.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0351_the-spirit-of-the-beehive.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0352_jigoku.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0353_solo-con-tu-pareja.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0354_clean-shaven.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0355_hands-over-the-city.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": true,
+"animal": false,
+"reason": ""
+},
+"0356_sweetie.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0357_the-fallen-idol.jpg": {
+"cat": "No-face",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "no face visible"
+},
+"0358_pandora-s-box.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0359_the-double-life-of-veronique.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0360_symbiopsychotaxiplasm-two-takes-by-william-greaves.jpg": {
+"cat": "3+",
+"n": 13,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0361_the-beales-of-grey-gardens.jpg": {
+"cat": "3+",
+"n": 5,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0362_border-radio.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0363_mouchette.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0364_monsters-and-madmen.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0365_first-man-into-space.jpg": {
+"cat": "3+",
+"n": 7,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0366_the-atomic-submarine.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": true,
+"reason": "",
+"human": "No-face"
+},
+"0367_the-haunted-strangler.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"0368_corridors-of-blood.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0369_paul-robeson-portraits-of-the-artist.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0370_the-emperor-jones.jpg": {
+"cat": "Ambiguous",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "shadow",
+"human": "One"
+},
+"0371_body-and-soul.jpg": {
+"cat": "No-face",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "no face visible"
+},
+"0372_sanders-of-the-river.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0373_the-proud-valley.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0374_bicycle-thieves.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0375_green-for-danger.jpg": {
+"cat": "3+",
+"n": 5,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0376_49th-parallel.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0377_when-a-woman-ascends-the-stairs.jpg": {
+"cat": "No-face",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "no face visible"
+},
+"0378_fires-on-the-plain.jpg": {
+"cat": "3+",
+"n": 5,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"0379_the-burmese-harp.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0380_the-naked-city.jpg": {
+"cat": "3+",
+"n": 10,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0381_la-haine.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"0382_overlord.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0383_brute-force.jpg": {
+"cat": "3+",
+"n": 30,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0384_vengence-is-mine.jpg": {
+"cat": "3+",
+"n": 4,
+"repeated": true,
+"animal": false,
+"reason": ""
+},
+"0385_army-of-shadows.jpg": {
+"cat": "No-face",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "no face visible",
+"human": "One"
+},
+"0386_sansho-the-bailiff.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"0387_la-jetee-sans-soleil.jpg": {
+"cat": "3+",
+"n": 6,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0388_the-two-of-us.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0389_wr-mysteries-of-the-organism.jpg": {
+"cat": "3+",
+"n": 12,
+"repeated": true,
+"animal": false,
+"reason": ""
+},
+"0390_sweet-movie.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0391_if.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0392_three-films-by-hiroshi-teshigahara.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0393_pitfall.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0394_woman-in-the-dunes.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0395_the-face-of-another.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0396_ace-in-the-hole.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0397_ivan-s-childhood.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0398_les-enfants-terribles.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0399_house-of-games.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0400_stranger-than-paradise.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0401_night-on-earth.jpg": {
+"cat": "3+",
+"n": 9,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0402_the-milky-way.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0403_cria-cuervos.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": true,
+"reason": "",
+"human": "None"
+},
+"0404_robinson-crusoe-on-mars.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0405_the-threepenny-opera.jpg": {
+"cat": "3+",
+"n": 6,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0406_martha-graham-dance-on-film.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0407_mala-noche.jpg": {
+"cat": "3+",
+"n": 1,
+"repeated": true,
+"animal": false,
+"reason": "same person repeated"
+},
+"0408_breathless.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0409_days-of-heaven.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "No-face"
+},
+"0410_under-the-volcano.jpg": {
+"cat": "Ambiguous",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "skeleton,ghost"
+},
+"0411_berlin-alexanderplantz.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0412_sawdust-and-tinsel.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0413_drunken-angel.jpg": {
+"cat": "Ambiguous",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "ghost",
+"human": "One"
+},
+"0414_two-lane-blacktop.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0415_the-naked-prey.jpg": {
+"cat": "3+",
+"n": 6,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0416_miss-julie.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0417_this-sporting-life.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0418_4-by-agnes-varda.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0419_la-pointe-courte.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0420_le-bonheur.jpg": {
+"cat": "3+",
+"n": 4,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"0421_pierrot-le-fou.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0422_the-last-emperor.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0423_walker.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0424_mafioso.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0425_antonio-gaudi.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0426_the-ice-storm.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0427_death-of-a-cyclist.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0428_blast-of-silence.jpg": {
+"cat": "Ambiguous",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "shadow",
+"human": "No-face"
+},
+"0429_the-lovers.jpg": {
+"cat": "No-face",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "body part",
+"human": "No-face"
+},
+"0430_the-fire-within.jpg": {
+"cat": "No-face",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "no face visible",
+"human": "One"
+},
+"0431_the-thief-of-bagdad.jpg": {
+"cat": "3+",
+"n": 5,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"0432_mishima-a-life-in-four-chapters.jpg": {
+"cat": "3+",
+"n": 12,
+"repeated": true,
+"animal": false,
+"reason": ""
+},
+"0433_patriotism.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0434_classe-tous-risques.jpg": {
+"cat": "3+",
+"n": 20,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0435_the-furies.jpg": {
+"cat": "3+",
+"n": 4,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0436_before-the-rain.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0437_vampyr.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0438_mon-oncle-antoine.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0439_trafic.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0440_brand-upon-the-brain.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0441_the-small-back-room.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0442_twenty-four-eyes.jpg": {
+"cat": "3+",
+"n": 14,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"0443_la-ronde.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0444_le-plaisir.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0445_the-earrings-of-madame-de.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0446_an-autumn-afternoon.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0447_le-doulos.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0448_le-deuxieme-souffle.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0449_missing.jpg": {
+"cat": "No-face",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "no face visible",
+"human": "One"
+},
+"0450_bottle-rocket.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0451_fanfan-la-tulipe.jpg": {
+"cat": "3+",
+"n": 4,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0452_the-spy-who-came-in-from-the-cold.jpg": {
+"cat": "Ambiguous",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "shadow",
+"human": "None"
+},
+"0453_chungking-express.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"0454_europa.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "No-face"
+},
+"0455_white-dog.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": true,
+"reason": "",
+"human": "None"
+},
+"0456_the-taking-of-power-by-louis-xiv.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0457_magnificent-obsession.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0458_el-norte.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0459_the-exterminating-angel.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0460_simon-of-the-desert.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0461_hobson-s-choice.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0462_the-last-metro.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0463_il-generale-della-rovere.jpg": {
+"cat": "Ambiguous",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "shadow"
+},
+"0464_danton.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0465_dodes-ka-den.jpg": {
+"cat": "3+",
+"n": 30,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0466_in-the-realm-of-the-senses.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0467_empire-of-passion.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0468_science-is-fiction-23-films-by-jean-painleve.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0469_the-hit.jpg": {
+"cat": "No-face",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "no face visible",
+"human": "No-face"
+},
+"0470_wise-blood.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0471_pigs-pimps-prostitutes-3-films-by-shohei-imamura.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": true,
+"reason": "",
+"human": "None"
+},
+"0472_pigs-and-battleships.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0473_the-insect-woman.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"0474_intentions-of-murder.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"0475_the-friends-of-eddie-coyle.jpg": {
+"cat": "3+",
+"n": 6,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0476_the-curious-case-of-benjamin-button.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0477_bergman-island.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0478_last-year-at-marienbad.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0479_my-dinner-with-andre.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0480_the-human-condition.jpg": {
+"cat": "3+",
+"n": 9,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"0481_made-in-u-s-a.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": true,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"0482_2-or-3-things-i-know-about-her.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0483_repulsion.jpg": {
+"cat": "Ambiguous",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "shadow"
+},
+"0484_jeanne-dielman-23-quai-du-commerce-1080-bruxelles.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0485_the-last-days-of-disco.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0486_homicide.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0487_that-hamilton-woman.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0488_howards-end.jpg": {
+"cat": "No-face",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "no face visible",
+"human": "One"
+},
+"0489_monsoon-wedding.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "No-face"
+},
+"0490_wings-of-desire.jpg": {
+"cat": "Ambiguous",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "ghost",
+"human": "One"
+},
+"0491_z.jpg": {
+"cat": "3+",
+"n": 10,
+"repeated": true,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"0492_a-christmas-tale.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0493_gomorrah.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0494_downhill-racer.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "No-face"
+},
+"0495_the-golden-age-of-television.jpg": {
+"cat": "3+",
+"n": 48,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0496_che.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0497_rome-open-city.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0498_paisan.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0499_germany-year-zero.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0500_roberto-rossellinis-war-trilogy.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0501_paris-texas.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0502_revanche.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0503_lola-montes.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0504_hunger.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0505_make-way-for-tomorrow.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"0506_dillinger-is-dead.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0507_bigger-than-life.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0508_letters-from-fontainhas-three-films-by-pedro-costa.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0509_ossos.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0510_in-vanda-s-room.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0511_colossal-youth.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0512_vivre-sa-vie.jpg": {
+"cat": "No-face",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "no face visible",
+"human": "One"
+},
+"0513_summer-hours.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0514_ride-with-the-devil.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0515_the-fugitive-kind.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0516_stagecoach.jpg": {
+"cat": "3+",
+"n": 10,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"0517_by-brakhage-an-anthology-volume-two.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0518_by-brakhage-an-anthology-volumes-one-and-two.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0519_close-up.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0520_everlasting-moments.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "No-face"
+},
+"0521_mystery-train.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"0522_red-desert.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0523_night-train-to-munich.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0524_the-only-son-there-was-a-father-two-films-by-yasujiro-ozu.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0525_the-only-son.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"0526_there-was-a-father.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"0527_the-secret-of-the-grain.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "No-face"
+},
+"0528_3-silent-classics-by-josef-von-sternberg.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0529_underworld.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0530_the-last-command.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0531_the-docks-of-new-york.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0532_louie-bluie.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0533_crumb.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0534_l-enfance-nue.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0535_merry-christmas-mr-lawrence.jpg": {
+"cat": "3+",
+"n": 10,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0536_the-thin-red-line.jpg": {
+"cat": "3+",
+"n": 12,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"0537_the-magician.jpg": {
+"cat": "Ambiguous",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "skeleton"
+},
+"0538_paths-of-glory.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0539_house.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": true,
+"reason": ""
+},
+"0540_the-darjeeling-limited.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0541_the-night-of-the-hunter.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0542_antichrist.jpg": {
+"cat": "No-face",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "body part"
+},
+"0543_modern-times.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0544_head.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "No-face"
+},
+"0545_easy-rider.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0546_five-easy-pieces.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0547_drive-he-said.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"0548_a-safe-place.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"0549_the-last-picture-show.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0550_the-king-of-marvin-gardens.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0551_cronos.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0552_broadcast-news.jpg": {
+"cat": "3+",
+"n": 5,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0553_fish-tank.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0554_still-walking.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"0555_sweet-smell-of-success.jpg": {
+"cat": "3+",
+"n": 8,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0556_senso.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0557_the-times-of-harvey-milk.jpg": {
+"cat": "3+",
+"n": 10,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0558_topsy-turvy.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0559_the-mikado.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0560_white-material.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0561_kes.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0562_blow-out.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0563_something-wild.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0564_pale-flower.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "No-face"
+},
+"0565_the-great-dictator.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "No-face"
+},
+"0566_insignificance.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": true,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0567_the-makioka-sisters.jpg": {
+"cat": "3+",
+"n": 4,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0568_kiss-me-deadly.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"0569_people-on-sunday.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0570_zazie-dans-le-metro.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0571_black-moon.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0572_leon-morin-priest.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0573_the-music-room.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0574_life-during-wartime.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0575_the-killing.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0576_secret-sunshine.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0577_cul-de-sac.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"0578_the-complete-jean-vigo.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0579_the-phantom-carriage.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "No-face"
+},
+"0580_le-beau-serge.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"0581_les-cousins.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0582_carlos.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0583_the-four-feathers.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0584_kuroneko.jpg": {
+"cat": "Ambiguous",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "ghost"
+},
+"0585_identification-of-a-woman.jpg": {
+"cat": "No-face",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "no face visible",
+"human": "One"
+},
+"0586_island-of-lost-souls.jpg": {
+"cat": "Ambiguous",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "skeleton",
+"human": "No-face"
+},
+"0587_three-colors.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0588_three-colors-blue.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0589_three-colors-white.jpg": {
+"cat": "No-face",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "body part",
+"human": "No-face"
+},
+"0590_three-colors-red.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0591_12-angry-men.jpg": {
+"cat": "3+",
+"n": 12,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"0592_design-for-living.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0593_belle-de-jour.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0594_godzilla.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": true,
+"reason": "",
+"human": "None"
+},
+"0595_the-moment-of-truth.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0596_three-outlaw-samurai.jpg": {
+"cat": "3+",
+"n": 5,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0597_tiny-furniture.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0598_world-on-a-wire.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0599_vanya-on-42nd-street.jpg": {
+"cat": "3+",
+"n": 6,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"0600_anatomy-of-a-murder.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "No-face"
+},
+"0601_letter-never-sent.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"0602_the-war-room.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0603_david-lean-directs-noel-coward.jpg": {
+"cat": "3+",
+"n": 5,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0604_in-which-we-serve.jpg": {
+"cat": "3+",
+"n": 20,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0605_this-happy-breed.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"0606_blithe-spirit.jpg": {
+"cat": "No-face",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "body part",
+"human": "No-face"
+},
+"0607_a-hollis-frampton-odyssey.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0608_harold-and-maude.jpg": {
+"cat": "3+",
+"n": 5,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0609_alambrista.jpg": {
+"cat": "3+",
+"n": 10,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"0610_the-organizer.jpg": {
+"cat": "3+",
+"n": 12,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0611_being-john-malkovich.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0612_certified-copy.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0613_summer-interlude.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"0614_summer-with-monika.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0615_the-gold-rush.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0616_shallow-grave.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0617_and-everything-is-going-fine.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0618_gray-s-anatomy.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0619_le-havre.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0620_la-promesse.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"0621_rosetta.jpg": {
+"cat": "No-face",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "no face visible"
+},
+"0622_weekend.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0623_lonesome.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"0624_quadrophenia.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0625_eating-raoul.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "No-face"
+},
+"0626_les-visiteurs-du-soir.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"0627_the-game.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0628_the-forgiveness-of-blood.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0629_sunday-bloody-sunday.jpg": {
+"cat": "3+",
+"n": 5,
+"repeated": true,
+"animal": false,
+"reason": ""
+},
+"0630_rosemary-s-baby.jpg": {
+"cat": "Ambiguous",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "ghost",
+"human": "One"
+},
+"0631_trilogy-of-life.jpg": {
+"cat": "3+",
+"n": 12,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0632_the-decameron.jpg": {
+"cat": "3+",
+"n": 9,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0633_the-canterbury-tales.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0634_arabian-nights.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0635_weekend.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0636_heaven-s-gate.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0637_purple-noon.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0638_following.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0639_the-qatsi-trilogy.jpg": {
+"cat": "3+",
+"n": 8,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"0640_koyaanisqatsi.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0641_powaqqatsi.jpg": {
+"cat": "3+",
+"n": 20,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0642_naqoyqatsi.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0643_the-man-who-knew-too-much.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0644_pina.jpg": {
+"cat": "No-face",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "no face visible",
+"human": "One"
+},
+"0645_the-ballad-of-narayama.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0646_the-kid-with-a-bike.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0647_on-the-waterfront.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0648_chronicle-of-a-summer.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0649_ministry-of-fear.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0650_a-man-escaped.jpg": {
+"cat": "No-face",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "body part",
+"human": "No-face"
+},
+"0651_badlands.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"0652_monsieur-verdoux.jpg": {
+"cat": "3+",
+"n": 4,
+"repeated": true,
+"animal": false,
+"reason": ""
+},
+"0653_gate-of-hell.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0654_repo-man.jpg": {
+"cat": "Ambiguous",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "skeleton"
+},
+"0655_pierre-etaix.jpg": {
+"cat": "No-face",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "body part",
+"human": "No-face"
+},
+"0656_jubal.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0657_3-10-to-yuma.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0658_medium-cool.jpg": {
+"cat": "3+",
+"n": 10,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"0659_life-is-sweet.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0660_things-to-come.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0661_marketa-lazarova.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0662_safety-last.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0663_shoah.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0664_the-life-of-oharu.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0665_babette-s-feast.jpg": {
+"cat": "No-face",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "body part",
+"human": "No-face"
+},
+"0666_the-devil-s-backbone.jpg": {
+"cat": "Ambiguous",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "ghost",
+"human": "One"
+},
+"0667_seconds.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "No-face"
+},
+"0668_the-big-city.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0669_charulata.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "No-face"
+},
+"0670_to-be-or-not-to-be.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0671_la-cage-aux-folles.jpg": {
+"cat": "3+",
+"n": 6,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"0672_3-films-by-roberto-rossellini-starring-ingrid-bergman.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0673_stromboli.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0674_europe-51.jpg": {
+"cat": "3+",
+"n": 4,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"0675_journey-to-italy.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0676_i-married-a-witch.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "No-face"
+},
+"0677_the-uninvited.jpg": {
+"cat": "Ambiguous",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "ghost",
+"human": "One"
+},
+"0678_la-notte.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0679_zatoichi-the-blind-swordsman.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0680_city-lights.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0681_frances-ha.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0682_investigation-of-a-citizen-above-suspicion.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0683_nashville.jpg": {
+"cat": "3+",
+"n": 40,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0684_martin-scorseses-world-cinema-project-no-1.jpg": {
+"cat": "3+",
+"n": 10,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0685_touki-bouki.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0686_redes.jpg": {
+"cat": "3+",
+"n": 6,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0687_a-river-called-titas.jpg": {
+"cat": "3+",
+"n": 6,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0688_dry-summer.jpg": {
+"cat": "3+",
+"n": 6,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0689_trances.jpg": {
+"cat": "3+",
+"n": 4,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"0690_the-housemaid.jpg": {
+"cat": "3+",
+"n": 6,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0691_thief.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0692_it-s-a-mad-mad-mad-mad-world.jpg": {
+"cat": "3+",
+"n": 40,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"0693_la-vie-de-boheme.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0694_the-long-day-closes.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0695_blue-is-the-warmest-color.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0696_foreign-correspondent.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"0697_tess.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0698_king-of-the-hill.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0699_a-brief-history-of-time.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0700_fantastic-mr-fox.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": true,
+"reason": "",
+"human": "None"
+},
+"0701_persona.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0702_the-great-beauty.jpg": {
+"cat": "Ambiguous",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "statue"
+},
+"0703_the-freshman.jpg": {
+"cat": "3+",
+"n": 12,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"0704_riot-in-cell-block-11.jpg": {
+"cat": "3+",
+"n": 10,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"0705_breaking-the-waves.jpg": {
+"cat": "No-face",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "no face visible",
+"human": "One"
+},
+"0706_master-of-the-house.jpg": {
+"cat": "3+",
+"n": 8,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"0707_il-sorpasso.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0708_like-someone-in-love.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0709_red-river.jpg": {
+"cat": "3+",
+"n": 12,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"0710_judex.jpg": {
+"cat": "3+",
+"n": 4,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"0711_a-hard-day-s-night.jpg": {
+"cat": "3+",
+"n": 4,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0712_scanners.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0713_the-essential-jacques-demy.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0714_lola.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0715_bay-of-angels.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0716_the-umbrellas-of-cherbourg.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0717_the-young-girls-of-rochefort.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0718_donkey-skin.jpg": {
+"cat": "Ambiguous",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "mask"
+},
+"0719_une-chambre-en-ville.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0720_the-big-chill.jpg": {
+"cat": "3+",
+"n": 8,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0721_love-streams.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0722_tie-me-up-tie-me-down.jpg": {
+"cat": "No-face",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "body part",
+"human": "No-face"
+},
+"0723_y-tu-mama-tambien.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"0724_all-that-jazz.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0725_eraserhead.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0726_macbeth.jpg": {
+"cat": "No-face",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "body part",
+"human": "No-face"
+},
+"0727_the-innocents.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0728_sundays-and-cybele.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"0729_the-complete-jacques-tati.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0730_jour-de-fete.jpg": {
+"cat": "3+",
+"n": 10,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0731_parade.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0732_my-darling-clementine.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0733_la-dolce-vita.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"0734_the-shooting.jpg": {
+"cat": "Ambiguous",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "shadow"
+},
+"0735_ride-in-the-whirlwind.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0736_it-happened-one-night.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0737_les-blank-always-for-pleasure.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0738_tootsie.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0739_safe.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0740_the-bitter-tears-of-petra-von-kant.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"0741_my-winnipeg.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": true,
+"reason": "",
+"human": "None"
+},
+"0742_the-palm-beach-story.jpg": {
+"cat": "3+",
+"n": 5,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0743_la-cienaga.jpg": {
+"cat": "3+",
+"n": 5,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"0744_every-man-for-himself.jpg": {
+"cat": "3+",
+"n": 2,
+"repeated": true,
+"animal": false,
+"reason": "same person repeated"
+},
+"0745_don-t-look-now.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0746_a-day-in-the-country.jpg": {
+"cat": "3+",
+"n": 4,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0747_fellini-satyricon.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "No-face"
+},
+"0748_watership-down.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": true,
+"reason": "",
+"human": "None"
+},
+"0749_the-soft-skin.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0750_ride-the-pink-horse.jpg": {
+"cat": "3+",
+"n": 6,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"0751_gates-of-heaven.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0752_vernon-florida.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0753_the-thin-blue-line.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0754_odd-man-out.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0755_le-silence-de-la-mer.jpg": {
+"cat": "No-face",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "no face visible",
+"human": "No-face"
+},
+"0756_limelight.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0757_the-rose.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0758_the-merchant-of-four-seasons.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"0759_the-confession.jpg": {
+"cat": "No-face",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "no face visible",
+"human": "No-face"
+},
+"0760_state-of-siege.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0761_valerie-and-her-week-of-wonders.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0762_a-master-builder.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"0763_the-bridge.jpg": {
+"cat": "3+",
+"n": 7,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0764_the-fisher-king.jpg": {
+"cat": "3+",
+"n": 20,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "No-face"
+},
+"0765_the-black-stallion.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0766_here-is-your-life.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0767_my-beautiful-laundrette.jpg": {
+"cat": "3+",
+"n": 6,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0768_the-french-lieutenant-s-woman.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0769_day-for-night.jpg": {
+"cat": "3+",
+"n": 10,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"0770_dressed-to-kill.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"0771_two-days-one-night.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0772_blind-chance.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0773_breaker-morant.jpg": {
+"cat": "3+",
+"n": 10,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"0774_mister-johnson.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0775_a-room-with-a-view.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0776_moonrise-kingdom.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0777_the-brood.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0778_a-special-day.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0779_mulholland-drive.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0780_code-unknown.jpg": {
+"cat": "3+",
+"n": 24,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0781_in-cold-blood.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0782_the-apu-trilogy.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0783_pather-panchali.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0784_aparajito.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0785_apur-sansar.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0786_don-t-look-back.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0787_jellyfish-eyes.jpg": {
+"cat": "Ambiguous",
+"n": 0,
+"repeated": false,
+"animal": true,
+"reason": "doll",
+"human": "No-face"
+},
+"0788_speedy.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0789_burroughs-the-movie.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0790_lady-snowblood.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0791_lady-snowblood-love-song-of-vengeance.jpg": {
+"cat": "No-face",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "no face visible",
+"human": "One"
+},
+"0792_bitter-rice.jpg": {
+"cat": "3+",
+"n": 5,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"0793_the-american-friend.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"0794_inside-llewyn-davis.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": true,
+"reason": "",
+"human": "None"
+},
+"0795_gilda.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0796_the-emigrants.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0797_the-new-land.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0798_death-by-hanging.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0799_the-kid.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0800_the-graduate.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0801_i-knew-her-well.jpg": {
+"cat": "No-face",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "no face visible"
+},
+"0802_paris-belongs-to-us.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0803_the-manchurian-candidate.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0804_a-brighter-summer-day.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0805_a-poem-is-a-naked-person.jpg": {
+"cat": "No-face",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "no face visible",
+"human": "One"
+},
+"0806_only-angels-have-wings.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0807_barcelona.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0808_the-kennedy-films-of-robert-drew-associates.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0809_phoenix.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0810_in-a-lonely-place.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0811_the-naked-island.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0812_the-player.jpg": {
+"cat": "Ambiguous",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "shadow",
+"human": "No-face"
+},
+"0813_wim-wenders-the-road-trilogy.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0814_alice-in-the-cities.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0815_wrong-move.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"0816_kings-of-the-road.jpg": {
+"cat": "Ambiguous",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "statue"
+},
+"0817_le-amiche.jpg": {
+"cat": "3+",
+"n": 5,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0818_la-chienne.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0819_here-comes-mr-jordan.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"0820_fantastic-planet.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0821_dr-strangelove-or-how-i-learned-to-stop-worrying-and-love-the-bomb.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0822_clouds-of-sils-maria.jpg": {
+"cat": "3+",
+"n": 5,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0823_the-in-laws.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0824_muriel-or-the-time-of-return.jpg": {
+"cat": "No-face",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "no face visible"
+},
+"0825_a-touch-of-zen.jpg": {
+"cat": "3+",
+"n": 4,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0826_the-new-world.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"0827_mccabe-mrs-miller.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0828_ingrid-bergman-in-her-own-words.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0829_a-taste-of-honey.jpg": {
+"cat": "No-face",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "no face visible"
+},
+"0830_chimes-at-midnight.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0831_the-immortal-story.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0832_the-story-of-the-last-chrysanthemums.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0833_cat-people.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0834_blood-simple.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"0835_valley-of-the-dolls.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0836_beyond-the-valley-of-the-dolls.jpg": {
+"cat": "3+",
+"n": 18,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0837_dekalog.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0838_pan-s-labyrinth.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0839_boyhood.jpg": {
+"cat": "3+",
+"n": 20,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0840_the-executioner.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0841_lone-wolf-and-cub.jpg": {
+"cat": "3+",
+"n": 20,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"0842_dreams.jpg": {
+"cat": "No-face",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "no face visible",
+"human": "One"
+},
+"0843_punch-drunk-love.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0844_one-eyed-jacks.jpg": {
+"cat": "3+",
+"n": 4,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0845_the-squid-and-the-whale.jpg": {
+"cat": "3+",
+"n": 4,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"0846_heart-of-a-dog.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": true,
+"reason": "",
+"human": "None"
+},
+"0847_the-asphalt-jungle.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0848_roma.jpg": {
+"cat": "Ambiguous",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "statue",
+"human": "No-face"
+},
+"0849_his-girl-friday.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"0850_something-wild.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0851_fox-and-his-friends.jpg": {
+"cat": "No-face",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "no face visible"
+},
+"0852_black-girl.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0853_cameraperson.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0854_the-tree-of-wooden-clogs.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0855_women-on-the-verge-of-a-nervous-breakdown.jpg": {
+"cat": "No-face",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "body part",
+"human": "No-face"
+},
+"0856_the-before-trilogy.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0857_before-sunrise.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0858_before-sunset.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0859_before-midnight.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"0860_mildred-pierce.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0861_45-years.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0862_canoa-a-shameful-memory.jpg": {
+"cat": "3+",
+"n": 10,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0863_multiple-maniacs.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0864_being-there.jpg": {
+"cat": "No-face",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "no face visible",
+"human": "One"
+},
+"0865_blow-up.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"0866_buena-vista-social-club.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0867_woman-of-the-year.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0868_tampopo.jpg": {
+"cat": "3+",
+"n": 4,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"0869_rumble-fish.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"0870_othello.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0871_dheepan.jpg": {
+"cat": "3+",
+"n": 6,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"0872_ghost-world.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0873_martin-scorsese-s-world-cinema-project-no-2.jpg": {
+"cat": "3+",
+"n": 7,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0874_insiang.jpg": {
+"cat": "3+",
+"n": 5,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0875_mysterious-object-at-noon.jpg": {
+"cat": "3+",
+"n": 5,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0876_revenge.jpg": {
+"cat": "3+",
+"n": 4,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0877_limite.jpg": {
+"cat": "3+",
+"n": 4,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0878_law-of-the-border.jpg": {
+"cat": "3+",
+"n": 4,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0879_taipei-story.jpg": {
+"cat": "3+",
+"n": 4,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0880_they-live-by-night.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"0881_the-marseille-trilogy.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0882_marius.jpg": {
+"cat": "3+",
+"n": 10,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0883_fanny.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0884_cesar.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0885_the-lodger-a-story-of-the-london-fog.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0886_l-argent.jpg": {
+"cat": "No-face",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "body part",
+"human": "No-face"
+},
+"0887_lost-in-america.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"0888_stalker.jpg": {
+"cat": "No-face",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "body part",
+"human": "No-face"
+},
+"0889_the-breaking-point.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0890_meantime.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0891_la-poison.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0892_festival.jpg": {
+"cat": "3+",
+"n": 24,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0893_certain-women.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0894_the-piano-teacher.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0895_david-lynch-the-art-life.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0896_the-lure.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0897_barry-lyndon.jpg": {
+"cat": "No-face",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "body part",
+"human": "No-face"
+},
+"0898_twin-peaks-fire-walk-with-me.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0899_personal-shopper.jpg": {
+"cat": "Ambiguous",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "ghost",
+"human": "One"
+},
+"0900_100-years-of-olympic-films-1912-2012.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0901_the-philadelphia-story.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0902_desert-hearts.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0903_jabberwocky.jpg": {
+"cat": "No-face",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "no face visible",
+"human": "One"
+},
+"0904_election.jpg": {
+"cat": "No-face",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "body part",
+"human": "No-face"
+},
+"0905_the-breakfast-club.jpg": {
+"cat": "3+",
+"n": 5,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0906_i-daniel-blake.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0907_westfront-1918.jpg": {
+"cat": "No-face",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "no face visible",
+"human": "One"
+},
+"0908_kameradschaft.jpg": {
+"cat": "Ambiguous",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "mask",
+"human": "One"
+},
+"0909_night-of-the-living-dead.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0910_tom-jones.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0911_the-hero.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"0912_an-actor-s-revenge.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0913_the-age-of-innocence.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0914_baal.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0915_king-of-jazz.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0916_women-in-love.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0917_the-awful-truth.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"0918_the-color-of-pomegranates.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0919_dead-man.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"0920_the-virgin-suicides.jpg": {
+"cat": "3+",
+"n": 4,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"0921_moonrise.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0922_the-other-side-of-hope.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0923_beyond-the-hills.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0924_graduation.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0925_midnight-cowboy.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0926_manila-in-the-claws-of-light.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0927_el-sur.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0928_bowling-for-columbine.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0929_female-trouble.jpg": {
+"cat": "No-face",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "no face visible",
+"human": "One"
+},
+"0930_dietrich-von-sternberg-in-hollywood.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0931_morocco.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0932_dishonored.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0933_shanghai-express.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0934_blonde-venus.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0935_the-devil-is-a-woman.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0936_bull-durham.jpg": {
+"cat": "No-face",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "body part"
+},
+"0937_dragon-inn.jpg": {
+"cat": "3+",
+"n": 5,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0938_sex-lies-and-videotape.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0939_a-matter-of-life-and-death.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0940_the-ballad-of-gregorio-cortez.jpg": {
+"cat": "3+",
+"n": 5,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"0941_smithereens.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0942_the-tree-of-life.jpg": {
+"cat": "3+",
+"n": 8,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"0943_memories-of-underdevelopment.jpg": {
+"cat": "3+",
+"n": 30,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"0944_cold-water.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"0945_a-raisin-in-the-sun.jpg": {
+"cat": "No-face",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "body part",
+"human": "No-face"
+},
+"0946_eight-hours-don-t-make-a-day.jpg": {
+"cat": "3+",
+"n": 10,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0947_shampoo.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0948_the-princess-bride.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"0949_a-story-from-chikamatsu.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"0950_some-like-it-hot.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0951_true-stories.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0952_the-magnificent-ambersons.jpg": {
+"cat": "3+",
+"n": 4,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0953_a-dry-white-season.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"0954_forty-guns.jpg": {
+"cat": "3+",
+"n": 8,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0955_panique.jpg": {
+"cat": "3+",
+"n": 10,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"0956_24-frames.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0957_mikey-and-nicky.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"0958_4-months-3-weeks-and-2-days.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0959_in-the-heat-of-the-night.jpg": {
+"cat": "3+",
+"n": 4,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"0960_la-verite.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0961_shame.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0962_death-in-venice.jpg": {
+"cat": "Ambiguous",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "statue"
+},
+"0963_to-sleep-with-anger.jpg": {
+"cat": "3+",
+"n": 10,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0964_the-kid-brother.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0965_wanda.jpg": {
+"cat": "3+",
+"n": 5,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0966_detour.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"0967_i-wanna-hold-your-hand.jpg": {
+"cat": "3+",
+"n": 10,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0968_japon.jpg": {
+"cat": "No-face",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "no face visible",
+"human": "One"
+},
+"0969_diamonds-of-the-night.jpg": {
+"cat": "3+",
+"n": 10,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"0970_a-face-in-the-crowd.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0971_police-story.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0972_police-story-2.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0973_my-brilliant-career.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0974_the-heiress.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0975_funny-games.jpg": {
+"cat": "Ambiguous",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "mask"
+},
+"0976_let-the-sunshine-in.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0977_blue-velvet.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0978_one-sings-the-other-doesn-t.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0979_swing-time.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0980_la-vie-de-jesus.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0981_l-humanite.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0982_hedwig-and-the-angry-inch.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0983_war-and-peace.jpg": {
+"cat": "3+",
+"n": 12,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0984_1984.jpg": {
+"cat": "3+",
+"n": 30,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0985_europa-europa.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0986_the-baker-s-wife.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0987_klute.jpg": {
+"cat": "3+",
+"n": 2,
+"repeated": true,
+"animal": false,
+"reason": "same person repeated"
+},
+"0988_the-inland-sea.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0989_the-flavor-of-green-tea-over-rice.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0990_where-is-the-friend-s-house.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0991_and-life-goes-on.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0992_through-the-olive-trees.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"0993_the-cloud-capped-star.jpg": {
+"cat": "No-face",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "no face visible"
+},
+"0994_local-hero.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"0995_polyester.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"0996_the-circus.jpg": {
+"cat": "3+",
+"n": 8,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"0997_cluny-brown.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0998_when-we-were-kings.jpg": {
+"cat": "3+",
+"n": 100,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"0999_matewan.jpg": {
+"cat": "3+",
+"n": 8,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1000_godzilla-the-showa-era-films-19541975.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": true,
+"reason": "",
+"human": "None"
+},
+"1001_the-daytrippers.jpg": {
+"cat": "3+",
+"n": 5,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1002_betty-blue.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"1003_all-about-eve.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1004_now-voyager.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1005_cold-war.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1006_the-story-of-temple-drake.jpg": {
+"cat": "Ambiguous",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "statue"
+},
+"1007_until-the-end-of-the-world.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"1008_old-joy.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"1009_holiday.jpg": {
+"cat": "3+",
+"n": 4,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1010_le-petit-soldat.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1011_fail-safe.jpg": {
+"cat": "3+",
+"n": 20,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1012_all-about-my-mother.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"1013_teorema.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"1014_roma.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"1015_journey-to-the-beginning-of-time.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"1016_invention-for-destruction.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"1017_the-fabulous-baron-munchausen.jpg": {
+"cat": "3+",
+"n": 4,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"1018_paris-is-burning.jpg": {
+"cat": "3+",
+"n": 6,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1019_bamboozled.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1020_leave-her-to-heaven.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1021_show-boat.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1022_the-prince-of-tides.jpg": {
+"cat": "3+",
+"n": 4,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1023_the-cremator.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1024_destry-rides-again.jpg": {
+"cat": "3+",
+"n": 8,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1025_the-grand-budapest-hotel.jpg": {
+"cat": "3+",
+"n": 15,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1026_me-and-you-and-everyone-we-know.jpg": {
+"cat": "3+",
+"n": 30,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1027_the-great-escape.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"1028_dance-girl-dance.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"1029_husbands.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1030_scorsese-shorts.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"1031_wildlife.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1032_an-unmarried-woman.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": true,
+"animal": false,
+"reason": ""
+},
+"1033_the-cameraman.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1034_portrait-of-a-lady-on-fire.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1035_come-and-see.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"1036_bruce-lee-his-greatest-hits.jpg": {
+"cat": "3+",
+"n": 1,
+"repeated": true,
+"animal": false,
+"reason": "same person repeated"
+},
+"1037_the-war-of-the-worlds.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"1038_marriage-story.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1039_town-bloody-hall.jpg": {
+"cat": "3+",
+"n": 6,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1040_toni.jpg": {
+"cat": "No-face",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "no face visible",
+"human": "One"
+},
+"1041_the-comfort-of-strangers.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1042_beau-travail.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"1043_christ-stopped-at-eboli.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1044_martin-scorsese-s-world-cinema-project-no-3.jpg": {
+"cat": "3+",
+"n": 15,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"1045_lucia.jpg": {
+"cat": "3+",
+"n": 10,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1046_after-the-curfew.jpg": {
+"cat": "3+",
+"n": 10,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1047_pixote.jpg": {
+"cat": "3+",
+"n": 10,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1048_dos-monjes.jpg": {
+"cat": "3+",
+"n": 10,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1049_soleil-o.jpg": {
+"cat": "3+",
+"n": 20,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"1050_downpour.jpg": {
+"cat": "3+",
+"n": 20,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1051_the-elephant-man.jpg": {
+"cat": "No-face",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "no face visible",
+"human": "One"
+},
+"1052_claudine.jpg": {
+"cat": "3+",
+"n": 7,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"1053_the-gunfighter.jpg": {
+"cat": "3+",
+"n": 10,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1054_parasite.jpg": {
+"cat": "3+",
+"n": 5,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1055_girlfriends.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1056_moonstruck.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"1057_ghost-dog-the-way-of-the-samurai.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1058_the-irishman.jpg": {
+"cat": "Ambiguous",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "shadow",
+"human": "No-face"
+},
+"1059_crash.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "No-face"
+},
+"1060_amores-perros.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"1061_minding-the-gap.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1062_rolling-thunder-revue-a-bob-dylan-story-by-martin-scorsese.jpg": {
+"cat": "3+",
+"n": 30,
+"repeated": true,
+"animal": false,
+"reason": ""
+},
+"1063_the-ascent.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1064_the-parallax-view.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "No-face"
+},
+"1065_mandabi.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"1066_man-push-cart.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"1067_chop-shop.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1068_smooth-talk.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1069_celine-and-julie-go-boating.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"1070_secrets-lies.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1071_defending-your-life.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1072_history-is-made-at-night.jpg": {
+"cat": "3+",
+"n": 6,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"1073_memories-of-murder.jpg": {
+"cat": "No-face",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "body part",
+"human": "No-face"
+},
+"1074_irma-vep.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1075_fast-times-at-ridgemont-high.jpg": {
+"cat": "3+",
+"n": 7,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1076_merrily-we-go-to-hell.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1077_flowers-of-shanghai.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1078_nightmare-alley.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1079_streetwise.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"1080_tiny-the-life-of-erin-blackwell.jpg": {
+"cat": "3+",
+"n": 1,
+"repeated": true,
+"animal": false,
+"reason": "same person repeated"
+},
+"1081_visions-of-eight.jpg": {
+"cat": "3+",
+"n": 5,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1082_the-signifyin-works-of-marlon-riggs.jpg": {
+"cat": "3+",
+"n": 5,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"1083_pariah.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"1084_mirror.jpg": {
+"cat": "No-face",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "no face visible"
+},
+"1085_bringing-up-baby.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1086_deep-cover.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1087_working-girls.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"1088_la-piscine.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"1089_after-life.jpg": {
+"cat": "3+",
+"n": 5,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1090_original-cast-album-company.jpg": {
+"cat": "3+",
+"n": 8,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"1091_beasts-of-no-nation.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1092_throw-down.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1093_the-story-of-a-three-day-pass.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1094_watermelon-man.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1095_sweet-sweetback-s-baadassss-song.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1096_don-t-play-us-cheap.jpg": {
+"cat": "3+",
+"n": 4,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1097_love-basketball.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1098_the-damned.jpg": {
+"cat": "Ambiguous",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "skeleton",
+"human": "No-face"
+},
+"1099_high-sierra.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1100_the-incredible-shrinking-man.jpg": {
+"cat": "3+",
+"n": 5,
+"repeated": true,
+"animal": false,
+"reason": ""
+},
+"1101_uncut-gems.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1102_devi.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1103_once-upon-a-time-in-china-the-complete-films.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1104_citizen-kane.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"1105_menace-ii-society.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1106_one-night-in-miami.jpg": {
+"cat": "3+",
+"n": 4,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1107_the-learning-tree.jpg": {
+"cat": "3+",
+"n": 4,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1108_the-celebration.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"1109_time.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"1110_the-piano.jpg": {
+"cat": "No-face",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "no face visible",
+"human": "One"
+},
+"1111_dick-johnson-is-dead.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1112_miller-s-crossing.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"1113_boat-people.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1114_love-affair.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1115_adoption.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1116_the-flight-of-the-phoenix.jpg": {
+"cat": "3+",
+"n": 6,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1117_love-jones.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1118_the-last-waltz.jpg": {
+"cat": "3+",
+"n": 6,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"1119_miracle-in-milan.jpg": {
+"cat": "3+",
+"n": 12,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"1120_the-girl-can-t-help-it.jpg": {
+"cat": "3+",
+"n": 7,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1121_eyimofe-this-is-my-desire.jpg": {
+"cat": "3+",
+"n": 15,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1122_round-midnight.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"1123_mr-klein.jpg": {
+"cat": "3+",
+"n": 4,
+"repeated": true,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"1124_chan-is-missing.jpg": {
+"cat": "3+",
+"n": 10,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1125_the-funeral.jpg": {
+"cat": "3+",
+"n": 10,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1126_double-indemnity.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1127_mississippi-masala.jpg": {
+"cat": "3+",
+"n": 8,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1128_farewell-amor.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1129_rouge.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1130_shaft.jpg": {
+"cat": "3+",
+"n": 10,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1131_pink-flamingos.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"1132_the-worst-person-in-the-world.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"1133_okja.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1134_raging-bull.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1135_devil-in-a-blue-dress.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1136_drive-my-car.jpg": {
+"cat": "3+",
+"n": 4,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"1137_frownland.jpg": {
+"cat": "No-face",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "no face visible"
+},
+"1138_daddy-longlegs.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1139_hotel-du-nord.jpg": {
+"cat": "3+",
+"n": 6,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"1140_buck-and-the-preacher.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1141_faya-dayi.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1142_martin-scorsese-s-world-cinema-project-no-4.jpg": {
+"cat": "3+",
+"n": 8,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1143_sambizanga.jpg": {
+"cat": "3+",
+"n": 5,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"1144_prisioneros-de-la-tierra.jpg": {
+"cat": "3+",
+"n": 5,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1145_chess-of-the-wind.jpg": {
+"cat": "3+",
+"n": 5,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1146_muna-moto.jpg": {
+"cat": "3+",
+"n": 5,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1147_two-girls-on-the-street.jpg": {
+"cat": "3+",
+"n": 5,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1148_kalpana.jpg": {
+"cat": "3+",
+"n": 5,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1149_take-out.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1150_exotica.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1151_sound-of-metal.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1152_lost-highway.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1153_arsenic-and-old-lace.jpg": {
+"cat": "3+",
+"n": 6,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1154_eve-s-bayou.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"1155_cure.jpg": {
+"cat": "No-face",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "no face visible"
+},
+"1156_la-llorona.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"1157_daisies.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1158_the-power-of-the-dog.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1159_the-infernal-affairs-trilogy.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1160_malcolm-x.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1161_wall-e.jpg": {
+"cat": "Ambiguous",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "robot",
+"human": "No-face"
+},
+"1162_three-films-by-mai-zetterling.jpg": {
+"cat": "Ambiguous",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "statue"
+},
+"1163_michael-haneke-trilogy.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "No-face"
+},
+"1164_the-velvet-underground.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1165_cooley-high.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1166_the-adventures-of-baron-munchausen.jpg": {
+"cat": "3+",
+"n": 4,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1167_imitation-of-life.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"1168_lars-von-triers-europe-trilogy.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"1169_this-is-not-a-burial-it-s-a-resurrection.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"1170_bergman-island.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"1171_romeo-and-juliet.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"1172_two-films-by-marguerite-duras.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"1173_hollywood-shuffle.jpg": {
+"cat": "3+",
+"n": 4,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"1174_last-hurrah-for-chivalry.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1175_inland-empire.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"1176_chilly-scenes-of-winter.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"1177_small-axe.jpg": {
+"cat": "3+",
+"n": 12,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1178_triangle-of-sadness.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"1179_targets.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1180_thelma-louise.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1181_petite-maman.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"1182_the-servant.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1183_medicine-for-melancholy.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"1184_the-watermelon-woman.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1185_after-hours.jpg": {
+"cat": "3+",
+"n": 12,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1186_the-ranown-westerns-five-films-directed-by-budd-boetticher.jpg": {
+"cat": "3+",
+"n": 5,
+"repeated": true,
+"animal": false,
+"reason": ""
+},
+"1187_one-false-move.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1188_dim-sum-a-little-bit-of-heart.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"1189_bo-widerbergs-new-swedish-cinema.jpg": {
+"cat": "3+",
+"n": 6,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1190_drylongso.jpg": {
+"cat": "3+",
+"n": 7,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1191_the-trial.jpg": {
+"cat": "3+",
+"n": 4,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"1192_moonage-daydream.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1193_la-bamba.jpg": {
+"cat": "3+",
+"n": 6,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"1194_freaks-the-unknown-the-mystic-tod-brownings-sideshow-shockers.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1195_the-others.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1196_nanny.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1197_jackie-chan-emergence-of-a-superstar.jpg": {
+"cat": "3+",
+"n": 6,
+"repeated": true,
+"animal": false,
+"reason": ""
+},
+"1198_mean-streets.jpg": {
+"cat": "3+",
+"n": 4,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"1199_la-ceremonie.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1200_the-red-balloon-and-other-stories-five-films-by-albert-lamorisse.jpg": {
+"cat": "3+",
+"n": 4,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1201_guillermo-del-toro-s-pinocchio.jpg": {
+"cat": "3+",
+"n": 5,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"1202_lone-star.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "No-face"
+},
+"1203_chantal-akerman-masterpieces-19681978.jpg": {
+"cat": "3+",
+"n": 5,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"1204_trainspotting.jpg": {
+"cat": "3+",
+"n": 5,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1205_mudbound.jpg": {
+"cat": "3+",
+"n": 8,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1206_eric-rohmers-tales-of-the-four-seasons.jpg": {
+"cat": "3+",
+"n": 6,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1207_the-heroic-trio-executioners.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1208_the-roaring-twenties.jpg": {
+"cat": "3+",
+"n": 4,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1209_nothing-but-a-man.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1210_all-the-beauty-and-the-bloodshed.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1211_the-runner.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"1212_saint-omer.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1213_to-die-for.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1214_i-am-cuba.jpg": {
+"cat": "3+",
+"n": 10,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1215_werckmeister-harmonies.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1216_dogfight.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1217_three-revolutionary-films-by-ousmane-sembene.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1218_anatomy-of-a-fall.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1219_girlfight.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1220_bound.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1221_querelle.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1222_victims-of-sin.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"1223_the-underground-railroad.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1224_pat-garrett-and-billy-the-kid.jpg": {
+"cat": "3+",
+"n": 10,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1225_black-god-white-devil.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1226_perfect-days.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"1227_risky-business.jpg": {
+"cat": "No-face",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "no face visible",
+"human": "One"
+},
+"1228_farewell-my-concubine.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"1229_brief-encounters-the-long-farewell-two-films-by-kira-muratova.jpg": {
+"cat": "3+",
+"n": 8,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1230_not-a-pretty-picture.jpg": {
+"cat": "3+",
+"n": 5,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1231_real-life.jpg": {
+"cat": "3+",
+"n": 10,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1232_mother.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1233_gregg-arakis-teen-apocalypse-trilogy.jpg": {
+"cat": "3+",
+"n": 4,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1234_all-of-us-strangers.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"1235_happiness.jpg": {
+"cat": "3+",
+"n": 10,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1236_i-walked-with-a-zombie-the-seventh-victim-produced-by-val-lewton.jpg": {
+"cat": "3+",
+"n": 4,
+"repeated": true,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"1237_demon-pond.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"1238_gummo.jpg": {
+"cat": "Ambiguous",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "mask",
+"human": "One"
+},
+"1239_scarface.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"1240_funny-girl.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"1241_paper-moon.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1242_the-shape-of-water.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1243_no-country-for-old-men.jpg": {
+"cat": "No-face",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "no face visible"
+},
+"1244_eastern-condors.jpg": {
+"cat": "3+",
+"n": 18,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1245_the-mother-and-the-whore.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"1246_the-grifters.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"1247_jo-jo-dancer-your-life-is-calling.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1248_winchester-73.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1249_king-lear.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": true,
+"animal": false,
+"reason": ""
+},
+"1250_crossing-delancey.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1251_drugstore-cowboy.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1252_performance.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1253_a-woman-of-paris.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1254_godzilla-vs-biollante.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": true,
+"reason": "",
+"human": "None"
+},
+"1255_night-moves.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"1256_choose-me.jpg": {
+"cat": "No-face",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "body part"
+},
+"1257_jean-de-florette-manon-of-the-spring-two-films-by-claude-berri.jpg": {
+"cat": "3+",
+"n": 7,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1258_prince-of-broadway.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1259_anora.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1260_basquiat.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1261_the-wind-will-carry-us.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1262_killer-of-sheep.jpg": {
+"cat": "No-face",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "no face visible",
+"human": "One"
+},
+"1263_the-three-musketeers-the-four-musketeers-two-films-by-richard-lester.jpg": {
+"cat": "3+",
+"n": 4,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1264_the-wiz.jpg": {
+"cat": "3+",
+"n": 8,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1265_thelonious-monk-straight-no-chaser.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"1266_midnight.jpg": {
+"cat": "3+",
+"n": 9,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1267_sorcerer.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"1268_thirty-two-short-films-about-glenn-gould.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"1269_the-big-heat.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1270_carnal-knowledge.jpg": {
+"cat": "3+",
+"n": 4,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1271_you-can-count-on-me.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1272_shoeshine.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1273_cairo-station.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"1274_compensation.jpg": {
+"cat": "3+",
+"n": 4,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1275_a-confucian-confusion-mahjong-two-films-by-edward-yang.jpg": {
+"cat": "3+",
+"n": 24,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1276_saving-face.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1277_born-in-flames.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1278_flow.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": true,
+"reason": "",
+"human": "None"
+},
+"1279_read-my-lips.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1280_the-beat-that-my-heart-skipped.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1281_isle-of-dogs.jpg": {
+"cat": "3+",
+"n": 10,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1282_the-french-dispatch-of-the-liberty-kansas-evening-sun.jpg": {
+"cat": "3+",
+"n": 80,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1283_a-history-of-violence.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1284_altered-states.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1285_deep-crimson.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1286_nightmare-alley.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"1287_house-party.jpg": {
+"cat": "3+",
+"n": 12,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"1288_hell-s-angels.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1289_el.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1290_eyes-wide-shut.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1291_return-to-reason-four-films-by-man-ray.jpg": {
+"cat": "Ambiguous",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "mannequin,doll"
+},
+"1292_salaam-bombay.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1293_pee-wee-s-big-adventure.jpg": {
+"cat": "3+",
+"n": 8,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1294_david-byrne-s-american-utopia.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1295_the-dead.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "No-face"
+},
+"1296_martin-scorseses-world-cinema-project-no-5.jpg": {
+"cat": "3+",
+"n": 10,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1297_captain-blood.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"1298_birth.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1299_kiss-of-the-spider-woman.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1300_network.jpg": {
+"cat": "No-face",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "no face visible",
+"human": "No-face"
+},
+"1301_the-man-who-wasn-t-there.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1302_killers-of-the-flower-moon.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"1303_testament.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"1304_a-man-and-a-woman.jpg": {
+"cat": "3+",
+"n": 4,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1305_the-blade.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1306_point-blank.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1307_john-singletons-hood-trilogy.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1308_body-heat.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1309_the-delta.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1310_fresh-kill.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1311_sentimental-value.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"1312_lenny.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"1313_west-indies-the-fugitive-slaves-of-liberty.jpg": {
+"cat": "3+",
+"n": 20,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1314_high-art.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1315_hairspray.jpg": {
+"cat": "3+",
+"n": 9,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1316_desperate-living.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "None"
+},
+"1317_it-was-just-an-accident.jpg": {
+"cat": "3+",
+"n": 5,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"1318_alice-doesn-t-live-here-anymore.jpg": {
+"cat": "3+",
+"n": 6,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1319_hud.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"1320_the-crying-game.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1321_cruel-story-of-youth.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"1322_ill-remind-you-of-everything-the-films-of-mike-mills.jpg": {
+"cat": "3+",
+"n": 12,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1323_little-odessa.jpg": {
+"cat": "3+",
+"n": 5,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"1324_american-dream.jpg": {
+"cat": "3+",
+"n": 30,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1325_the-secret-agent.jpg": {
+"cat": "3+",
+"n": 4,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1326_three-films-by-leos-carax.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "No-face"
+},
+"1327_nouvelle-vague.jpg": {
+"cat": "3+",
+"n": 8,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1328_days-and-nights-in-the-forest.jpg": {
+"cat": "3+",
+"n": 4,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1329_welcome-ii-the-terrordome.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1330_christiane-f.jpg": {
+"cat": "3+",
+"n": 8,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1331_the-shout.jpg": {
+"cat": "3+",
+"n": 4,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "No-face"
+},
+"1332_frankenstein.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"1333_kpop-demon-hunters.jpg": {
+"cat": "3+",
+"n": 3,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1334_wild-at-heart.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1335_marie-antoinette.jpg": {
+"cat": "3+",
+"n": 5,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1336_shadows-of-forgotten-ancestors.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "One"
+},
+"1337_the-right-stuff.jpg": {
+"cat": "3+",
+"n": 7,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "3+"
+},
+"1338_the-english-patient.jpg": {
+"cat": "One",
+"n": 1,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "No-face"
+},
+"1339_grizzly-man.jpg": {
+"cat": "None",
+"n": 0,
+"repeated": false,
+"animal": true,
+"reason": ""
+},
+"1340_the-shop-around-the-corner.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1341_martin-scorseses-world-cinema-project-no-6.jpg": {
+"cat": "3+",
+"n": 8,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1342_deliverance.jpg": {
+"cat": "3+",
+"n": 8,
+"repeated": false,
+"animal": false,
+"reason": ""
+},
+"1343_career-girls.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": "",
+"human": "Two"
+},
+"1344_chocolat.jpg": {
+"cat": "Two",
+"n": 2,
+"repeated": false,
+"animal": false,
+"reason": ""
+}
+}

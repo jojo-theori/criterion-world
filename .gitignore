@@ -1,6 +1,7 @@
 # 가상환경
 .venv/
 .venv-ml/
+.venv-mlx/
 __pycache__/
 .DS_Store
 
@@ -13,7 +14,10 @@ data/raw/wikidata_claims_cache.json
 
 # 다시 만들 수 있는 중간 결과(크다)
 out/
-data/analysis/
+data/analysis/*
+# 다시 만들기 비싼 것(Sonnet 묘사)과 작은 판정 결과는 올린다
+!data/analysis/captions_sonnet_v3.json
+!data/analysis/people_v2.json
 data/regions/
 
 # 배포에 쓰지 않는 로컬(file://)용 산출물. http 에서는 webp 를 읽는다

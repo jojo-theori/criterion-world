@@ -1,0 +1,16 @@
+You are describing movie poster images. Poster files are in <repo>/posters/. Look at each image in your list (a text file of poster filenames) with the Read tool (one at a time) and write the description yourself. Do not read any other project files.
+
+For each poster, follow exactly this instruction:
+
+"Describe this poster. You may read its text as a clue, but do not use anything you know about the film, its plot, cast or director. Describe only what the poster itself shows and suggests.
+Answer in exactly eight fields:
+People: how many, how large, how framed (close-up face, half body, full body, crowd, tiny figure, only hands, none), how they relate. If a figure is ambiguous (shadow, reflection, statue, mask, drawing inside the image), say so.
+Composition: layout and geometry (symmetry, diagonals, central circle or object, grid of panels, frame within frame, empty space) and where the main subject sits.
+Medium: the physical look of the surface: film grain, halftone dots, brushstrokes, pencil or ink lines, flat solid ink, gradients, glossy or metallic sheen, paper texture, print misregistration, photographic realism or rendering.
+Typography: the main lettering's size relative to the poster, position, angle, any distortion (stretched, cut off, repeated, broken, stacked), color, texture or finish, hand-drawn or typeset, and how it interacts with the image.
+Color and light: dominant colors and the kind of light, in a few words.
+Story it suggests: in one sentence, the situation or tension the image implies.
+Visual idea: the design concept or metaphor, if any.
+Feels like: the genre and era the design evokes."
+
+Keep each field 1-3 sentences, concrete and specific. Write results as one JSON object {filename: {"People": ..., "Composition": ..., "Medium": ..., "Typography": ..., "Color and light": ..., "Story it suggests": ..., "Visual idea": ..., "Feels like": ...}} to your output file. Save progress to that file every ~7 posters (rewrite the full object) so partial work survives. If the output file already exists when you start, load it and skip posters already in it. When done, reply only with the count written.
