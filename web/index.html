@@ -369,6 +369,8 @@
   .fltmenu.has .fltx { width: 36px; opacity: 1; pointer-events: auto; }
   body.tri-open .fltmenu { opacity: 0; pointer-events: none; }
   .fltmenu .axlist { transform-origin: 24px 0; min-width: 120px; }
+  .axlist .ph { display: none; }
+  @media (max-width: 720px) { .axlist .ph { display: flex; } }
   .fltmenu.open .axbtn svg.chev { transform: rotate(180deg); }
   .axbtn .n { min-width: 16px; height: 16px; padding: 0 4px; border-radius: 999px; background: var(--fg); color: #000;
     font-size: 10px; line-height: 16px; text-align: center; font-variant-numeric: tabular-nums; }
@@ -471,14 +473,19 @@
     #axes::-webkit-scrollbar { display: none; }
     .eye, .close { flex: none; }
     .count { display: none; }
-    .fmt, .fltmenu, .acctmenu { display: none !important; }
+    /* 폰: CC40 칩은 Format 목록 안으로(.ph), Format 버튼은 아이콘만. 사람 아이콘은 검색(절대 위치) 왼쪽에 붙인다 */
+    .fmt { display: none !important; }
+    #fltcur { display: none; }
+    .fltmenu .fltwrap .axbtn { padding: 0 10px 0 12px; gap: 6px; }
+    .fltmenu.has .fltwrap .axbtn { padding-right: 8px; }
+    .acctmenu { margin-left: auto; }   /* 사람 아이콘이 바깥(오른쪽 끝), 검색은 그 안쪽(절대 위치 --sr) */
     #toast { top: 64px; bottom: auto; transform: translate(-50%, -14px) scale(.94); }
     /* 검색: 펼치면 머리줄을 덮는다. 접힌 채 검색어가 있으면 돋보기 동그라미를 밝게 */
     /* 검색: 돋보기 동그라미의 오른쪽 끝을 고정한 채 왼쪽으로 늘어난다(세 폭 보기에선 닫기 버튼 앞까지).
        자리를 옮기지 않고 폭만 바뀌어 끊기지 않는다 */
-    .search { --sr: 16px; position: absolute; top: 10px; right: var(--sr); width: 36px; height: 36px; z-index: 50;
+    .search { --sr: 60px; position: absolute; top: 10px; right: var(--sr); width: 36px; height: 36px; z-index: 50;
       transition: width .45s var(--out); }
-    body.tri-open .search { --sr: 60px; }
+    body.tri-open .search { --sr: 104px; }   /* 오른쪽부터 닫기 · 사람 · 검색 */
     .search:focus-within { width: calc(100% - 16px - var(--sr)); }
     .search #q, .search:focus-within #q { width: 100%; transition: background .2s, padding .45s var(--out); }
     .search.has:not(:focus-within) #q { width: 36px; padding-right: 0; background: var(--fg); }
@@ -654,7 +661,7 @@ window.BUILD = '?v=' + (SIZES['data.js'] || 0);
 <script type="text/plain" id="main">
 const M = window.META, C = window.COVERS, N = C.length;
 // 버전: 화면·동작이 바뀌면 올린다. 데이터 날짜는 build_web.py 가 META.built 에 적는다
-const VERSION = '1.8.2';
+const VERSION = '1.9.0';
 document.getElementById('ver').textContent = `v${VERSION}`;
 document.getElementById('ver').title = M.built ? `data ${M.built}` : '';
 const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -1166,7 +1173,7 @@ const G = (() => {
       // 한 줄에 화면 폭만큼 채우고, 화면 가운데에 둔다
       const ids = mineOrder(), n = ids.length, w = layout('spine').tw;
       f = { w, h: w / ASPECT, g: w * GAP };
-      const cols = Math.max(1, Math.min(n, Math.floor((Wc - labW + f.g) / (f.w + f.g)))), rows = Math.ceil(n / cols);
+      const cols = Math.max(1, Math.min(n, Math.floor((Wc * .9 / 8 + f.g) / (f.w + f.g)))), rows = Math.ceil(n / cols);   // 한 줄 = 8배 줌 화면 폭에 들어가는 만큼(폰에서도 8배로 보이게)
       ids.forEach((i, n) => { px[i] = (n % cols) * (f.w + f.g); py[i] = Math.floor(n / cols) * (f.h + f.g); });
       const oy = oyBg = Math.max(0, (Hc - 18 - (rows * (f.h + f.g) - f.g)) / 2);
       ids.forEach(i => { py[i] += oy; });
@@ -1581,6 +1588,7 @@ document.addEventListener('error', e => { if (e.target.classList?.contains('lq')
 function sprite(el, name, i) {
   el.style.background = `url("atlas/${name}.${HTTP ? 'webp' : 'jpg'}${BUILD}") ${(i % A.cols) / (A.cols - 1) * 100}% ${Math.floor(i / A.cols) / (A.rows - 1) * 100}% / ${A.cols * 100}% ${A.rows * 100}%`;
 }
+const THUMB_W = 112;   // thumbs/ 폭(px)
 function showLens(i, touch = false) {
   const c = C[i], r = G.rect(i, false);
   // 손가락으로는 타일이 작아 더 크게, 손가락에 가리지 않게 위에 띄운다(위에 자리가 없으면 아래)
@@ -1592,7 +1600,11 @@ function showLens(i, touch = false) {
   lens.style.width = w + 'px'; lens.style.height = h + 'px';
   lens.style.transform = `translate(${x}px, ${y}px)`;
   if (traceOn) sprite(lens, axis, i);
-  else lens.style.background = `${c.color} url("thumbs/${encodeURIComponent(c.file)}") center / cover`;
+  else {
+    // 미리보기가 썸네일(폭 THUMB_W)보다 크게 보이면(줌했을 때) 큰 이미지를 위에 겹친다. 오는 동안은 썸네일이 보인다
+    const f = encodeURIComponent(c.file), big = w * (devicePixelRatio || 1) > THUMB_W * 1.1;
+    lens.style.background = `${big ? `url("large/${f}") center / cover, ` : ''}url("thumbs/${f}") center / cover, ${c.color}`;
+  }
   lens.classList.add('show');
   if (lensOn === null && !RM) {   // 처음 뜰 때: 타일 크기·자리에서 커진다
     lens.animate([{ transform: `translate(${r.left}px, ${r.top}px)`, width: r.width + 'px', height: r.height + 'px', opacity: .3 },
@@ -2512,7 +2524,7 @@ var fmtMatch = null;
     });
     const picked = F.filter(x => x[2] === 'f' && on.has(x[0])).map(x => x[1]);
     cur.textContent = picked.length ? picked.join(', ') : 'Format';
-    menu.classList.toggle('has', picked.length > 0);
+    menu.classList.toggle('has', picked.length > 0 || (narrow() && on.size > 0));   // 폰은 CC40 도 이 버튼에 표시
     apply();
   };
   const toggle = k => { on.has(k) ? on.delete(k) : on.add(k); sync(); };
@@ -2520,7 +2532,12 @@ var fmtMatch = null;
     const b = document.createElement('button');
     b.textContent = label; b.dataset.k = k;
     if (g === 'f') { b.setAttribute('role', 'menuitemcheckbox'); b.setAttribute('aria-checked', 'false'); list.appendChild(b); }
-    else { b.dataset.tip = tipText; b.setAttribute('aria-pressed', 'false'); el.appendChild(b); }
+    else {
+      b.dataset.tip = tipText; b.setAttribute('aria-pressed', 'false'); el.appendChild(b);
+      const m = document.createElement('button');   // 폰에서는 칩 대신 Format 목록 안에
+      m.textContent = label; m.dataset.k = k; m.className = 'ph'; m.setAttribute('role', 'menuitemcheckbox'); m.setAttribute('aria-checked', 'false');
+      m.addEventListener('click', () => toggle(k)); list.appendChild(m);
+    }
     b.addEventListener('click', () => toggle(k));
   }
   [...list.children].forEach((x, n, a) => { x.style.setProperty('--i', n); x.style.setProperty('--n', a.length); });
@@ -2529,7 +2546,7 @@ var fmtMatch = null;
     if (o && byKey) list.querySelector('button')?.focus({ preventScroll: true });
   };
   mbtn.addEventListener('click', e => fltOpen(!menu.classList.contains('open'), e.detail === 0));
-  xBtn.addEventListener('click', () => { F.forEach(x => x[2] === 'f' && on.delete(x[0])); sync(); mbtn.focus({ preventScroll: true }); });
+  xBtn.addEventListener('click', () => { F.forEach(x => (x[2] === 'f' || narrow()) && on.delete(x[0])); sync(); mbtn.focus({ preventScroll: true }); });
   document.addEventListener('pointerdown', e => { if (menu.classList.contains('open') && !menu.contains(e.target)) fltOpen(false); });
 })();
 /* 계정 드롭다운: 로그아웃 = Sign in or sign up(누르면 가운데 로그인 카드 #signin) · 이 기기 저장 편수 · Privacy, 로그인 = 이메일 · 저장 편수 · Sign out · Privacy.
