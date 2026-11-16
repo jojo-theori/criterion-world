@@ -30,6 +30,44 @@ LABEL_PAGE = ROOT / "tools" / "label" / "index.html"
 PEOPLE = ["None", "No-face", "One", "Two", "3+", "Ambiguous"]
 OLD = {"none": "None", "animal": "None", "some": "No-face", "one": "One", "two": "Two", "many": "3+"}
 LOCK = threading.Lock()
+STEER_LOCK = threading.Lock()
+_STEER: dict = {}          # (지도, 범주, 출처, 세기, 라벨 해시) → 결과. 라벨이 바뀌면 다시 계산
+
+
+def steer(q: dict) -> dict:
+    """Lab 다이얼: 그 지도를 범주 라벨 쪽으로 당긴 배치(반지도 UMAP). 기준 지도에서 출발한다."""
+    import hashlib
+    import sys
+    import numpy as np
+    sys.path.insert(0, str(ROOT / "scripts"))
+    import build_lab as B
+    name, scheme, src, w = q["map"], q["scheme"], q.get("src", "human"), round(float(q["w"]), 2)
+    spec = next((m for m in B.MAPS if m[0] == name), None)
+    if not spec or scheme not in B.SCHEMES:
+        return {"error": "unknown map or scheme"}
+    files = B.lab_files()
+    lab = load()["labels"]
+    if src == "human":
+        cats = B.human_cats(files, scheme, lab)
+    else:
+        mine = lab.get(scheme, {})
+        cats = [mine.get(n) or c for n, c in zip(files, B.model_cats(files)[scheme])]
+    labeled = sum(1 for c in cats if c)
+    if labeled < 10:
+        return {"error": f"only {labeled} labeled covers"}
+    key = (name, scheme, src, w, hashlib.md5(json.dumps(cats).encode()).hexdigest())
+    with STEER_LOCK:
+        if key not in _STEER:
+            p = B.EMB / spec[2]
+            cache = np.load(B.OUT / "umap_cache.npz", allow_pickle=True)
+            base = cache.get(f"{spec[2]}|{p.stat().st_mtime_ns}|{len(files)}")
+            if base is None:
+                return {"error": "run build_lab.py first"}
+            base = (base - base.min(0)) / (base.max(0) - base.min(0))
+            q01 = B.steer_layout(B.map_vectors(spec[2], files), base, cats, w)
+            g, cols, rows = B.grid(q01)
+            _STEER[key] = {"xy": np.round(q01, 4).tolist(), "pos": g.tolist(), "cols": cols, "rows": rows, "labeled": labeled}
+    return _STEER[key]
 
 
 def load() -> dict:
@@ -93,6 +131,11 @@ class H(SimpleHTTPRequestHandler):
             return self._send(LABEL_PAGE.read_bytes(), "text/html; charset=utf-8")
         if u.path == "/api/edits":
             return self._json(load())
+        if u.path == "/api/steer":
+            try:
+                return self._json(steer({k: v[0] for k, v in parse_qs(u.query).items()}))
+            except Exception as e:   # 계산 실패는 화면에 이유를 보인다
+                return self._json({"error": f"{type(e).__name__}: {e}"[:200]})
         if u.path == "/api/queue":
             scheme = parse_qs(u.query).get("scheme", ["People"])[0]
             d = load()["labels"].get(scheme, {})

@@ -4,6 +4,7 @@
 무엇으로 색칠하나(Color by): People(people_v2) · Medium(medium_v2) · Composition·Type(사이트 판정, tropes.json).
 배치: Exact = UMAP 좌표 그대로(겹침 허용) / Grid = 빈칸을 조금 둔 격자에 헝가리안 배정(겹치지 않음).
 그림: canvas 에 사이트 아틀라스(web/atlas/cover_s.webp, 40×50)로 그리고, 크게 보이면 web/thumbs(112×140) → web/large(480) 로 바꾼다.
+색: Colored by 의 None 이면 범주 색 테두리 없이 커버만. 다이얼(Pull toward): 색칠한 범주 쪽으로 지도를 당긴 반지도 UMAP(target_weight 0–1, 서버 /api/steer 가 계산, 출처 = 내 라벨만 / 모든 판정).
 조작: 마우스 휠·핀치 = 커서 기준 확대, 끌기·두 손가락 = 이동, 0 = 전체, 커버 클릭 = 그 임베딩에서 가장 가까운 12장 강조.
 편집(Edit): 커버를 끌어 옮기고, 커버 위에서 숫자 키로 범주를 고친다(0 = 모델 판정으로). Export 로 JSON 도 받을 수 있다.
 UMAP 결과는 out/lab/umap_cache.npz 에 둔다(임베딩 파일이 바뀌면 다시 계산).
@@ -64,6 +65,54 @@ def grid(xy: np.ndarray) -> tuple[np.ndarray, int, int]:
     out = np.zeros((n, 2), int)
     out[r] = np.stack([gx.ravel()[c], gy.ravel()[c]], 1)
     return out, cols, rows
+
+
+def lab_files() -> list[str]:
+    """Lab 커버 순서(사이트 data.js 순서 중 묘사가 있는 것). 지도 배열의 행 순서와 같다."""
+    data = (ROOT / "web" / "data.js").read_text().split("\n")
+    covers = json.loads(data[1].split("=", 1)[1].strip().rstrip(";"))
+    cap = json.loads((A / "captions_sonnet_v3.json").read_text())
+    return [c["file"] for c in covers if c["file"] in cap]
+
+
+def model_cats(files: list[str]) -> dict[str, list]:
+    """범주 체계마다 모델 판정(커버 순서대로)"""
+    pv2 = json.loads((A / "people_v2.json").read_text())
+    mv2 = json.loads((A / "medium_v2.json").read_text())
+    tropes = json.loads((A / "tropes.json").read_text())
+    return {"People": [pv2[n]["cat"] for n in files], "Medium": [mv2.get(n, "Other") for n in files],
+            "Composition": [tropes.get(n, {}).get("composition") for n in files], "Type": [tropes.get(n, {}).get("type") for n in files]}
+
+
+def human_cats(files: list[str], scheme: str, lab: dict) -> list:
+    """사람이 고른 범주만(없으면 None): Lab 라벨, People 은 옛 사람 라벨(people_v2 의 human)도"""
+    mine = lab.get(scheme, {})
+    pv2 = json.loads((A / "people_v2.json").read_text()) if scheme == "People" else {}
+    return [mine.get(n) or (pv2.get(n, {}).get("human") if scheme == "People" else None) for n in files]
+
+
+def map_vectors(fname: str, files: list[str]) -> np.ndarray:
+    d = np.load(EMB / fname, allow_pickle=True)
+    idx = {str(n): i for i, n in enumerate(d["files"])}
+    V = d["vectors"].astype(np.float32)[[idx[n] for n in files]]
+    return V / (np.linalg.norm(V, axis=1, keepdims=True) + 1e-9)
+
+
+def steer_layout(V: np.ndarray, base: np.ndarray, cats: list, weight: float) -> np.ndarray:
+    """라벨 쪽으로 당긴 UMAP(반지도: 라벨 없는 커버는 -1). weight 0 = 임베딩만, 1 = 라벨만.
+    기준 지도(base, 0–1)에서 출발해 방향·자리가 크게 바뀌지 않게 한다."""
+    import umap
+    names = sorted({c for c in cats if c})
+    y = np.array([names.index(c) if c else -1 for c in cats])
+    init = (base - base.mean(0)) / (base.std(0) + 1e-9) * 3
+    xy = umap.UMAP(n_neighbors=15, min_dist=0.1, metric="cosine", random_state=0, init=init.astype(np.float32),
+                   target_metric="categorical", target_weight=float(weight)).fit_transform(V, y)
+    # 라벨 쪽으로 당기면 범주 무리가 멀리 떨어져 나가 본체가 작아진다: 가로·세로마다 빈 틈을 폭의 5% 까지만 남긴다(순서·이웃은 그대로)
+    for k in range(2):
+        v = xy[:, k]; o = np.argsort(v); d = np.diff(v[o])
+        d = np.minimum(d, 0.05 * (v.max() - v.min()))
+        v2 = np.empty_like(v); v2[o] = np.concatenate([[0], np.cumsum(d)]); xy[:, k] = v2
+    return (xy - xy.min(0)) / (xy.max(0) - xy.min(0) + 1e-9)
 
 
 def main() -> None:
@@ -152,6 +201,9 @@ canvas.drag{cursor:grabbing}
 .legend em{font-style:normal;color:var(--dim)}
 #tip{position:fixed;z-index:5;max-width:340px;pointer-events:none;font-size:var(--t2);line-height:1.45;color:#cfcfcf;background:#000d;padding:10px 12px;border-radius:10px;opacity:0;transition:opacity .15s}
 #tip b{display:block;color:#fff;font-weight:500;font-size:var(--t3)}#tip em{font-style:normal;color:var(--dim);display:block;margin-bottom:4px}
+.steer{display:flex;align-items:center;gap:10px;margin-top:10px;pointer-events:auto;font-size:var(--t2);color:var(--dim)}
+.steer input{width:180px;accent-color:#ebebeb}.steer b{color:var(--fg);font-weight:400;min-width:2.6em}
+.steer .group button{font-size:var(--t2);height:24px;padding:0 12px}.steer .st{min-width:9em}
 .zoom{position:fixed;right:32px;bottom:28px;z-index:3;display:flex;gap:2px;background:#111;border-radius:999px;padding:4px}
 .zoom button{border:0;background:transparent;color:var(--dim);width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:16px}
 .zoom button:hover{color:var(--fg)}
@@ -160,7 +212,9 @@ canvas.drag{cursor:grabbing}
 <a class="tog" href="/label">Label</a><button class="tog" id="grid">Grid</button><button class="tog" id="edit">Edit</button><button class="tog" id="export">Export</button><button class="tog" id="reset">Reset edits</button></header>
 <canvas id="cv"></canvas>
 <div class="foot"><div class="k">Arranged by</div><h1 id="title"></h1><div class="desc" id="desc"></div>
-  <div class="row"><span class="k">Colored by</span><div class="group" id="schemes"></div></div><div class="legend" id="legend"></div></div>
+  <div class="row"><span class="k">Colored by</span><div class="group" id="schemes"></div></div><div class="legend" id="legend"></div>
+  <div class="steer" id="steer"><span class="k">Pull toward</span><span id="stName"></span><input type="range" id="stW" min="0" max="1" step="0.1" value="0"><b id="stV">0</b>
+    <div class="group" id="stSrc"></div><span class="st" id="stMsg"></span></div></div>
 <div class="zoom"><button id="zin" aria-label="Zoom in">+</button><button id="zout" aria-label="Zoom out">−</button></div>
 <div id="tip"></div>
 <script>
@@ -169,7 +223,7 @@ const N=D.items.length,cv=document.getElementById('cv'),ctx=cv.getContext('2d'),
 const CW=D.tw+D.gap,CH=D.th+D.gap;
 let mapI=Math.max(0,D.maps.findIndex(m=>m.name==='People')),scheme=D.maps[mapI].scheme,exact=true,edit=false,focusCat=null,sel=null,hover=-1;
 // 편집 내용(서버가 data/labels/lab.json 에 저장): labels[scheme][file]=범주, moves[map|layout][file]=[x,y]
-let E={labels:{},moves:{}},saveT=0;
+let E={labels:{},moves:{}},saveT=0,colorOn=true;   // colorOn: 범주 색 테두리(끄면 커버만)
 const save=()=>{clearTimeout(saveT);saveT=setTimeout(()=>fetch('/api/edits',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(E)}),300)};
 const catOf=i=>{const it=D.items[i],o=(E.labels[scheme]||{})[it.f];return o||it.k[scheme]};
 // ---------- 이미지: 아틀라스(저화질) → thumbs → large ----------
@@ -179,13 +233,16 @@ function want(store,base,i){const f=D.items[i].f;if(store[f]||loading>12)return;
   im.onload=im.onerror=()=>{loading--;im.ok=im.complete&&im.naturalWidth>0;dirty=true};im.src=base+f}
 // ---------- 자리: 지금 자리(cx,cy)가 목표(gx,gy)로 부드럽게 ----------
 const cx=new Float32Array(N),cy=new Float32Array(N),gx=new Float32Array(N),gy=new Float32Array(N);
-const moveKey=()=>D.maps[mapI].name+(exact?'|exact':'|grid');
-function targets(){const m=D.maps[mapI],W=(m.cols-1)*CW,H=(m.rows-1)*CH,mv=E.moves[moveKey()]||{};
+let stW=0,stSrc='human',stReq=0;const steered={};
+const stKey=()=>`${D.maps[mapI].name}|${scheme}|${stSrc}|${stW}`;
+const curMap=()=>{const m=D.maps[mapI],o=stW>0&&steered[stKey()];return o?{...m,xy:o.xy,pos:o.pos,cols:o.cols,rows:o.rows}:m};
+const moveKey=()=>D.maps[mapI].name+(exact?'|exact':'|grid')+(stW>0?`|${scheme}:${stSrc}:${stW}`:'');
+function targets(){const m=curMap(),W=(m.cols-1)*CW,H=(m.rows-1)*CH,mv=E.moves[moveKey()]||{};
   for(let i=0;i<N;i++){const o=mv[D.items[i].f];if(o){gx[i]=o[0];gy[i]=o[1];continue}
     if(exact){gx[i]=m.xy[i][0]*W;gy[i]=m.xy[i][1]*H}else{gx[i]=m.pos[i][0]*CW;gy[i]=m.pos[i][1]*CH}}}
 // ---------- 화면 변환 ----------
 let s=1,tx=0,ty=0,S=1,TX=0,TY=0,vx=0,vy=0,dirty=true,dpr=1;
-function worldSize(){const m=D.maps[mapI];return[m.cols*CW,m.rows*CH]}
+function worldSize(){const m=curMap();return[m.cols*CW,m.rows*CH]}
 const fitS=()=>{const[w,h]=worldSize();return Math.min(innerWidth/(w+120),(innerHeight-260)/(h+40))};
 function fit(now){const[w,h]=worldSize();S=fitS();TX=(innerWidth-w*S)/2;TY=70+(innerHeight-260-h*S)/2;if(now){s=S;tx=TX;ty=TY}}
 function zoomAt(f,x,y){const ns=Math.max(fitS()*.7,Math.min(14,S*f));TX=x-(x-TX)*ns/S;TY=y-(y-TY)*ns/S;S=ns}
@@ -202,7 +259,7 @@ function draw(){ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,innerWidth,i
     if(!src&&useMid){if(settled)want(mid,D.thumbs,i);if(mid[f]&&mid[f].ok)src=mid[f]}
     if(src)ctx.drawImage(src,x,y,w,h);
     else if(atlas.complete){const k=D.items[i].a,ac=D.atlas.cols;ctx.drawImage(atlas,(k%ac)*D.atlas.tw,Math.floor(k/ac)*D.atlas.th,D.atlas.tw,D.atlas.th,x,y,w,h)}
-    if(col[c]){ctx.strokeStyle=col[c];ctx.lineWidth=Math.max(1,Math.min(2.5,h/22));ctx.strokeRect(x+.5,y+.5,w-1,h-1)}
+    if(colorOn&&col[c]){ctx.strokeStyle=col[c];ctx.lineWidth=Math.max(1,Math.min(2.5,h/22));ctx.strokeRect(x+.5,y+.5,w-1,h-1)}
     if(i===sel||(nbs&&nbs.has(i))){ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.strokeRect(x-2,y-2,w+4,h+4)}
     const edited=(E.labels[scheme]||{})[f]||(E.moves[moveKey()]||{})[f];
     if(edited&&a>.5){ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(x+w-3,y+3,Math.max(2,Math.min(4,h/14)),0,7);ctx.fill()}}
@@ -247,7 +304,7 @@ addEventListener('keydown',e=>{if(e.metaKey||e.ctrlKey)return;
   if(e.key==='0'&&!edit){fit();return}if(e.key==='Escape'){sel=null;focusCat=null;legend();fit();return}
   if(e.key==='='||e.key==='+')zoomAt(1.6,innerWidth/2,innerHeight/2);if(e.key==='-')zoomAt(1/1.6,innerWidth/2,innerHeight/2);
   // 편집: 커버 위에서 숫자 키 = 그 번호 범주로 고침, 0 = 모델 판정으로 되돌림
-  if(edit&&hover>=0&&/^[0-9]$/.test(e.key)){const cats=Object.keys(D.schemes[scheme]),f=D.items[hover].f,L=(E.labels[scheme]=E.labels[scheme]||{});
+  if(edit&&colorOn&&hover>=0&&/^[0-9]$/.test(e.key)){const cats=Object.keys(D.schemes[scheme]),f=D.items[hover].f,L=(E.labels[scheme]=E.labels[scheme]||{});
     const n=+e.key;if(n===0)delete L[f];else if(cats[n-1])L[f]=cats[n-1]===D.items[hover].k[scheme]?undefined:cats[n-1];if(L[f]===undefined)delete L[f];
     save();legend();updateCount();dirty=true;showTip(hover,{clientX:parseFloat(tip.style.left)-16,clientY:parseFloat(tip.style.top)-16})}});
 addEventListener('resize',()=>{resize();fit()});
@@ -259,9 +316,25 @@ function segment(el,labels,onIdx,cur,seps=[]){el.innerHTML='<span class="pill"><
 function mark(el,k){const bs=[...el.querySelectorAll('button')];bs.forEach((b,j)=>b.classList.toggle('on',j===k));const b=bs[k],p=el.querySelector('.pill');
   if(b){p.style.width=b.offsetWidth+'px';p.style.transform=`translateX(${b.offsetLeft}px)`}}
 const gstart=D.maps.findIndex(m=>m.group==='image');
-segment(document.getElementById('maps'),D.maps.map(m=>m.name),k=>{mapI=k;sel=null;setScheme(D.maps[k].scheme);targets();updateFoot();updateCount();fit()},mapI,gstart>0?[gstart]:[]);
-const SCH=Object.keys(D.schemes);
-function setScheme(n){scheme=n;focusCat=null;mark(document.getElementById('schemes'),SCH.indexOf(n));legend();dirty=true}
+segment(document.getElementById('maps'),D.maps.map(m=>m.name),k=>{mapI=k;sel=null;if(colorOn)setScheme(D.maps[k].scheme);if(stW>0)steer();targets();updateFoot();updateCount();fit()},mapI,gstart>0?[gstart]:[]);
+const SCH=[...Object.keys(D.schemes),'None'];
+// Colored by 의 None = 색 테두리 없이 커버만(범례·다이얼·범주 고치기 숨김). 다시 고르면 그 범주로
+function setScheme(n){colorOn=n!=='None';document.getElementById('legend').style.display=document.getElementById('steer').style.display=colorOn?'':'none';
+  mark(document.getElementById('schemes'),SCH.indexOf(n));if(!colorOn){focusCat=null;dirty=true;return}
+  scheme=n;focusCat=null;legend();dirty=true;
+  document.getElementById('stName').textContent=n;if(stW>0)steer()}
+// 다이얼: 색칠한 범주 쪽으로 지도를 당긴다(서버가 반지도 UMAP 을 계산, 한 번 계산한 것은 저장)
+async function steer(){const key=stKey(),msg=document.getElementById('stMsg');
+  if(stW===0||steered[key]){msg.textContent=stW>0?steered[key].note:'';targets();return}
+  const id=++stReq;msg.textContent='computing…';
+  try{const r=await(await fetch(`/api/steer?map=${encodeURIComponent(D.maps[mapI].name)}&scheme=${scheme}&src=${stSrc}&w=${stW}`)).json();
+    if(r.error){msg.textContent=r.error;return}
+    steered[key]={...r,note:`${r.labeled} labeled covers`};if(id===stReq&&key===stKey()){msg.textContent=steered[key].note;targets();fit()}}
+  catch(e){msg.textContent='failed'}}
+const stIn=document.getElementById('stW');
+stIn.oninput=()=>document.getElementById('stV').textContent=(+stIn.value).toFixed(1);
+stIn.onchange=()=>{stW=+(+stIn.value).toFixed(1);steer()};
+segment(document.getElementById('stSrc'),['My labels','All judgments'],k=>{stSrc=k?'model':'human';steer()},0);
 segment(document.getElementById('schemes'),SCH,k=>setScheme(SCH[k]),SCH.indexOf(scheme));
 function legend(){const el=document.getElementById('legend'),cnt={};for(let i=0;i<N;i++){const c=catOf(i);cnt[c]=(cnt[c]||0)+1}el.innerHTML='';
   Object.entries(D.schemes[scheme]).forEach(([c,col],k)=>{const b=document.createElement('button');b.innerHTML=`<i style="background:${col}"></i>${edit?(k+1)+' ':''}${c} <em>${cnt[c]||0}</em>`;
