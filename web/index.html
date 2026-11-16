@@ -31,7 +31,7 @@
 
   /* 두 화면이 함께 쓰는 머리줄: 축 + 원본/흔적 */
   header { position: fixed; top: 0; left: 0; right: 0; height: 56px; display: flex; align-items: center;
-    gap: 14px; padding: 0 32px; z-index: 40; }   /* 크레딧(30)보다 위: 검색 결과·축 목록이 아래로 길게 내려와도 덮는다 */
+    gap: 8px; padding: 0 32px; z-index: 40; }   /* 크레딧(30)보다 위: 검색 결과·축 목록이 아래로 길게 내려와도 덮는다 */
   .group { position: relative; display: flex; gap: 2px; background: #111; border-radius: 999px; padding: 4px; }
   .group button { position: relative; z-index: 1; border: 0; background: transparent; color: var(--dim); font-size: var(--t3);
     height: 28px; padding: 0 14px; border-radius: 999px; cursor: pointer; white-space: nowrap; transition: color .3s var(--out); }
@@ -44,11 +44,11 @@
     transition: transform .45s var(--out), width .45s var(--out); pointer-events: none; }
   .count { font-size: var(--t2); color: var(--dim); margin-left: auto; transition: opacity .3s; }
   /* 눈: 누르면 기계가 본 흔적이 보인다 */
-  .eye { width: 36px; height: 36px; border: 0; border-radius: 50%; background: #111; color: var(--dim); padding: 0;
+  .eye { width: 36px; height: 36px; border: 0; border-radius: 50%; background: transparent; color: var(--dim); padding: 0;
     cursor: pointer; display: grid; place-items: center; transition: background .35s var(--out), color .35s var(--out); }
-  .eye:hover { color: var(--fg); }
+  .eye:hover { color: var(--fg); background: #1a1a1a; }
   .eye:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
-  .eye svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; overflow: visible; }
+  .eye svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: butt; overflow: visible; }
   .eye .pupil { fill: currentColor; stroke: none; transform-origin: 12px 12px; transition: transform .45s var(--out); }
   .eye .rays { opacity: 0; transform-origin: 12px 12px; transform: scale(.6); transition: opacity .35s var(--out), transform .5s var(--out); }
   .eye[aria-pressed="true"] { background: var(--fg); color: #000; }
@@ -57,13 +57,13 @@
   /* 검색: 평소엔 좁게, 포커스하면 넓어진다 */
   .search { position: relative; }
   /* 쓰지 않을 때는 돋보기만 있는 동그라미로 접힌다 */
-  #q { width: 36px; height: 36px; border: 0; border-radius: 999px; background: #111; color: var(--fg); cursor: pointer;
+  #q { width: 36px; height: 36px; border: 0; border-radius: 999px; background: transparent; color: var(--fg); cursor: pointer;
     font: inherit; font-size: var(--t3); padding: 0 0 0 36px; outline: none; transition: width .45s var(--out), background .2s, padding .45s var(--out); }
   #q:hover { background: #1a1a1a; }
   #q::placeholder { color: transparent; transition: color .2s; }
   .search:focus-within #q::placeholder { color: #666; }
   .search .icon { position: absolute; left: 10px; top: 10px; width: 16px; height: 16px; pointer-events: none;
-    fill: none; stroke: var(--dim); stroke-width: 1.8; stroke-linecap: round; transition: stroke .2s; }
+    fill: none; stroke: var(--dim); stroke-width: 1.8; stroke-linecap: butt; transition: stroke .2s; }
   .search:hover .icon, .search:focus-within .icon { stroke: var(--fg); }
   #q::-webkit-search-cancel-button { display: none; }
   .search .clear { position: absolute; right: 6px; top: 6px; width: 24px; height: 24px; border: 0; border-radius: 50%;
@@ -73,7 +73,7 @@
   .search:not(.has):not(:focus-within) .clear { opacity: 0; pointer-events: none; }
   .search .clear { transition: color .2s, background .2s, opacity .2s; }
   #q::placeholder { color: #666; }
-  #q:focus, .search.has #q { width: 280px; background: #1a1a1a; padding-right: 36px; cursor: text; }
+  #q:focus, .search.has #q { width: var(--qw, 170px);   /* 기본은 짧게, 글자가 길어지면 늘어난다(fitQ, 최대 360) */ background: #1a1a1a; padding-right: 36px; cursor: text; }
   #results { position: absolute; right: 0; top: 44px; width: 340px; margin: 0; padding: 6px; list-style: none;
     background: #0e0e0e; border: 1px solid var(--line); border-radius: 14px; z-index: 40;
     opacity: 0; transform: translateY(-6px); pointer-events: none; transition: opacity .2s var(--out), transform .25s var(--out); }
@@ -86,12 +86,12 @@
   #results .none { height: 120px; display: flex; align-items: center; justify-content: center; text-align: center;
     color: var(--dim); font-size: var(--t3); cursor: default; }
   /* 닫기는 세 폭 보기에서만. 숨어 있을 때는 폭을 접어 검색이 오른쪽 끝에 붙는다(줄이 맞게) */
-  .close { border: 0; background: #111; color: var(--fg); width: 0; margin-left: -14px; height: 36px; border-radius: 50%;
+  .close { border: 0; background: transparent; color: var(--fg); width: 0; margin-left: -8px; height: 36px; border-radius: 50%;
     cursor: pointer; display: grid; place-items: center; padding: 0; opacity: 0; pointer-events: none; transform: scale(.6); overflow: hidden; flex: none;
     transition: opacity .3s var(--out), transform .4s var(--out), width .4s var(--out), margin .4s var(--out), background .2s; }
   body.tri-open .close { opacity: 1; pointer-events: auto; transform: none; width: 36px; margin-left: 0; }
-  .close svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; }
-  body.tri-open .close:hover { background: #222; transform: rotate(90deg); }
+  .close svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: butt; }
+  body.tri-open .close:hover { background: #1a1a1a; transform: rotate(90deg); }
   body.tri-open .count { opacity: 0; }
 
   /* 격자: 캔버스 한 장 */
@@ -156,6 +156,57 @@
   /* 번호·제목·감독 줄은 커버 윗변에, 표와 링크(.body)는 아랫변에 붙인다. justify-content 로 나누면 넘친 높이를 잴 수 없다 */
   .info .body { margin-top: auto; display: flex; flex-direction: column; gap: 6px; }
   .info .no { font-size: var(--t3); margin-bottom: -2px; }
+  /* 저장(My Collection): 상세 정보 오른쪽 위. Lucide bookmark, 저장하면 채운다 */
+  .info .hd { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+  .info .save { flex: none; width: 32px; height: 32px; margin: -7px -2px -7px 0; border: 0; border-radius: 50%; background: transparent; color: var(--dim);
+    display: grid; place-items: center; padding: 0; cursor: pointer; transition: color .2s, background .2s, transform .35s cubic-bezier(.34,1.56,.64,1); }
+  .info .save:hover { color: var(--fg); background: #1a1a1a; }
+  .info .save:active { transform: scale(.88); }
+  .info .save:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
+  .info .save svg { width: 16px; height: 16px; fill: transparent; stroke: currentColor; stroke-width: 1.25; stroke-linejoin: miter; transition: fill .25s var(--out); }
+  .info .save.on { color: var(--fg); }
+  .info .save.on svg { fill: var(--fg); }
+  .info .save.pop svg { animation: savepop .5s cubic-bezier(.34,1.56,.64,1); }
+  @keyframes savepop { 0% { transform: scale(.6); } 60% { transform: scale(1.18); } 100% { transform: none; } }
+  /* 토스트: 아래 가운데 알약. 폰은 머리줄 아래 */
+  #toast { position: fixed; left: 50%; bottom: 32px; z-index: 60; display: flex; align-items: center; gap: 10px; height: 40px; padding: 0 8px 0 16px;
+    background: #111; border-radius: 999px; color: var(--fg); font-size: var(--t3); white-space: nowrap; pointer-events: none;
+    opacity: 0; transform: translate(-50%, 14px) scale(.94); filter: blur(4px);
+    transition: opacity .25s var(--out), transform .45s cubic-bezier(.34,1.56,.64,1), filter .3s var(--out); }
+  #toast.show { opacity: 1; transform: translate(-50%, 0); filter: none; pointer-events: auto; }
+  #toast svg { width: 15px; height: 15px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.25; stroke-linecap: butt; stroke-linejoin: miter; }
+  #toast svg.fill { fill: currentColor; }
+  #toast button { height: 28px; padding: 0 12px; border: 0; border-radius: 999px; background: #1f1f1f; color: var(--fg); font: inherit; cursor: pointer; }
+  #toast button:hover { background: #2a2a2a; }
+  #toast:not(.act) { padding-right: 16px; }
+  #toast:not(.act) button { display: none; }
+  /* My Collection 이 비었을 때 */
+  #mineEmpty { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+    color: var(--fg); font-size: var(--t4); pointer-events: none; opacity: 0; transform: translateY(8px); transition: opacity .4s var(--out), transform .5s var(--out); }
+  #mineEmpty .s { color: var(--dim); font-size: var(--t3); }
+  #mineEmpty svg { width: 22px; height: 22px; margin-bottom: 6px; fill: none; stroke: var(--dim); stroke-width: 1.25; stroke-linejoin: miter; }
+  body.mine-empty:not(.tri-open) #mineEmpty { opacity: 1; transform: none; transition-delay: .25s; }
+  .chips .cnt { margin-left: 6px; color: #666; font-variant-numeric: tabular-nums; }
+  .chips button.on .cnt { color: #555; }
+  /* 계정: 검색 옆 사람 아이콘(Lucide user). 로그인(Supabase, Google·Apple)은 준비 중, 지금은 이 기기에 저장 */
+  .acctmenu { position: relative; flex: none; }
+  .acct { width: 36px; height: 36px; border: 0; border-radius: 50%; background: transparent; color: var(--dim); display: grid; place-items: center; padding: 0; cursor: pointer;
+    transition: color .2s, background .2s; }
+  .acct:hover, .acctmenu.open .acct { color: var(--fg); background: #1a1a1a; }
+  .acct:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
+  .acct svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.25; stroke-linecap: butt; stroke-linejoin: miter; }
+  .acct { position: relative; }
+  .acct.in { color: var(--fg); }
+  .acct.in::after { content: ''; position: absolute; right: 8px; bottom: 8px; width: 5px; height: 5px; background: var(--fg); box-shadow: 0 0 0 2px #000; }
+  .axlist .note b { display: block; color: var(--fg); font-weight: 400; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .axlist button[disabled] { cursor: default; }
+  .axlist a.plink { display: block; padding-top: 2px; color: #666; text-decoration: none; transition: color .2s; }
+  .axlist a.plink:hover { color: var(--fg); }
+  .axlist .gbtn { min-height: 40px; padding: 2px 4px; display: flex; align-items: center; color-scheme: normal; }
+  .acctmenu .axlist { left: auto; right: 0; min-width: 240px; transform-origin: calc(100% - 18px) 0; }
+  .axlist .note { padding: 8px 14px 6px; font-size: var(--t2); line-height: 1.4; color: #777; white-space: normal; }
+  .axlist .soon { margin-left: auto; font-size: var(--t1); color: #555; }
+
   .info .t { font-size: var(--t5); line-height: 1.12; color: var(--fg); margin-bottom: 10px; }
   .info.small .t { font-size: var(--t5s); }
   .info.tight .kv span:last-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -175,7 +226,7 @@
   .info a.no .out { opacity: .6; transition: opacity .2s; }
   .info a.no:hover .out, .info a.no:focus-visible .out { opacity: 1; }
   .info .no .out { width: .62em; height: .62em; margin-left: .3em; vertical-align: .05em; fill: none; stroke: currentColor;
-    stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
+    stroke-width: 1.75; stroke-linecap: butt; stroke-linejoin: miter; }
   /* 더보기: 덜 중요한 줄은 접어 둔다 */
   .info .extra { display: none; flex-direction: column; gap: 6px; overflow: hidden; }
   .info .m { font-size: var(--t2); margin-top: 2px; }
@@ -232,7 +283,7 @@
   #zoom button:hover { background: #222; color: var(--fg); }
   body.tri-open #zoom { opacity: 0; pointer-events: none; }
   #stage { overflow: hidden; }
-  html, body { touch-action: pan-x pan-y; }   /* 폰: 페이지 핀치·두 번 탭 확대 금지 */
+  html, body { touch-action: pan-x pan-y; overscroll-behavior: none; }   /* 가장자리 밀기로 뒤로 가기·당겨서 새로고침 금지 */   /* 폰: 페이지 핀치·두 번 탭 확대 금지 */
   #hires { position: absolute; inset: 0; pointer-events: none; }
   /* 터치: 화면 정가운데 점. 점이 닿은 커버·클러스터에 호버 효과(확대했을 때만) */
   #reticle { position: absolute; left: 50%; top: 50%; width: 6px; height: 6px; margin: -3px 0 0 -3px; border-radius: 50%; background: #ebebeb;
@@ -244,6 +295,50 @@
   #hires img.hov { outline: 1px solid #ebebeb; outline-offset: -1px; }
   #hires img { transition: opacity .25s, filter .3s; }
   #hires img.dim { filter: brightness(.4); }
+  #hires img.dim.deep { filter: brightness(.16); }
+  /* 판매 형식 필터(여러 개 켤 수 있음): 켠 형식 중 하나라도 지금 파는 커버만 밝게 */
+  /* 필터 칩: 묶지 않고 하나씩 켜고 끄는 알약. 정렬(축) 드롭다운 바로 오른쪽 */
+  .chips { display: flex; align-items: center; gap: 8px; }
+  .chips .sep { width: 6px; }
+  .chips button { height: 36px; padding: 0 15px; border: 1px solid #2a2a2a; border-radius: 999px; background: transparent; color: var(--dim);
+    font-size: var(--t3); white-space: nowrap; cursor: pointer;
+    transition: color .3s var(--out), background .3s var(--out), border-color .3s var(--out), transform .35s cubic-bezier(.34,1.56,.64,1); }
+  .chips button:hover:not(.on) { color: var(--fg); border-color: #555; }
+  .chips button:active { transform: scale(.94); }
+  .chips button.on { background: var(--fg); border-color: var(--fg); color: #000; }
+  .chips button:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
+  body.tri-open .fmt { opacity: 0; pointer-events: none; }
+  .fmt { transition: opacity .3s; flex: none; }
+  /* 형식(4K · Blu-ray · DVD) 멀티셀렉트 드롭다운: 정렬 드롭다운과 같은 결. 골라도 닫지 않는다.
+     하나라도 고르면 버튼에 고른 형식이 쓰이고, 1px 구분선 오른쪽에 × 영역이 펼쳐져 누르면 모두 지운다 */
+  .fltmenu { position: relative; flex: none; transition: opacity .3s; }
+  .fltwrap { display: flex; align-items: center; height: 36px; background: #111; border-radius: 999px; transition: background .3s var(--out); }
+  .fltmenu.open .fltwrap { background: #1c1c1c; }
+  .fltwrap .axbtn { background: transparent; color: var(--dim); transition: color .3s var(--out), padding .35s var(--out), transform .35s cubic-bezier(.34,1.56,.64,1); }
+  .fltwrap .axbtn:hover, .fltmenu.has .fltwrap .axbtn { color: var(--fg); }
+  .fltmenu.has .fltwrap .axbtn { padding-right: 12px; }
+  .fltwrap .vsep { width: 1px; height: 16px; background: #333; opacity: 0; transition: opacity .3s var(--out); flex: none; }
+  .fltx { width: 0; height: 36px; padding: 0; border: 0; background: transparent; color: var(--dim); border-radius: 0 999px 999px 0; overflow: hidden;
+    display: flex; align-items: center; justify-content: center; cursor: pointer; flex: none; opacity: 0; pointer-events: none;
+    transition: width .45s cubic-bezier(.34,1.56,.64,1), opacity .25s var(--out), color .3s var(--out), background .3s var(--out); }
+  .fltx svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: butt; flex: none; }
+  .fltx:hover { color: var(--fg); background: #222; }
+  .fltx:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
+  .fltmenu.has .vsep { opacity: 1; }
+  /* 하나라도 고르면 켠 칩과 같은 흰 알약: 글자·아이콘 검정, 구분선·× 는 회색 */
+  .fltmenu.has .fltwrap, .fltmenu.has.open .fltwrap { background: var(--fg); }
+  .fltmenu.has .fltwrap .axbtn { color: #000; }
+  .fltmenu.has .fltwrap .axbtn svg.chev { stroke: #555; }
+  .fltmenu.has .vsep { background: #c4c4c4; }
+  .fltmenu.has .fltx { color: #555; }
+  .fltmenu.has .fltx:hover { color: #000; background: #d6d6d6; }
+  .fltmenu.has .fltx { width: 36px; opacity: 1; pointer-events: auto; }
+  body.tri-open .fltmenu { opacity: 0; pointer-events: none; }
+  .fltmenu .axlist { transform-origin: 24px 0; min-width: 120px; }
+  .fltmenu.open .axbtn svg.chev { transform: rotate(180deg); }
+  .axbtn .n { min-width: 16px; height: 16px; padding: 0 4px; border-radius: 999px; background: var(--fg); color: #000;
+    font-size: 10px; line-height: 16px; text-align: center; font-variant-numeric: tabular-nums; }
+  .axbtn .n:empty { display: none; }
   #stage.zoomed #grid { cursor: grab; }
   #grid.grabbing { cursor: grabbing !important; }
   /* 영역 네모(People 의 Couple): 평소엔 거의 보이지 않고, 호버하면 밝아지며 이름이 뜬다 */
@@ -286,19 +381,36 @@
   header.measure > * { flex-shrink: 0 !important; min-width: auto !important; }
   header.measure #axes { overflow: visible; }
   .count { white-space: nowrap; }
-  body.axcompact .axmenu { display: block; margin-right: auto; }   /* 검색·닫기는 오른쪽 끝에 */
+  body.axcompact .axmenu { display: block; }   /* 개수(.count margin-left auto)가 검색·닫기를 오른쪽 끝으로 민다 */
   .axbtn { height: 36px; display: inline-flex; align-items: center; gap: 8px; padding: 0 14px 0 16px; border: 0; border-radius: 999px;
     background: #111; color: var(--fg); font: inherit; font-size: var(--t3); cursor: pointer; white-space: nowrap; }
   .axbtn:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
-  .axbtn svg { width: 10px; height: 10px; fill: none; stroke: var(--dim); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round;
+  .axbtn svg.li { width: 15px; height: 15px; flex: none; margin-right: -2px; fill: none; stroke: currentColor; stroke-width: 1.25; stroke-linecap: butt; stroke-linejoin: miter; }
+  .axbtn svg.chev { width: 10px; height: 10px; fill: none; stroke: var(--dim); stroke-width: 1.6; stroke-linecap: butt; stroke-linejoin: miter;
     transition: transform .3s var(--out); }
-  .axmenu.open .axbtn svg { transform: rotate(180deg); }
+  .axmenu.open .axbtn svg.chev { transform: rotate(180deg); }
   /* 목록은 가로 세그먼트(.group)와 같은 결: #111 알약 바탕, 28px 알약 버튼, 고른 것은 흰 알약에 검은 글자, 묶음 사이는 1px 선 */
+  /* 펼침: 버튼에서 흘러내리듯(위에서부터 잘린 창이 열리고, 살짝 튀며 커지고, 흐림이 걷힌다) + 항목이 차례로 떨어진다(--i).
+     접힘: 항목이 아래부터 먼저 사라지고 창이 위로 말려 올라간다 */
   .axlist { position: absolute; left: 0; top: 44px; min-width: 100%; display: flex; flex-direction: column; gap: 2px; padding: 4px;
-    background: #111; border-radius: 18px; z-index: 40;
-    opacity: 0; transform: translateY(-6px); pointer-events: none; transition: opacity .2s var(--out), transform .25s var(--out); }
-  .axmenu.open .axlist { opacity: 1; transform: none; pointer-events: auto; }
+    background: #111; border-radius: 18px; z-index: 40; transform-origin: 24px 0;
+    opacity: 0; transform: translateY(-10px) scale(.86, .6); filter: blur(6px); clip-path: inset(0 0 100% 0 round 18px); pointer-events: none;
+    transition: opacity .22s var(--out) .08s, transform .3s cubic-bezier(.5,0,.75,0) .04s, filter .25s, clip-path .3s cubic-bezier(.5,0,.75,0) .04s; }
+  .axmenu.open .axlist, .fltmenu.open .axlist, .acctmenu.open .axlist { opacity: 1; transform: none; filter: none; clip-path: inset(-2px -2px -2px -2px round 18px); pointer-events: auto;
+    transition: opacity .18s var(--out), transform .55s cubic-bezier(.34,1.56,.64,1), filter .35s var(--out), clip-path .45s cubic-bezier(.22,1,.36,1); }
+  .axmenu .axlist > *, .fltmenu .axlist > *, .acctmenu .axlist > * { opacity: 0; transform: translateY(-8px); filter: blur(3px);
+    transition: opacity .12s, transform .15s, filter .12s, color .3s var(--out), background .3s var(--out);
+    transition-delay: calc((var(--n, 8) - var(--i, 0)) * 12ms); }
+  .open .axlist > * { opacity: 1; transform: none; filter: none;
+    transition: opacity .3s var(--out), transform .5s cubic-bezier(.34,1.56,.64,1), filter .35s var(--out), color .3s var(--out), background .3s var(--out);
+    transition-delay: calc(60ms + var(--i, 0) * 32ms), calc(60ms + var(--i, 0) * 32ms), calc(60ms + var(--i, 0) * 32ms), 0s, 0s; }
+  .axbtn { transition: transform .35s cubic-bezier(.34,1.56,.64,1), background .3s var(--out); }
+  .axbtn:active { transform: scale(.95); }
+  .open > .axbtn { background: #1c1c1c; }
   .axlist .sep { height: 1px; margin: 4px 10px; background: #333; }
+  /* 정렬 목록 항목 앞 아이콘(Lucide, ISC): 글자와 같은 색, 얇은 선 */
+  .axlist button { display: flex; align-items: center; gap: 10px; }
+  .axlist button svg.li { width: 15px; height: 15px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.25; stroke-linecap: butt; stroke-linejoin: miter; }
   .axlist button { height: 28px; padding: 0 14px; border: 0; border-radius: 999px; background: transparent; text-align: left;
     color: var(--dim); font: inherit; font-size: var(--t3); white-space: nowrap; cursor: pointer; transition: color .3s var(--out), background .3s var(--out); }
   .axlist button:not(:disabled):not(.on):hover { color: var(--fg); background: #1f1f1f; }
@@ -325,6 +437,8 @@
     #axes::-webkit-scrollbar { display: none; }
     .eye, .close { flex: none; }
     .count { display: none; }
+    .fmt, .fltmenu, .acctmenu { display: none !important; }
+    #toast { top: 64px; bottom: auto; transform: translate(-50%, -14px) scale(.94); }
     /* 검색: 펼치면 머리줄을 덮는다. 접힌 채 검색어가 있으면 돋보기 동그라미를 밝게 */
     /* 검색: 돋보기 동그라미의 오른쪽 끝을 고정한 채 왼쪽으로 늘어난다(세 폭 보기에선 닫기 버튼 앞까지).
        자리를 옮기지 않고 폭만 바뀌어 끊기지 않는다 */
@@ -384,9 +498,18 @@
   </button>
   <div class="group" id="axes" role="group" aria-label="Axes"></div>
   <div class="axmenu" id="axmenu">
-    <button class="axbtn" id="axbtn" aria-haspopup="true" aria-expanded="false" aria-controls="axlist"><span id="axcur"></span><svg viewBox="0 0 10 10" aria-hidden="true"><path d="M2 3.5 5 6.5 8 3.5"/></svg></button>
+    <button class="axbtn" id="axbtn" aria-haspopup="true" aria-expanded="false" aria-controls="axlist"><svg class="li" id="axicon" viewBox="0 0 24 24" aria-hidden="true"></svg><span id="axcur"></span><svg class="chev" viewBox="0 0 10 10" aria-hidden="true"><path d="M2 3.5 5 6.5 8 3.5"/></svg></button>
     <div class="axlist" id="axlist" role="menu" aria-label="Axes"></div>
   </div>
+  <div class="fltmenu" id="fltmenu">
+    <div class="fltwrap">
+      <button class="axbtn" id="fltbtn" aria-haspopup="true" aria-expanded="false" aria-controls="fltlist"><svg class="li" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="2"/></svg><span id="fltcur">Format</span><svg class="chev" viewBox="0 0 10 10" aria-hidden="true"><path d="M2 3.5 5 6.5 8 3.5"/></svg></button>
+      <i class="vsep" aria-hidden="true"></i>
+      <button class="fltx" id="fltx" aria-label="Clear format filter" data-tip="Clear"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 2.5l7 7M9.5 2.5l-7 7"/></svg></button>
+    </div>
+    <div class="axlist" id="fltlist" role="menu" aria-label="Format"></div>
+  </div>
+  <div class="chips fmt" id="fmt" role="group" aria-label="Filter"></div>
   <div class="count" id="count"></div>
   <div class="search" id="search">
     <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.2"/><path d="M15.2 15.2 20 20"/></svg>
@@ -394,9 +517,13 @@
     <button class="clear" id="qClear" aria-label="Clear search" data-key="esc" data-tip="Clear">×</button>
     <ol id="results" role="listbox"></ol>
   </div>
+  <div class="acctmenu" id="acctmenu">
+    <button class="acct" id="acct" aria-label="Account" aria-haspopup="true" aria-expanded="false" aria-controls="acctlist" data-tip="Account"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></button>
+    <div class="axlist" id="acctlist" role="menu" aria-label="Account"></div>
+  </div>
   <button class="close" id="close" aria-label="Close" data-key="esc" data-tip="Close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7 7 17"/></svg></button>
 </header>
-<div id="stage"><div id="reticle"></div><canvas id="grid" tabindex="0" aria-label="Cover grid. Arrow keys move, Enter opens"></canvas></div>
+<div id="stage"><div id="mineEmpty"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 21 12 17 5 21V3h14z"/></svg><div>Nothing saved yet</div><div class="s">Open a cover and tap the bookmark to keep it here.</div></div><div id="reticle"></div><canvas id="grid" tabindex="0" aria-label="Cover grid. Arrow keys move, Enter opens"></canvas></div>
 <div id="zoom"><button id="zoomIn" aria-label="Zoom in" data-key="+" data-tip="Zoom in">+</button><button id="zoomOut" aria-label="Zoom out" data-key="−" data-tip="Zoom out">−</button></div>
 <footer>
   <div class="k">Arranged by</div>
@@ -410,6 +537,7 @@
   <div>Not affiliated with <a href="https://www.criterion.com" target="_blank" rel="noopener">The Criterion Collection</a></div>
 </div>
 <div id="tip"></div>
+<div id="toast" role="status" aria-live="polite"><svg viewBox="0 0 24 24" aria-hidden="true"></svg><span></span><button type="button">View</button></div>
 <div id="lens"></div>
 <div id="flyer"></div>
 
@@ -434,7 +562,7 @@
 /* 빌드마다 바뀌는 값(data.js 크기)을 data.js 와 아틀라스 주소에 붙인다. 커버가 늘면 아틀라스 칸 순서가 바뀌는데,
    브라우저가 이전 아틀라스를 캐시에서 쓰면 칸마다 엉뚱한 커버가 그려진다 */
 window.BUILD = '';
-const SIZES = /*SIZES*/{"data.js": 1797059, "atlas/cover_s.webp": 780562}/*END*/;
+const SIZES = /*SIZES*/{"data.js": 1799761, "atlas/cover_s.webp": 780562}/*END*/;
 window.PRELOAD = {};
 window.BUILD = '?v=' + (SIZES['data.js'] || 0);
 (() => {
@@ -481,7 +609,7 @@ window.BUILD = '?v=' + (SIZES['data.js'] || 0);
 <script type="text/plain" id="main">
 const M = window.META, C = window.COVERS, N = C.length;
 // 버전: 화면·동작이 바뀌면 올린다. 데이터 날짜는 build_web.py 가 META.built 에 적는다
-const VERSION = '1.4.4';
+const VERSION = '1.7.2';
 document.getElementById('ver').textContent = `v${VERSION}`;
 document.getElementById('ver').title = M.built ? `data ${M.built}` : '';
 const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -505,13 +633,131 @@ const AXES = {
   type:        { label: 'Type',        name: 'Typography' },
   composition: { label: 'Composition', name: 'Composition' },
   medium:      { label: 'Medium',      name: 'Medium' },
+  mine:        { label: 'My Collection', name: 'My Collection' },   // 저장한 커버만(나머지는 사라진다). 격자·순회는 브라우저에서 만든다
 };
 const KEYS = Object.keys(AXES);
+/* My Collection: 저장한 커버(spine). 지금은 이 기기(localStorage)에만. 나중에 Supabase(Google·Apple 로그인)로 옮길 때
+   이 객체의 load/save 만 바꾸면 된다(has · toggle · size · list · on) */
+const Saved = (() => {
+  const KEY = 'ccw.saved.v1', subs = [];
+  let s = new Set();
+  try { s = new Set(JSON.parse(localStorage.getItem(KEY) || '[]')); } catch {}
+  const save = () => { try { localStorage.setItem(KEY, JSON.stringify([...s])); } catch {} };
+  let remote = null;   // 로그인하면 { add(sp), del(sp) } — 계정(Supabase saved 테이블)에도 반영
+  const emit = () => subs.forEach(f => f());
+  return {
+    has: sp => s.has(sp), size: () => s.size, list: () => [...s],
+    toggle(sp) {
+      const on = !s.has(sp); on ? s.add(sp) : s.delete(sp); save(); emit();
+      remote?.[on ? 'add' : 'del'](sp)?.catch(e => { console.warn(e); toast('Couldn’t sync to your account. Kept on this device.'); });
+      return on;
+    },
+    replace(arr) { s = new Set(arr); save(); emit(); },
+    attach(r) { remote = r; },
+    on: f => subs.push(f),
+  };
+})();
+const BOOKMARK = '<path d="M19 21 12 17 5 21V3h14z"/>';
+let toastT = 0;
+function toast(msg, { icon = '', fill = false, action = null } = {}) {
+  const el = document.getElementById('toast'), svg = el.querySelector('svg'), btn = el.querySelector('button');
+  svg.innerHTML = icon; svg.style.display = icon ? '' : 'none'; svg.classList.toggle('fill', fill);
+  el.querySelector('span').textContent = msg;
+  el.classList.toggle('act', !!action); btn.onclick = action ? () => { el.classList.remove('show'); action(); } : null;
+  el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
+  clearTimeout(toastT); toastT = setTimeout(() => el.classList.remove('show'), action ? 3200 : 2200);
+}
+/* 로그인: Supabase Auth(Google·Apple), PKCE 를 직접 처리한다(라이브러리 없이 fetch). publishable 키는 공개용이고
+   데이터는 saved 테이블의 RLS(자기 줄만)로 지킨다. 세션은 localStorage 'ccw.auth.v1'.
+   로그인하면 이 기기의 My Collection 을 계정에 합쳐 올리고, 이후 저장·해제는 계정에도 반영. 로그아웃하면 이 기기 목록을 비운다 */
+const SB = { url: 'https://tjpyfzbnswvvvbhrpgwf.supabase.co', key: 'sb_publishable_h8nNTVRUKi3V7kiBnTFVcw_AqzaZFtF' };
+// Google 은 자체 로그인 버튼(Google Identity Services)으로 ID 토큰을 받아 Supabase 에 넘긴다. 그러면 Google 화면에
+// supabase.co 대신 이 사이트(ccw.umjo.me)가 보인다. 스크립트는 계정 메뉴를 처음 열 때만 받는다
+const GOOGLE_CLIENT_ID = '330654926496-4ram25vk20gpah1g705t1i4hiklc92ed.apps.googleusercontent.com';
+const Auth = (() => {
+  const KEY = 'ccw.auth.v1', subs = [];
+  let ses = null;
+  try { ses = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch {}
+  const emit = () => subs.forEach(f => f());
+  const store = x => { ses = x; try { x ? localStorage.setItem(KEY, JSON.stringify(x)) : localStorage.removeItem(KEY); } catch {} emit(); };
+  const b64u = buf => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  async function token(grant, body) {
+    const r = await fetch(`${SB.url}/auth/v1/token?grant_type=${grant}`, { method: 'POST', headers: { apikey: SB.key, 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    if (!r.ok) throw new Error(`auth ${r.status}`);
+    const j = await r.json(), m = j.user?.user_metadata || {};
+    store({ access_token: j.access_token, refresh_token: j.refresh_token, expires_at: j.expires_at || Math.floor(Date.now() / 1000) + j.expires_in,
+      user: { id: j.user?.id, email: j.user?.email || '', name: m.full_name || m.name || '' } });
+  }
+  async function access() {
+    if (!ses) return null;
+    if (ses.expires_at - 60 < Date.now() / 1000) {
+      try { await token('refresh_token', { refresh_token: ses.refresh_token }); } catch { store(null); return null; }
+    }
+    return ses.access_token;
+  }
+  async function signIn(provider) {
+    const v = b64u(crypto.getRandomValues(new Uint8Array(32)));
+    const ch = b64u(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(v)));
+    sessionStorage.setItem('ccw.pkce', JSON.stringify({ v, hash: location.hash }));
+    const back = location.origin + location.pathname;
+    location.href = `${SB.url}/auth/v1/authorize?provider=${provider}&redirect_to=${encodeURIComponent(back)}&code_challenge=${ch}&code_challenge_method=s256`;
+  }
+  // 로그인에서 돌아왔을 때(?code=…): 주소를 먼저 원래대로(축·상세 해시 복원) 돌려놓고 코드를 세션으로 바꾼다
+  const q = new URLSearchParams(location.search), code = q.get('code'), err = q.get('error_description') || q.get('error');
+  let pk = null;
+  if (code || err) {
+    try { pk = JSON.parse(sessionStorage.getItem('ccw.pkce') || 'null'); } catch {}
+    sessionStorage.removeItem('ccw.pkce');
+    history.replaceState(null, '', location.pathname + (pk?.hash || location.hash));
+  }
+  const finished = !code || !pk ? Promise.resolve(err ? 'error' : null)
+    : token('pkce', { auth_code: code, code_verifier: pk.v }).then(() => 'in', e => { console.warn(e); return 'error'; });
+  async function signOut() {
+    const tk = ses?.access_token; store(null);
+    if (tk) fetch(`${SB.url}/auth/v1/logout`, { method: 'POST', headers: { apikey: SB.key, Authorization: `Bearer ${tk}` } }).catch(() => {});
+  }
+  async function rest(path, opt = {}) {
+    const tk = await access(); if (!tk) throw new Error('signed out');
+    const r = await fetch(`${SB.url}/rest/v1/${path}`, { ...opt, headers: { apikey: SB.key, Authorization: `Bearer ${tk}`, 'Content-Type': 'application/json', ...(opt.headers || {}) } });
+    if (!r.ok) throw new Error(`rest ${r.status} ${await r.text()}`);
+    const tx = await r.text(); return tx ? JSON.parse(tx) : null;
+  }
+  // Google ID 토큰 → 세션. nonce 는 Google 에 해시를, Supabase 에 원본을 준다
+  const nonce = async () => {
+    const raw = b64u(crypto.getRandomValues(new Uint8Array(24)));
+    const h = [...new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(raw)))].map(b => b.toString(16).padStart(2, '0')).join('');
+    return { raw, hashed: h };
+  };
+  const idToken = (provider, id_token, raw) => token('id_token', { provider, id_token, nonce: raw });
+  let prov = null;
+  const providers = () => prov ??= fetch(`${SB.url}/auth/v1/settings`, { headers: { apikey: SB.key } }).then(r => r.json()).then(j => j.external || {}, () => ({}));
+  return { user: () => ses?.user || null, signIn, signOut, rest, providers, finished, nonce, idToken, on: f => subs.push(f) };
+})();
+const INS = { method: 'POST', headers: { Prefer: 'resolution=ignore-duplicates,return=minimal' } };
+Saved.attach({
+  add: sp => Auth.user() ? Auth.rest('saved', { ...INS, body: JSON.stringify([{ spine: sp }]) }) : null,
+  del: sp => Auth.user() ? Auth.rest(`saved?spine=eq.${sp}`, { method: 'DELETE', headers: { Prefer: 'return=minimal' } }) : null,
+});
+// 계정 목록을 받아 이 기기 것과 합친다(이 기기에만 있던 것은 계정에 올린다)
+async function syncSaved() {
+  if (!Auth.user()) return;
+  try {
+    const server = (await Auth.rest('saved?select=spine&order=created_at.asc')).map(x => x.spine);
+    const missing = Saved.list().filter(sp => !server.includes(sp));
+    if (missing.length) await Auth.rest('saved', { ...INS, body: JSON.stringify(missing.map(spine => ({ spine }))) });
+    Saved.replace([...server, ...missing]);
+  } catch (e) { console.warn(e); toast('Couldn’t load My Collection from your account.'); }
+}
+Auth.finished.then(res => {
+  if (res === 'in') { const u = Auth.user(); toast(`Signed in${u?.email ? ` as ${u.email}` : ''}`); }
+  else if (res === 'error') toast('Sign-in didn’t finish. Please try again.');
+  syncSaved();
+});
 const META_AXES = new Set(['spine', 'year']);
 const TROPE_AXES = new Set(['people', 'type', 'composition', 'medium']);
 const stem = f => f.replace(/\.jpg$/, '');
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-const has = (i, k) => META_AXES.has(k) || !!C[i].nb[k];
+const has = (i, k) => META_AXES.has(k) || (k === 'mine' ? !!RING_POS.mine?.has(i) : !!C[i].nb[k]);
 const ease = t => 1 - Math.pow(1 - t, 3);
 const easeIO = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 
@@ -556,26 +802,46 @@ axesEl.addEventListener('click', e => { const b = e.target.closest('button'); if
 
 /* 축 드롭다운(2단): Spine·Year 와 나머지를 가로 세그먼트와 같은 자리에서 1px 선으로 나눈다 */
 const axMenu = document.getElementById('axmenu'), axBtn = document.getElementById('axbtn'), axList = document.getElementById('axlist');
-[KEYS.slice(0, 5), KEYS.slice(5, 6), KEYS.slice(6)].forEach((ks, n) => {
-  if (n) { const h = document.createElement('span'); h.className = 'sep'; axList.appendChild(h); }
-  ks.forEach(k => { const b = document.createElement('button'); b.dataset.axis = k; b.textContent = AXES[k].label; b.setAttribute('role', 'menuitemradio'); axList.appendChild(b); });
+// 구분선 없이 아이콘으로 구분(2026-11-16 사용자). Lucide 아이콘(ISC): hash, calendar, globe, clock, ratio, droplet, users, type, frame, brush
+const AX_ICON = {
+  spine: '<path d="M4 9h16M4 15h16M10 3 8 21M16 3l-2 18"/>',
+  year: '<path d="M8 2v4M16 2v4"/><rect width="18" height="18" x="3" y="4"/><path d="M3 10h18"/>',
+  country: '<circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20M2 12h20"/>',
+  runtime: '<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
+  aspect: '<rect width="12" height="20" x="6" y="2"/><rect width="20" height="12" x="2" y="6"/>',
+  color: '<path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/>',
+  people: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>',
+  type: '<path d="M4 7V4h16v3M9 20h6M12 4v16"/>',
+  composition: '<path d="M22 6H2M22 18H2M6 2v20M18 2v20"/>',
+  mine: '<path d="M19 21 12 17 5 21V3h14z"/>',
+  medium: '<path d="m9.06 11.9 8.07-8.06a2.85 2.85 0 1 1 4.03 4.03l-8.06 8.08"/><path d="M7.07 14.94c-1.66 0-3 1.35-3 3.02 0 1.33-2.5 1.52-2 2.02 1.08 1.1 2.49 2.02 4 2.02 2.2 0 4-1.8 4-4.04a3.01 3.01 0 0 0-3-3.02z"/>',
+};
+KEYS.forEach(k => {
+  const b = document.createElement('button'); b.dataset.axis = k; b.setAttribute('role', 'menuitemradio');
+  b.innerHTML = `<svg class="li" viewBox="0 0 24 24" aria-hidden="true">${AX_ICON[k] || ''}</svg><span>${AXES[k].label}</span>`;
+  axList.appendChild(b);
 });
+[...axList.children].forEach((x, n, a) => { x.style.setProperty('--i', n); x.style.setProperty('--n', a.length); });
 // 키보드로 열었을 때만 목록 안으로 포커스를 옮긴다(클릭·탭이면 선택 항목에 포커스 테두리가 생기지 않게)
 function axOpen(on, byKey = false) {
   axMenu.classList.toggle('open', on); axBtn.setAttribute('aria-expanded', on);
   if (on && byKey) (axList.querySelector('button.on') || axList.querySelector('button:not(:disabled)'))?.focus({ preventScroll: true });
 }
 axBtn.addEventListener('click', e => axOpen(!axMenu.classList.contains('open'), e.detail === 0));
-axList.addEventListener('click', e => { const b = e.target.closest('button'); if (b && !b.disabled) { axOpen(false); setAxis(b.dataset.axis); if (e.detail === 0) axBtn.focus({ preventScroll: true }); } });
+// 골라도 닫지 않는다: 축을 바꿔 보며 비교하게. 바깥 누름·esc·버튼으로 닫는다(2026-11-16 사용자)
+axList.addEventListener('click', e => { const b = e.target.closest('button'); if (b && !b.disabled) setAxis(b.dataset.axis); });
 document.addEventListener('pointerdown', e => { if (axMenu.classList.contains('open') && !axMenu.contains(e.target)) axOpen(false); });
 // 축 버튼 묶음이 머리줄에 다 들어가는지 잰다(넘치면 드롭다운)
 function fitAxes() {
   // 잴 때만 머리줄 요소들이 줄어들지 않게 두고, 머리줄 전체가 넘치는지 본다(넘치면 요소들이 찌그러지거나 화면 밖으로 밀린다)
   const hd = document.querySelector('header');
-  document.body.classList.remove('axcompact'); hd.classList.add('measure');
-  const tight = innerWidth <= BP_M || hd.scrollWidth > hd.clientWidth + 1;
+  // 정렬(축)은 늘 드롭다운
+  const B = document.body.classList, over = () => hd.scrollWidth > hd.clientWidth + 1;
+  B.remove('axcompact'); hd.classList.add('measure');
+  let tight = true;   // 정렬(축)은 늘 드롭다운(2026-11-16 사용자)
+  B.toggle('axcompact', tight);
+  if (!tight && over()) { tight = true; B.add('axcompact'); }
   hd.classList.remove('measure');
-  document.body.classList.toggle('axcompact', tight);
   if (!tight) { axOpen(false); movePill(axesEl, true); }
 }
 eyeEl.addEventListener('click', () => setTrace(!traceOn));
@@ -583,6 +849,7 @@ document.getElementById('count').textContent = `${M.count} / ${M.films}`;   // �
 
 function syncAxisButtons() {
   document.getElementById('axcur').textContent = AXES[axis].label;
+  document.getElementById('axicon').innerHTML = AX_ICON[axis] || '';
   axList.querySelectorAll('button').forEach(b => {
     b.classList.toggle('on', b.dataset.axis === axis); b.setAttribute('aria-checked', b.dataset.axis === axis);
     b.disabled = cur !== null && !has(cur, b.dataset.axis);
@@ -599,6 +866,7 @@ function setAxis(k) {
   if (!AXES[k] || k === axis) return;
   axis = k;
   syncAxisButtons();
+  syncMine();
   const open = cur !== null;
   G.go(axis, !open);                     // 세 폭 보기 뒤의 격자는 조용히 옮겨 둔다
   swapText(document.getElementById('gridName'), AXES[axis].name);
@@ -744,7 +1012,7 @@ const G = (() => {
   gl.uniform1i(U.uHidden, -1); gl.uniform1i(U.uHover, -1);
   gl.uniform3f(U.uView, 1, 0, 0); gl.uniform1f(U.uFloor, .16);
   // 줌 상태: 화면 = 배치 좌표 × vs + (vx, vy)
-  let vs = 1, vx = 0, vy = 0, curLabels = [], viewAnim = 0, hlOn = false, hiT = 0;
+  let vs = 1, vx = 0, vy = 0, curLabels = [], viewAnim = 0, hlOn = false, hiT = 0, dimSet = null, dimDeep = false;
   // 4배 이상: 화면에 보이는 커버만 큰 이미지(large/ 480px)로 덮어 선명하게. 흔적·검색 중에는 덮지 않는다
   const hiEl = document.createElement('div'); hiEl.id = 'hires'; stage.appendChild(hiEl);
   const hiImgs = new Map();
@@ -766,6 +1034,7 @@ const G = (() => {
       }
       im.style.transform = `translate(${x}px, ${y}px)`; im.style.width = w + 'px'; im.style.height = h + 'px';
       im.classList.toggle('hov', i === hover);
+      im.classList.toggle('dim', !!dimSet && !dimSet.has(i)); im.classList.toggle('deep', dimDeep);
     }
     for (const [i, im] of hiImgs) if (!want.has(i)) { im.remove(); hiImgs.delete(i); }
   }
@@ -843,6 +1112,15 @@ const G = (() => {
       C.forEach((c, i) => { const n = c.spine - 1; px[i] = (n % best.cols) * (f.w + f.g); py[i] = Math.floor(n / best.cols) * (f.h + f.g); });
       for (let r = 0; r < best.rows; r += Math.max(1, Math.round(best.rows / 8))) lab.push([-6, r * (f.h + f.g) + f.h / 2, String(r * best.cols + 1), 'right']);
       minX = labW;
+    } else if (k === 'mine') {
+      // 타일 크기는 Spine 격자와 같게(줌 단계·호버 확대·고화질 덮개가 다른 축과 같은 비율로 동작). 저장한 순서(최근 것 먼저)로
+      // 한 줄에 화면 폭만큼 채우고, 화면 가운데에 둔다
+      const ids = mineOrder(), n = ids.length, w = layout('spine').tw;
+      f = { w, h: w / ASPECT, g: w * GAP };
+      const cols = Math.max(1, Math.min(n, Math.floor((Wc - labW + f.g) / (f.w + f.g)))), rows = Math.ceil(n / cols);
+      ids.forEach((i, n) => { px[i] = (n % cols) * (f.w + f.g); py[i] = Math.floor(n / cols) * (f.h + f.g); });
+      const oy = oyBg = Math.max(0, (Hc - 18 - (rows * (f.h + f.g) - f.g)) / 2);
+      ids.forEach(i => { py[i] += oy; });
     } else if (k === 'year' && tall) {
       // 해마다 한 줄, 같은 해는 오른쪽으로 쌓는다
       const years = M.yearMax - M.yearMin + 1, stacks = {}, slot = new Int32Array(N);
@@ -894,8 +1172,9 @@ const G = (() => {
   const tmp = new Float32Array(4);
 
   function go(k, animate = true, boot = false) {
-    const anim = animate && !RM;
-    if (vs > 1.001 && !boot && cur === null) setView(1, 0, 0, anim ? 420 : 0);   // 격자에서 축을 바꾸면 전체 보기로
+    const anim = animate && !RM, ak = k;
+    k = k === 'mine' ? 'spine' : k;   // 흔적 아틀라스는 Spine 것을 쓴다(번호)
+    if (ak !== 'mine' && vs > 1.001 && !boot && cur === null) setView(1, 0, 0, anim ? 420 : 0);   // 격자에서 축을 바꾸면 전체 보기로
     let shift = 0;
     pendingK = k;
     if (mixTo && anim && !boot && traceName && traceName !== k) {
@@ -904,7 +1183,7 @@ const G = (() => {
       prevName = traceName; traceName = k; swapT0 = performance.now(); shift = SWAP;
       const j = lru.indexOf(k); if (j >= 0) { lru.splice(j, 1); lru.push(k); }
     } else if (mixTo) useTrace(k);
-    const L = layout(k), now = performance.now();
+    const L = layout(ak), now = performance.now();
     maxEnd = 0;
     for (let i = 0; i < N; i++) {
       const s = stateAt(i, now, tmp), ok = L.px[i] === L.px[i], b = i * 4;
@@ -928,7 +1207,18 @@ const G = (() => {
     t0 = now; dur = anim ? 1 : 0;   // dur 은 '애니메이션 켬' 표시. 실제 시간은 타일마다 delays.z
     updateHi(); hiSoon(anim ? maxEnd + 60 : 0);
     placeLabels(L.labels);
-    placeBg(k, L);
+    placeBg(ak, L);
+    if (ak === 'mine' && cur === null) {
+      // My Collection 은 기본 8배. 모은 커버가 화면에 다 안 들어가면 들어가는 가장 큰 단계(4·2·1)로, 가운데에 맞춘다
+      let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
+      for (let i = 0; i < N; i++) if (L.px[i] === L.px[i]) { x0 = Math.min(x0, L.px[i]); y0 = Math.min(y0, L.py[i]); x1 = Math.max(x1, L.px[i] + L.tw); y1 = Math.max(y1, L.py[i] + L.tw / ASPECT); }
+      if (x1 < x0) setView(1, 0, 0, anim ? 420 : 0);
+      else {
+        const z = [8, 4, 2, 1].find(z => (x1 - x0) * z <= Wc * .9 && (y1 - y0) * z <= (Hc - 18) * .85) || 1;
+        const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
+        setView(z, Wc / 2 - cx * z, Hc / 2 - cy * z, anim && !boot ? 600 : 0);
+      }
+    }
     kick();
   }
   function mixValue(now) {
@@ -938,7 +1228,7 @@ const G = (() => {
   function mix(v) {
     const now = performance.now();
     mixFrom = RM ? v : mixValue(now); mixTo = v; mixT0 = now;
-    if (v) useTrace(axis);
+    if (v) useTrace(axis === 'mine' ? 'spine' : axis);
     kick();
   }
   // 배경 그림(지금은 Country 의 육지 윤곽): 격자와 같은 칸 좌표, 축이 바뀌면 서서히 나타나고 사라진다
@@ -1128,7 +1418,7 @@ const G = (() => {
   }
   // 첫 화면이 뜬 뒤 쉬는 시간에 흔적 아틀라스를 미리 받아 디코드해 둔다
   function prefetch() {
-    const names = KEYS.slice();
+    const names = KEYS.filter(k => k !== 'mine');
     const next = () => { const n = names.shift(); if (!n) return; loadAtlas(n).then(() => (window.requestIdleCallback || setTimeout)(next, { timeout: 2000 })); };
     // 큰 원본 아틀라스를 다 받은 뒤에 시작한다(배포에서 첫 화면과 대역폭을 다투지 않게)
     loadAtlas('cover').then(() => (window.requestIdleCallback || setTimeout)(next, { timeout: 3000 }));
@@ -1205,6 +1495,7 @@ const G = (() => {
     setView(vs, Wc / 2 - cx * vs, Hc / 2 - cy * vs, ms);
   }
   return {
+    forget: k => { delete cache[k]; },
     size, go, mix, hit, near, rect, kick, layout, dirty, prefetch, setView, zoomAt, centerOn, snap, release, stopView, hotAt,
     view: () => [vs, vx, vy], stageSize: () => [Wc, Hc],
     visible: i => to[i * 4 + 3] > .5,
@@ -1213,16 +1504,18 @@ const G = (() => {
     setHidden(i) { hidden = i; gl.uniform1i(U.uHidden, i); updateHi(); kick(); },
     // 검색 강조: match = Set 이나 null(모두 밝게). 이전 값에서 300ms 동안 옮겨 간다
     // soft = 클러스터 호버: 조금만 어둡게(.4), 고화질 덮개는 그대로 두고 그 위에서 어둡게
+    // 판매 형식 필터(fmtMatch)가 켜져 있으면 늘 그것과 겹치는 것만 밝게. 필터만 켠 상태는 고화질 덮개를 두고 어둡게(.16)
     highlight(match, soft = false) {
       const now = performance.now(), p = Math.min(1, (now - hlT0) / 300), e = 1 - Math.pow(1 - p, 3);
-      gl.uniform1f(U.uFloor, soft ? .4 : .16);
+      if (fmtMatch) { if (!match) soft = true; match = match ? new Set([...match].filter(i => fmtMatch.has(i))) : fmtMatch; }
+      gl.uniform1f(U.uFloor, soft && !fmtMatch ? .4 : .16);
       for (let i = 0; i < N; i++) {
         hlArr[i * 2] = hlArr[i * 2] + (hlArr[i * 2 + 1] - hlArr[i * 2]) * e;
         hlArr[i * 2 + 1] = !match || match.has(i) ? 1 : 0;
       }
       gl.bindBuffer(gl.ARRAY_BUFFER, bHl); gl.bufferSubData(gl.ARRAY_BUFFER, 0, hlArr);
-      if (soft) { for (const [i, im] of hiImgs) im.classList.toggle('dim', !!match && !match.has(i)); }
-      else { hlOn = !!match; updateHi(); }
+      if (soft) { dimSet = match; dimDeep = !!fmtMatch; hlOn = false; updateHi(); }
+      else { dimSet = null; hlOn = !!match; updateHi(); }
       hlT0 = now; kick();
     },
   };
@@ -1350,7 +1643,16 @@ lens.addEventListener('click', () => { if (lensOn !== null && cur === null) open
    트랙패드 핀치(ctrl+휠, Safari 는 gesture), 마우스 휠(한 칸에 한 단계), 터치 두 손가락, +/− 버튼과 키. 확대한 채 끌거나 두 손가락으로 밀면 이동 */
 const ZOOMS = [1, 2, 4, 8, 16], ZMAX = ZOOMS[ZOOMS.length - 1];
 // 브라우저 자체 줌은 막는다: ctrl+휠(트랙패드 핀치), ⌘/ctrl + = - 0, Safari 제스처. 격자 위의 핀치는 아래에서 단계 줌으로 받는다
-addEventListener('wheel', e => { if (e.ctrlKey) e.preventDefault(); }, { passive: false });
+// 트랙패드 두 손가락 가로 밀기가 브라우저 뒤로·앞으로 가기가 되지 않게: 가로가 주된 휠은 기본 동작을 막는다
+// (격자 이동은 캔버스 핸들러가 따로 처리한다). 가로로 스크롤되는 요소 안에서는 그대로 둔다
+addEventListener('wheel', e => {
+  if (e.ctrlKey) { e.preventDefault(); return; }
+  if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+    for (let el = e.target; el && el !== document.body; el = el.parentElement)
+      if (el.scrollWidth > el.clientWidth && /(auto|scroll)/.test(getComputedStyle(el).overflowX)) return;
+    e.preventDefault();
+  }
+}, { passive: false });
 ['gesturestart', 'gesturechange', 'gestureend'].forEach(n => document.addEventListener(n, e => e.preventDefault(), { passive: false }));
 addEventListener('keydown', e => {
   if (!(e.metaKey || e.ctrlKey) || !['Equal', 'Minus', 'Digit0', 'NumpadAdd', 'NumpadSubtract', 'Numpad0'].includes(e.code)) return;
@@ -1492,7 +1794,7 @@ async function drawTrace(cvs, c, k) {
 const TRACE_AS = { type: 'text', composition: 'lines', medium: 'strokes' };
 // 숫자·말로 보여주는 축(Spine, Year, Country, Runtime, Aspect)의 흔적 글자. 그림 축이면 null
 function traceLabel(c, k) {
-  if (k === 'spine') return String(c.spine);
+  if (k === 'spine' || k === 'mine') return String(c.spine);
   if (k === 'year') return String(c.year);
   if (k === 'country') return c.cc || c.country || '';   // 두 글자 국가 코드(이름은 칸에 비해 길다)
   if (k === 'runtime') return c.rt ? `${c.rt}′` : '';
@@ -1613,9 +1915,24 @@ function chunk(order) {
   return r;
 }
 RINGS.spine = chunk(bySpine); RINGS.year = chunk(byYear);
+/* My Collection: 저장한 순서(최근 것 먼저). 세 폭 보기에서 저장을 풀어도 그 커버는 닫을 때까지 순회에 남긴다 */
+const SPINE_I = new Map(C.map((c, i) => [c.spine, i]));
+function mineOrder() {
+  const ids = Saved.list().map(sp => SPINE_I.get(sp)).filter(i => i !== undefined).reverse();
+  if (cur !== null && axis === 'mine' && !ids.includes(cur) && RING_POS.mine?.has(cur)) ids.push(cur);
+  return ids;
+}
+function syncMine() {
+  const ids = mineOrder();
+  RINGS.mine = ids.length ? chunk(ids) : [];
+  const m = new Map(); RINGS.mine.forEach((row, r) => row.forEach(([i], c) => m.set(i, [r, c]))); RING_POS.mine = m;
+  G.forget('mine');
+  document.body.classList.toggle('mine-empty', axis === 'mine' && !ids.length);
+  try { setCount(); } catch {}   // 처음 부를 때는 검색 상태(hits)가 아직 없다
+}
 // 분석 축: build_web.py 의 빈칸 없는 격자(M.rings)가 없으면 지도 좌표(c.g)의 줄을 그대로 쓴다
 for (const k of KEYS) {
-  if (META_AXES.has(k)) continue;
+  if (META_AXES.has(k) || k === 'mine') continue;
   if (M.rings?.[k]) { RINGS[k] = M.rings[k]; continue; }
   const rows = new Map();
   C.forEach((c, i) => { const g = c.g?.[k]; if (g) { if (!rows.has(g[1])) rows.set(g[1], []); rows.get(g[1]).push([i, g[0]]); } });
@@ -1623,6 +1940,8 @@ for (const k of KEYS) {
 }
 const RING_POS = {};
 for (const k in RINGS) { const m = new Map(); RINGS[k].forEach((row, r) => row.forEach(([i], c) => m.set(i, [r, c]))); RING_POS[k] = m; }
+syncMine();
+Saved.on(() => { syncMine(); if (axis === 'mine') G.go('mine', cur === null); });
 // i 에서 (dr 줄, dc 칸). 다른 줄로 갈 때는 가로 위치(x)가 가장 가까운 칸을 기준으로 dc 만큼
 function nbr(i, k, dr, dc) {
   const R = RINGS[k], p = RING_POS[k]?.get(i);
@@ -1716,7 +2035,9 @@ function infoHTML(c) {
   const url = criterionUrl(c);
   const rows = [kv('Country', c.countries), kv('Runtime', c.rt ? `${c.rt} min` : ''), kv('Aspect ratio', c.ar), kv('Language', c.language)].filter(Boolean);
   const extra = [kv('Color', c.clr), kv('Cinematography', c.dop), kv('Music', c.music), kv('Written by', c.writer)].filter(Boolean);
-  return `${url ? `<a class="no" href="${url}" target="_blank" rel="noopener" aria-label="#${c.spine} on criterion.com">#${c.spine}<svg class="out" viewBox="5 5 14 14" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg></a>` : `<div class="no">#${c.spine}</div>`}
+  const sv = Saved.has(c.spine);
+  const save = `<button class="save${sv ? ' on' : ''}" aria-pressed="${sv}" aria-label="${sv ? 'Remove from' : 'Save to'} My Collection" data-tip="${sv ? 'Saved' : 'Save'}"><svg viewBox="0 0 24 24" aria-hidden="true">${BOOKMARK}</svg></button>`;
+  return `<div class="hd">${url ? `<a class="no" href="${url}" target="_blank" rel="noopener" aria-label="#${c.spine} on criterion.com">#${c.spine}<svg class="out" viewBox="5 5 14 14" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg></a>` : `<div class="no">#${c.spine}</div>`}${save}</div>
     <div class="tt"><div class="t">${esc(c.title)}</div>${c.orig ? `<div class="o">${esc(c.orig)}</div>` : ''}</div>
     <div>${[c.directors, c.year].filter(Boolean).map(esc).join(' · ')}</div>
     <div class="body">${rows.length || extra.length ? '<div class="sp"></div>' + rows.join('') : ''}
@@ -1892,6 +2213,7 @@ function closeTri(fromPop = false) {
   tri.classList.remove('open');
   document.body.classList.remove('tri-open');
   cur = null; hist = [];
+  if (axis === 'mine' && !Saved.has(C[i].spine)) { syncMine(); G.go('mine', true); }   // 보는 동안 저장을 푼 커버는 닫을 때 빠진다
   syncAxisButtons();
   if (!goBack) syncHash();
   if (focusBack && document.contains(focusBack)) focusBack.focus({ preventScroll: true }); else cv.focus({ preventScroll: true });
@@ -1900,6 +2222,16 @@ function closeTri(fromPop = false) {
 document.getElementById('close').addEventListener('click', () => closeTri());
 /* More: 펼칠 때는 다시 그린 뒤(줄인 줄을 되살린다) 높이 0 에서 키우며 줄마다 떠오르게, 접을 때는 높이를 줄인 뒤 다시 그린다.
    gap(6px)까지 함께 줄이려고 margin-top 을 -6px 로 보낸다 */
+panels.addEventListener('click', e => {
+  const sb = e.target.closest('.info .save');
+  if (!sb || cur === null) return;
+  const c = C[cur], on = Saved.toggle(c.spine);
+  sb.classList.toggle('on', on); sb.setAttribute('aria-pressed', on); sb.dataset.tip = on ? 'Saved' : 'Save';
+  sb.setAttribute('aria-label', `${on ? 'Remove from' : 'Save to'} My Collection`);
+  sb.classList.remove('pop'); void sb.offsetWidth; if (on) sb.classList.add('pop');
+  toast(on ? 'Saved to My Collection' : 'Removed from My Collection', { icon: BOOKMARK, fill: on,
+    action: on && axis !== 'mine' ? () => { closeTri(); setAxis('mine'); } : null });
+});
 panels.addEventListener('click', e => {
   if (!e.target.closest('.info .more') || cur === null) return;
   const info = panels.querySelector('.info'), c = C[cur];
@@ -1987,6 +2319,18 @@ addEventListener('keydown', e => {
   const c = e.code;
   hideKbd();
   if ((c === 'Enter' || c === 'Space') && e.target.closest?.('button, a') && !e.target.closest('header')) return;
+  if (document.getElementById('acctmenu').classList.contains('open') && c === 'Escape') { acctOpen(false); document.getElementById('acct').focus({ preventScroll: true }); return; }
+  const fm = document.getElementById('fltmenu');
+  if (fm.classList.contains('open')) {
+    if (c === 'Escape') { fltOpen(false); document.getElementById('fltbtn').focus({ preventScroll: true }); return; }
+    if (c === 'ArrowDown' || c === 'ArrowUp') {
+      e.preventDefault();
+      const bs = [...fm.querySelectorAll('.axlist button')], i = bs.indexOf(document.activeElement);
+      bs[(i + (c === 'ArrowDown' ? 1 : -1) + bs.length) % bs.length]?.focus();
+      return;
+    }
+    if (c === 'Enter' || c === 'Space') return;
+  }
   if (axMenu.classList.contains('open')) {
     if (c === 'Escape') { axOpen(false); axBtn.focus({ preventScroll: true }); return; }
     if (c === 'ArrowDown' || c === 'ArrowUp') {
@@ -2057,6 +2401,7 @@ const HAY = C.map(c => fold([c.title, c.directors, c.countries, c.year, (c.objs 
 const qEl = document.getElementById('q'), searchEl = document.getElementById('search'), resEl = document.getElementById('results');
 let hits = [], hitOn = 0;
 function runSearch() {
+  fitQ();
   const q = fold(qEl.value).trim();
   searchEl.classList.toggle('has', !!q);
   if (!q) { hits = []; G.highlight(null); renderResults(); setCount(); return; }
@@ -2085,8 +2430,118 @@ function runSearch() {
 }
 function setCount() {
   // 밝게 남은 커버 / 전체 편수. 평소엔 확보한 커버 전부, 검색 중엔 맞는 것
-  document.getElementById('count').textContent = `${qEl.value.trim() ? hits.length : M.count} / ${M.films}`;
+  // My Collection 축이면 저장한 커버 안에서 센다
+  const mine = axis === 'mine' ? RING_POS.mine : null, inMine = i => !mine || mine.has(i);
+  let n;
+  if (qEl.value.trim()) n = hits.filter(i => inMine(i) && (!fmtMatch || fmtMatch.has(i))).length;
+  else if (mine) n = [...mine.keys()].filter(i => !fmtMatch || fmtMatch.has(i)).length;
+  else n = fmtMatch ? fmtMatch.size : M.count;
+  document.getElementById('count').textContent = `${n} / ${M.films}`;
 }
+/* 필터: 판매 형식(criterion.com 형식별 목록 2026-11-15, c.fmt 가 [] 면 따로 팔지 않음 = 박스 안·절판)과 목록(Best Sellers 50 = c.best 순위, CC40 = c.cc40).
+   같은 묶음 안은 하나라도(OR), 묶음끼리는 모두(AND) */
+var fmtMatch = null;
+(() => {
+  const el = document.getElementById('fmt'), on = new Set();
+  const F = [['4K UHD', '4K', 'f', c => (c.fmt || []).includes('4K UHD')],
+             ['Blu-ray', 'Blu-ray', 'f', c => (c.fmt || []).includes('Blu-ray')],
+             ['DVD', 'DVD', 'f', c => (c.fmt || []).includes('DVD')],
+             // Top 50(c.best)은 2026-11-16 사용자 요청으로 화면에서 뺐다. 데이터는 남아 있다
+             ['cc40', 'CC40', 'l', c => !!c.cc40, 'In the CC40 box set']];
+  const apply = () => {
+    const groups = ['f', 'l', 'm'].map(g => F.filter(x => x[2] === g && on.has(x[0]))).filter(g => g.length);
+    fmtMatch = groups.length ? new Set(C.map((c, i) => groups.every(g => g.some(x => x[3](c))) ? i : -1).filter(i => i >= 0)) : null;
+    if (qEl.value.trim()) runSearch(); else { G.highlight(null); setCount(); }
+  };
+  const menu = document.getElementById('fltmenu'), mbtn = document.getElementById('fltbtn'), list = document.getElementById('fltlist'),
+        cur = document.getElementById('fltcur'), xBtn = document.getElementById('fltx');
+  const sync = () => {
+    document.querySelectorAll('#fmt button, #fltlist button').forEach(b => {
+      const o = on.has(b.dataset.k);
+      b.classList.toggle('on', o); b.setAttribute(b.closest('#fltlist') ? 'aria-checked' : 'aria-pressed', o);
+    });
+    const picked = F.filter(x => x[2] === 'f' && on.has(x[0])).map(x => x[1]);
+    cur.textContent = picked.length ? picked.join(', ') : 'Format';
+    menu.classList.toggle('has', picked.length > 0);
+    apply();
+  };
+  const toggle = k => { on.has(k) ? on.delete(k) : on.add(k); sync(); };
+  for (const [k, label, g, , tipText] of F) {
+    const b = document.createElement('button');
+    b.textContent = label; b.dataset.k = k;
+    if (g === 'f') { b.setAttribute('role', 'menuitemcheckbox'); b.setAttribute('aria-checked', 'false'); list.appendChild(b); }
+    else { b.dataset.tip = tipText; b.setAttribute('aria-pressed', 'false'); el.appendChild(b); }
+    b.addEventListener('click', () => toggle(k));
+  }
+  [...list.children].forEach((x, n, a) => { x.style.setProperty('--i', n); x.style.setProperty('--n', a.length); });
+  window.fltOpen = (o, byKey = false) => {
+    menu.classList.toggle('open', o); mbtn.setAttribute('aria-expanded', o);
+    if (o && byKey) list.querySelector('button')?.focus({ preventScroll: true });
+  };
+  mbtn.addEventListener('click', e => fltOpen(!menu.classList.contains('open'), e.detail === 0));
+  xBtn.addEventListener('click', () => { F.forEach(x => x[2] === 'f' && on.delete(x[0])); sync(); mbtn.focus({ preventScroll: true }); });
+  document.addEventListener('pointerdown', e => { if (menu.classList.contains('open') && !menu.contains(e.target)) fltOpen(false); });
+})();
+/* 계정 메뉴: 로그아웃 상태 = Google·Apple 로그인(Supabase 에서 켠 제공자만 누를 수 있고, 아니면 Soon) + 이 기기에 저장된 편수.
+   로그인 상태 = 이메일, 저장 편수, Sign out */
+(() => {
+  const menu = document.getElementById('acctmenu'), btn = document.getElementById('acct'), list = document.getElementById('acctlist');
+  let prov = {};
+  function render() {
+    const u = Auth.user(), n = Saved.size();
+    btn.classList.toggle('in', !!u); btn.dataset.tip = u ? 'Account' : 'Sign in';
+    const p = (k, name) => k === 'google' && prov.google ? `<div class="gbtn" id="gbtn"></div>`
+      : prov[k] ? `<button data-p="${k}" role="menuitem">Continue with ${name}</button>`
+      : `<button data-p="${k}" role="menuitem" disabled>Continue with ${name}<span class="soon">Soon</span></button>`;
+    list.innerHTML = u
+      ? `<div class="note">Signed in as<b>${esc(u.email || u.name || 'your account')}</b></div>
+         <div class="note">My Collection · ${n} saved</div>
+         <button data-act="out" role="menuitem">Sign out</button>
+         <a class="note plink" href="privacy.html" target="_blank" rel="noopener">Privacy</a>`
+      : `<div class="note">Sign in to keep My Collection on every device.</div>${p('google', 'Google')}${p('apple', 'Apple')}
+         <div class="note">For now, saved on this device${n ? ` · ${n}` : ''}.</div>
+         <a class="note plink" href="privacy.html" target="_blank" rel="noopener">Privacy</a>`;
+    [...list.children].forEach((x, k, a) => { x.style.setProperty('--i', k); x.style.setProperty('--n', a.length); });
+    const g = list.querySelector('#gbtn');
+    if (g && menu.classList.contains('open')) gButton(g);
+  }
+  // Google 로그인 버튼: 공식 스크립트를 받아 그 자리에 그린다(누를 때마다 새 nonce)
+  let gis = null;
+  const loadGIS = () => gis ??= new Promise((res, rej) => {
+    const s = document.createElement('script'); s.src = 'https://accounts.google.com/gsi/client'; s.async = true;
+    s.onload = res; s.onerror = () => { gis = null; rej(); }; document.head.appendChild(s);
+  });
+  async function gButton(el) {
+    try { await loadGIS(); } catch { el.innerHTML = '<div class="note">Couldn’t load Google sign-in.</div>'; return; }
+    const n = await Auth.nonce();
+    google.accounts.id.initialize({
+      client_id: GOOGLE_CLIENT_ID, nonce: n.hashed, auto_select: false, itp_support: true,
+      callback: async ({ credential }) => {
+        try {
+          await Auth.idToken('google', credential, n.raw);
+          acctOpen(false); const u = Auth.user(); toast(`Signed in${u?.email ? ` as ${u.email}` : ''}`); syncSaved();
+        } catch (e) { console.warn(e); toast('Sign-in didn’t finish. Please try again.'); render(); }
+      },
+    });
+    if (!el.isConnected) return;
+    el.innerHTML = '';
+    google.accounts.id.renderButton(el, { theme: 'filled_black', shape: 'pill', size: 'large', text: 'continue_with', logo_alignment: 'left', width: 224, locale: 'en' });   // 사이트 UI 와 같게 영어
+  }
+  render(); Auth.on(render); Saved.on(render);
+  Auth.providers().then(x => { prov = x; render(); });
+  window.acctOpen = (o, byKey = false) => {
+    menu.classList.toggle('open', o); btn.setAttribute('aria-expanded', o);
+    if (o) Auth.providers().then(x => { prov = x; render(); });   // 열 때 다시 그린다(Google 버튼도 이때 받는다)
+    if (o && byKey) list.querySelector('button:not(:disabled)')?.focus({ preventScroll: true });
+  };
+  btn.addEventListener('click', e => acctOpen(!menu.classList.contains('open'), e.detail === 0));
+  list.addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b || b.disabled) return;
+    if (b.dataset.p) { b.textContent = 'Opening…'; Auth.signIn(b.dataset.p); return; }
+    if (b.dataset.act === 'out') { acctOpen(false); Auth.signOut(); Saved.replace([]); toast('Signed out. My Collection stays in your account.'); }
+  });
+  document.addEventListener('pointerdown', e => { if (menu.classList.contains('open') && !menu.contains(e.target)) acctOpen(false); });
+})();
 function renderResults() {
   const q = qEl.value.trim();
   searchEl.classList.toggle('open', !!q && document.activeElement === qEl);
@@ -2107,6 +2562,13 @@ function pickResult(i) {
 function previewResult(i) {
   if (cur !== null || i === undefined || !G.visible(i)) return;
   showLens(i);
+}
+// 검색창 폭: 기본 170px, 입력한 글자 폭 + 돋보기·지우기 자리만큼 늘어나 최대 360px
+const qMeasure = document.createElement('canvas').getContext('2d');
+function fitQ() {
+  const cs = getComputedStyle(qEl); qMeasure.font = `${cs.fontSize} ${cs.fontFamily}`;
+  const w = qMeasure.measureText(qEl.value).width + 36 + 36 + 8;
+  qEl.style.setProperty('--qw', Math.round(Math.min(360, Math.max(170, w))) + 'px');
 }
 qEl.addEventListener('input', runSearch);
 document.getElementById('qClear').addEventListener('click', () => {
@@ -2157,6 +2619,7 @@ function start() {
   // 예전 주소(#map, #spine,tri=2:lines:t)도 받아 준다
   const old = parts.find(p => p.startsWith('tri='))?.slice(4).split(':') || [];
   axis = AXES[old[1]] ? old[1] : AXES[parts[0]] ? parts[0] : 'spine';
+  syncMine();
   G.size();
   G.go(axis, true, true);
   swapText(document.getElementById('gridName'), AXES[axis].name);

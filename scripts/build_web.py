@@ -1532,6 +1532,24 @@ def free_layouts(items: list[dict], tropes: dict, look: dict[int, np.ndarray], u
     return out
 
 
+def _sold() -> dict:
+    """data/raw/criterion_{4k,bluray,dvd}_list.txt: 사용자가 criterion.com 형식별 목록에서 붙여 넣은 spine 번호."""
+    out = {}
+    for f, name in (("4K UHD", "4k"), ("Blu-ray", "bluray"), ("DVD", "dvd")):
+        q = ROOT / "data" / "raw" / f"criterion_{name}_list.txt"
+        if q.exists():
+            out[f] = {int(x) for x in q.read_text().split("\n", 1)[1].split()}
+    return out if len(out) == 3 else {}
+
+
+SOLD = _sold()
+_L = ROOT / "data" / "raw" / "criterion_lists.json"
+LISTS = {"best": {}, "cc40": set()}
+if _L.exists():
+    _j = json.loads(_L.read_text())
+    LISTS = {"best": {s: r for r, s in _j["best"]}, "cc40": set(_j["cc40"])}
+
+
 def main() -> None:
     for d in SIZES:
         (WEB / d).mkdir(parents=True, exist_ok=True)
@@ -1611,6 +1629,12 @@ def main() -> None:
             it["language"] = [x.strip() for x in cm["language"].split(",")][:3]
         if cm.get("formats"):
             it["fmt"] = cm["formats"]
+        if SOLD:   # 지금 파는 형식(criterion.com 형식별 목록, 2026-11-15) — 어디에도 없으면 [] = 따로 팔지 않음(박스 안 또는 절판)
+            it["fmt"] = [f for f, s in SOLD.items() if spine in s]
+        if spine in LISTS["best"]:   # criterion.com Best Sellers 순위(1–50)
+            it["best"] = LISTS["best"][spine]
+        if spine in LISTS["cc40"]:   # CC40 박스 수록작
+            it["cc40"] = 1
 
         trace: dict = {}
         vj, rj = VISUAL / f"{p.stem}.json", REGIONS / f"{p.stem}.json"
