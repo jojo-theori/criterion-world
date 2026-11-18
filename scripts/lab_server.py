@@ -60,11 +60,12 @@ def steer(q: dict) -> dict:
         if key not in _STEER:
             p = B.EMB / spec[2]
             cache = np.load(B.OUT / "umap_cache.npz", allow_pickle=True)
-            base = cache.get(f"{spec[2]}|{p.stat().st_mtime_ns}|{len(files)}")
+            X, metric = B.map_space(spec[2], files)
+            base = X if metric == "euclidean" else cache.get(f"{spec[2]}|{p.stat().st_mtime_ns}|{len(files)}")      # 자리가 정해진 지도는 그 자리가 기준
             if base is None:
                 return {"error": "run build_lab.py first"}
             base = (base - base.min(0)) / (base.max(0) - base.min(0))
-            q01 = B.steer_layout(B.map_vectors(spec[2], files), base, cats, w)
+            q01 = B.steer_layout(X, base, cats, w, metric)
             g, cols, rows = B.grid(q01)
             _STEER[key] = {"xy": np.round(q01, 4).tolist(), "pos": g.tolist(), "cols": cols, "rows": rows, "labeled": labeled}
     return _STEER[key]
@@ -162,6 +163,8 @@ class H(SimpleHTTPRequestHandler):
 
 
 if __name__ == "__main__":
-    srv = ThreadingHTTPServer(("127.0.0.1", 8777), H)
-    print("CCW Lab → http://localhost:8777  (label: /label)", flush=True)
+    import sys
+    port = int(sys.argv[1]) if len(sys.argv) > 1 else 8777          # 다른 포트: python3 scripts/lab_server.py 8778
+    srv = ThreadingHTTPServer(("127.0.0.1", port), H)
+    print(f"CCW Lab → http://localhost:{port}  (label: /label)", flush=True)
     srv.serve_forever()

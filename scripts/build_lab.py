@@ -1,11 +1,15 @@
 """CCW Lab: 축·배치·범주를 사이트에 넣기 전에 실험하는 로컬 전용 지도(out/lab/index.html, 공개하지 않음)
 
-무엇으로 배치하나(Arrange by): 임베딩마다 UMAP 2D. 묘사 글(전체, 한 줄씩)과 그림(Gemma, SigLIP, Gemma 글자 지운 그림, 그림+묘사).
+무엇으로 배치하나(Arrange by): 임베딩마다 UMAP 2D. 묘사 글(전체, 한 줄씩)과 그림(Gemma, SigLIP, Gemma 글자 지운 그림, 그림+묘사),
+  형태만(Structure = 대칭·기울기·중심 집중 점수로 만든 자리, structure_scores.py / Typography = 글자 상자 배치 거리 행렬, embed_structure.py).
 무엇으로 색칠하나(Color by): People(people_v2) · Medium(medium_v2) · Composition·Type(사이트 판정, tropes.json).
 배치: Exact = UMAP 좌표 그대로(겹침 허용) / Grid = 빈칸을 조금 둔 격자에 헝가리안 배정(겹치지 않음).
 그림: canvas 에 사이트 아틀라스(web/atlas/cover_s.webp, 40×50)로 그리고, 크게 보이면 web/thumbs(112×140) → web/large(480) 로 바꾼다.
 색: Colored by 의 None 이면 범주 색 테두리 없이 커버만. 다이얼(Pull toward): 색칠한 범주 쪽으로 지도를 당긴 반지도 UMAP(target_weight 0–1, 서버 /api/steer 가 계산, 출처 = 내 라벨만 / 모든 판정).
 조작: 마우스 휠·핀치 = 커서 기준 확대, 끌기·두 손가락 = 이동, 0 = 전체, 커버 클릭 = 그 임베딩에서 가장 가까운 12장 강조.
+탐지(Detected, 스페이스): 커버를 어둡게 하고 컴퓨터가 찾은 것을 그 위에 그린다 — 글자 영역(흰색, 틀 글자는 테두리만), 얼굴(노랑),
+  물체(파랑, OWLv2 점수 .3 이상), 긴 선분(초록). 바닥의 이름을 눌러 층을 끄고 켠다. Structure 지도에서는 잰 것을 그린다 —
+  그 커버의 무리에서 잰 자리를 무리 색으로(대칭축, 기운 방향, 주제 타원, 프레임 상자, 평행선 방향, 원의 중심).
 편집(Edit): 커버를 끌어 옮기고, 커버 위에서 숫자 키로 범주를 고친다(0 = 모델 판정으로). Export 로 JSON 도 받을 수 있다.
 UMAP 결과는 out/lab/umap_cache.npz 에 둔다(임베딩 파일이 바뀌면 다시 계산).
 사용: .venv-ml/bin/python scripts/build_lab.py, 그다음 python3 scripts/lab_server.py → http://localhost:8777 (이 Mac 에서만 열린다)
@@ -41,6 +45,9 @@ MAPS = [
     ("Picture, no text", "image", "gemma2-art.npz", "Composition", "The cover with its lettering erased (EmbeddingGemma 2)"),
     ("SigLIP", "image", "siglip2-base-patch16-384.npz", "Medium", "The cover image (SigLIP 2)"),
     ("Picture + description", "image", "gemma2-cap-img.npz", "People", "Description text and image together (EmbeddingGemma 2)"),
+    # 형태만: Structure = 성질 점수에서 직접 만든 자리(scripts/structure_scores.py), Typography = 글자 배치 거리(scripts/embed_structure.py)
+    ("Structure", "form", "structure-map.npz", "Structure", "Symmetry, tilt and centering, each measured on its own. Only clear cases join a group"),
+    ("Typography", "form", "type-layout.npz", "Type", "Where the lettering sits and how big it is (optimal transport between text boxes)"),
 ]
 PAL = ["#ffffff", "#f5d000", "#ff3b30", "#2f8cff", "#34c759", "#bf5af2", "#ff9500", "#64d2ff", "#ff2d92", "#a2845e"]
 SCHEMES = {
@@ -48,10 +55,20 @@ SCHEMES = {
     "Medium": dict(zip(["Photo", "Painting", "Drawing", "Print", "Collage", "Graphic", "Other"], PAL[:6] + ["#6e6e6e"])),
     "Composition": dict(zip(["Grid / collage", "Symmetric", "Off-center subject", "Silhouette", "Busy frame", "Close crop",
                              "Single object", "Open space", "Diagonal", "Wide scene"], PAL)),
+    "Structure": dict(zip(["Symmetric", "Centered", "Negative space", "Frame in frame", "Grid", "Parallel lines", "Diagonal",
+                           "Vanishing up", "Vanishing down", "Vanishing point", "Circular", "Spiral clockwise",
+                           "Spiral counterclockwise", "Spiral"],
+                          ["#ffffff", "#f5d000", "#ff3b30", "#2f8cff", "#34c759", "#bf5af2", "#ff9500", "#64d2ff", "#30b0c7", "#5e8fa8",
+                           "#ff2d92", "#a2845e", "#d4b483", "#8e8e93"])),
     "Type": dict(zip(["Type only", "Big centered title", "Big title", "Quiet type", "Title on top", "Title in the middle",
                       "Title at the bottom"], PAL[:7])),
 }
-LINE = {"People": "People", "Medium": "Medium", "Composition": "Composition", "Type": "Typography"}
+LINE = {"People": "People", "Medium": "Medium", "Composition": "Composition", "Type": "Typography", "Structure": "Composition"}
+
+
+def structure_scores() -> dict:
+    p = A / "structure_scores.json"
+    return json.loads(p.read_text()) if p.exists() else {}
 
 
 def grid(xy: np.ndarray) -> tuple[np.ndarray, int, int]:
@@ -65,6 +82,40 @@ def grid(xy: np.ndarray) -> tuple[np.ndarray, int, int]:
     out = np.zeros((n, 2), int)
     out[r] = np.stack([gx.ravel()[c], gy.ravel()[c]], 1)
     return out, cols, rows
+
+
+def detections(files: list[str]) -> list[dict]:
+    """커버마다 컴퓨터가 찾은 것(좌표는 천분율 정수): t 글자 영역 [x0,y0,x1,y1,쓰임], f 얼굴, o 물체 [x0,y0,x1,y1,이름], l 긴 선분"""
+    import embed_structure as ES
+    faces = json.loads((A / "faces.json").read_text()) if (A / "faces.json").exists() else {}
+    sc = structure_scores()
+    op = A / "objects" / "owlv2.json"
+    objs = json.loads(op.read_text()) if op.exists() else {}
+    q = lambda v: [int(round(max(0.0, min(1.0, x)) * 1000)) for x in v]
+    out = []
+    for n in files:
+        stem = Path(n).stem
+        vj = A / "visual" / f"{stem}.json"
+        segs = json.loads(vj.read_text()).get("art", {}).get("lines", {}).get("segments", [])[:24] if vj.exists() else []
+        ob = sorted((o for o in objs.get(n, []) if o["score"] >= 0.3), key=lambda o: -o["score"])[:6]
+        m = sc.get(n)
+        out.append({"t": [q(r[:4]) + [r[4]] for r in ES.text_regions(stem)], "f": [q(f["box"]) for f in faces.get(n, [])],
+                    "o": [q(o["box"]) + [o["label"]] for o in ob], "l": [q(s) for s in segs],
+                    "s": struct_det(m) if m else None})
+    return out
+
+
+def struct_det(m: dict) -> dict:
+    """Structure 지도의 탐지 표시용: g 무리, p 그 무리에서 잰 자리(천분율·도), sc 점수가 20 넘는 성질 [이름, 백분율]"""
+    import structure_scores as SS
+    pm = lambda *v: [round(x * 1000) for x in v]
+    g = m.get("group")
+    p = {"Symmetric": lambda: pm(m["axis"]), "Diagonal": lambda: [round(m["angle"])], "Centered": lambda: pm(m["cx"], m["cy"], m["size"]),
+         "Frame in frame": lambda: pm(*m["frame_box"]), "Parallel lines": lambda: [round(m["par_angle"])],
+
+         "Circular": lambda: pm(m["ccx"], m["ccy"])}.get(g, lambda: [])()
+    sc = sorted(([SS.NAMES[k], round(m[k] * 100)] for k in SS.THR if m[k] >= 0.2), key=lambda x: -x[1])
+    return {"g": g, "p": p, "sc": sc, "n": (m.get("judge") or {}).get("note") or ""}
 
 
 def lab_files() -> list[str]:
@@ -81,7 +132,8 @@ def model_cats(files: list[str]) -> dict[str, list]:
     mv2 = json.loads((A / "medium_v2.json").read_text())
     tropes = json.loads((A / "tropes.json").read_text())
     return {"People": [pv2[n]["cat"] for n in files], "Medium": [mv2.get(n, "Other") for n in files],
-            "Composition": [tropes.get(n, {}).get("composition") for n in files], "Type": [tropes.get(n, {}).get("type") for n in files]}
+            "Composition": [tropes.get(n, {}).get("composition") for n in files], "Type": [tropes.get(n, {}).get("type") for n in files],
+            "Structure": [structure_scores().get(n, {}).get("group") for n in files]}
 
 
 def human_cats(files: list[str], scheme: str, lab: dict) -> list:
@@ -91,21 +143,29 @@ def human_cats(files: list[str], scheme: str, lab: dict) -> list:
     return [mine.get(n) or (pv2.get(n, {}).get("human") if scheme == "People" else None) for n in files]
 
 
-def map_vectors(fname: str, files: list[str]) -> np.ndarray:
+def map_space(fname: str, files: list[str]) -> tuple[np.ndarray, str] | None:
+    """지도 하나의 공간: (정규화한 벡터, "cosine") 또는 (거리 행렬, "precomputed"). 커버가 빠져 있으면 None."""
     d = np.load(EMB / fname, allow_pickle=True)
     idx = {str(n): i for i, n in enumerate(d["files"])}
-    V = d["vectors"].astype(np.float32)[[idx[n] for n in files]]
-    return V / (np.linalg.norm(V, axis=1, keepdims=True) + 1e-9)
+    if not all(n in idx for n in files):
+        return None
+    o = [idx[n] for n in files]
+    if "xy" in d:                                     # 자리가 이미 정해진 지도(UMAP 없이 그대로)
+        return d["xy"].astype(np.float32)[o], "euclidean"
+    if "dist" in d:
+        return d["dist"].astype(np.float32)[np.ix_(o, o)], "precomputed"
+    V = d["vectors"].astype(np.float32)[o]
+    return V / (np.linalg.norm(V, axis=1, keepdims=True) + 1e-9), "cosine"
 
 
-def steer_layout(V: np.ndarray, base: np.ndarray, cats: list, weight: float) -> np.ndarray:
+def steer_layout(V: np.ndarray, base: np.ndarray, cats: list, weight: float, metric: str = "cosine") -> np.ndarray:
     """라벨 쪽으로 당긴 UMAP(반지도: 라벨 없는 커버는 -1). weight 0 = 임베딩만, 1 = 라벨만.
     기준 지도(base, 0–1)에서 출발해 방향·자리가 크게 바뀌지 않게 한다."""
     import umap
     names = sorted({c for c in cats if c})
     y = np.array([names.index(c) if c else -1 for c in cats])
     init = (base - base.mean(0)) / (base.std(0) + 1e-9) * 3
-    xy = umap.UMAP(n_neighbors=15, min_dist=0.1, metric="cosine", random_state=0, init=init.astype(np.float32),
+    xy = umap.UMAP(n_neighbors=15, min_dist=0.1, metric=metric, random_state=0, init=init.astype(np.float32),
                    target_metric="categorical", target_weight=float(weight)).fit_transform(V, y)
     # 라벨 쪽으로 당기면 범주 무리가 멀리 떨어져 나가 본체가 작아진다: 가로·세로마다 빈 틈을 폭의 5% 까지만 남긴다(순서·이웃은 그대로)
     for k in range(2):
@@ -134,21 +194,21 @@ def main() -> None:
         p = EMB / f
         if not p.exists():
             continue
-        d = np.load(p, allow_pickle=True)
-        idx = {str(n): i for i, n in enumerate(d["files"])}
-        if not all(n in idx for n in files):
+        sp = map_space(f, files)
+        if sp is None:
             continue
-        V = d["vectors"].astype(np.float32)[[idx[n] for n in files]]
-        V /= np.linalg.norm(V, axis=1, keepdims=True) + 1e-9
+        V, metric = sp
         key = f"{f}|{p.stat().st_mtime_ns}|{len(files)}"
-        if key in cache:
+        if metric == "euclidean":
+            xy = V
+        elif key in cache:
             xy = cache[key]
         else:
-            xy = umap.UMAP(n_neighbors=15, min_dist=0.1, metric="cosine", random_state=0).fit_transform(V)
+            xy = umap.UMAP(n_neighbors=15, min_dist=0.1, metric=metric, random_state=0).fit_transform(V)
             cache[key] = xy
         q = (xy - xy.min(0)) / (xy.max(0) - xy.min(0))
         g, cols, rows = grid(q)
-        S = V @ V.T
+        S = -V.copy() if metric == "precomputed" else -np.linalg.norm(V[:, None] - V[None], axis=-1) if metric == "euclidean" else V @ V.T
         np.fill_diagonal(S, -9)
         nb = np.argsort(-S, axis=1)[:, :K_NB]
         maps.append({"name": name, "group": group, "scheme": scheme, "desc": desc, "cols": cols, "rows": rows,
@@ -156,13 +216,17 @@ def main() -> None:
         print(name, flush=True)
     np.savez(cache_f, **cache)
     items = []
+    sc = structure_scores()
     for n in files:
         c, m, t = cap[n], meta[n], tropes.get(n, {})
         items.append({"f": n, "t": m.get("title") or n[5:-4], "y": m.get("year"), "d": m.get("directors") or "", "a": atlas[n],
                       "h": pv2[n].get("human"),
-                      "k": {"People": pv2[n]["cat"], "Medium": mv2.get(n, "Other"), "Composition": t.get("composition"), "Type": t.get("type")},
+                      "k": {"People": pv2[n]["cat"], "Medium": mv2.get(n, "Other"), "Composition": t.get("composition"), "Type": t.get("type"),
+                            "Structure": sc.get(n, {}).get("group")},
                       "l": {s: c[LINE[s]] for s in SCHEMES}})
-    D = {"items": items, "maps": maps, "schemes": SCHEMES, "tw": TW, "th": TH, "gap": GAP,
+    used = {it["k"]["Structure"] for it in items}
+    SCHEMES["Structure"] = {k: v for k, v in SCHEMES["Structure"].items() if k in used}
+    D = {"items": items, "maps": maps, "schemes": SCHEMES, "tw": TW, "th": TH, "gap": GAP, "det": detections(files),
          "atlas": {"src": "/atlas/cover_s.webp", "cols": 32, "tw": 40, "th": 50}, "thumbs": "/thumbs/", "large": "/large/"}
     (OUT / "index.html").write_text(PAGE.replace("/*DATA*/", json.dumps(D, ensure_ascii=False, separators=(",", ":"))), encoding="utf-8")
     print("->", OUT / "index.html")
@@ -204,17 +268,20 @@ canvas.drag{cursor:grabbing}
 .steer{display:flex;align-items:center;gap:10px;margin-top:10px;pointer-events:auto;font-size:var(--t2);color:var(--dim)}
 .steer input{width:180px;accent-color:#ebebeb}.steer b{color:var(--fg);font-weight:400;min-width:2.6em}
 .steer .group button{font-size:var(--t2);height:24px;padding:0 12px}.steer .st{min-width:9em}
+.detrow{display:none;margin-top:10px;pointer-events:auto}body.det .detrow{display:flex;align-items:center;gap:10px}
+.detrow .legend{margin-top:0}.detrow .legend i{border-radius:2px}
 .zoom{position:fixed;right:32px;bottom:28px;z-index:3;display:flex;gap:2px;background:#111;border-radius:999px;padding:4px}
 .zoom button{border:0;background:transparent;color:var(--dim);width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:16px}
 .zoom button:hover{color:var(--fg)}
 </style></head><body>
 <header><div class="group" id="maps"></div><span class="sp"></span><span class="count" id="count"></span>
-<a class="tog" href="/label">Label</a><button class="tog" id="grid">Grid</button><button class="tog" id="edit">Edit</button><button class="tog" id="export">Export</button><button class="tog" id="reset">Reset edits</button></header>
+<button class="tog" id="det">Detected</button><a class="tog" href="/label">Label</a><button class="tog" id="grid">Grid</button><button class="tog" id="edit">Edit</button><button class="tog" id="export">Export</button><button class="tog" id="reset">Reset edits</button></header>
 <canvas id="cv"></canvas>
 <div class="foot"><div class="k">Arranged by</div><h1 id="title"></h1><div class="desc" id="desc"></div>
   <div class="row"><span class="k">Colored by</span><div class="group" id="schemes"></div></div><div class="legend" id="legend"></div>
   <div class="steer" id="steer"><span class="k">Pull toward</span><span id="stName"></span><input type="range" id="stW" min="0" max="1" step="0.1" value="0"><b id="stV">0</b>
-    <div class="group" id="stSrc"></div><span class="st" id="stMsg"></span></div></div>
+    <div class="group" id="stSrc"></div><span class="st" id="stMsg"></span></div>
+  <div class="detrow"><span class="k">Detected</span><div class="legend" id="detLegend"></div></div></div>
 <div class="zoom"><button id="zin" aria-label="Zoom in">+</button><button id="zout" aria-label="Zoom out">−</button></div>
 <div id="tip"></div>
 <script>
@@ -229,8 +296,36 @@ const catOf=i=>{const it=D.items[i],o=(E.labels[scheme]||{})[it.f];return o||it.
 // ---------- 이미지: 아틀라스(저화질) → thumbs → large ----------
 const atlas=new Image();atlas.src=D.atlas.src;atlas.onload=()=>dirty=true;
 const mid={},big={};let loading=0;
-function want(store,base,i){const f=D.items[i].f;if(store[f]||loading>12)return;const im=new Image();store[f]=im;loading++;
-  im.onload=im.onerror=()=>{loading--;im.ok=im.complete&&im.naturalWidth>0;dirty=true};im.src=base+f}
+function want(store,base,i,ext){const f=D.items[i].f;if(store[f]||loading>12)return;const im=new Image();store[f]=im;loading++;
+  im.onload=im.onerror=()=>{loading--;im.ok=im.complete&&im.naturalWidth>0;dirty=true};im.src=base+(ext?f.replace(/\.jpg$/,ext):f)}
+// ---------- 탐지: 컴퓨터가 찾은 것을 커버 위에 ----------
+let detOn=false;
+const LAYERS=[['t','Text','#ffffff'],['f','Faces','#f5d000'],['o','Objects','#2f8cff'],['l','Lines','#34c759']],layerOn={t:true,f:true,o:true,l:true};
+const structView=()=>detOn&&D.maps[mapI].name==='Structure';
+// Structure 지도: 잰 것만 — 대칭축(세로선), 기운 방향(가운데를 지나는 선), 가운데 모인 주제(타원). 뚜렷한 것만 그린다
+function drawStruct(i,x,y,w,h,a){const m=D.det[i].s;if(!m||!m.g)return;const p=m.p,g=m.g,X=v=>x+v*w/1000,Y=v=>y+v*h/1000,mx=x+w/2,my=y+h/2;
+  ctx.save();ctx.beginPath();ctx.rect(x,y,w,h);ctx.clip();ctx.globalAlpha=a;ctx.lineWidth=Math.max(1.5,Math.min(3,h/50));ctx.strokeStyle=ctx.fillStyle=D.schemes.Structure[g]||'#fff';ctx.beginPath();
+  const ray=(t,L,ox=0,oy=0)=>{ctx.moveTo(mx+ox-Math.cos(t)*L,my+oy+Math.sin(t)*L);ctx.lineTo(mx+ox+Math.cos(t)*L,my+oy-Math.sin(t)*L)};
+  if(g==='Symmetric'){ctx.moveTo(X(p[0]),y+h*.04);ctx.lineTo(X(p[0]),y+h*.96)}
+  else if(g==='Diagonal')ray(p[0]*Math.PI/180,Math.min(w,h)*.46);
+  else if(g==='Parallel lines'){const t=p[0]*Math.PI/180;for(const k of[-1,0,1])ray(t,Math.min(w,h)*.42,Math.sin(t)*k*w*.2,Math.cos(t)*k*w*.2)}
+  else if(g==='Centered'){const r=Math.sqrt(p[2]/1000/Math.PI);ctx.ellipse(X(p[0]),Y(p[1]),Math.max(3,r*w*1.25),Math.max(3,r*h),0,0,7)}
+  else if(g==='Frame in frame')ctx.rect(X(p[0]),Y(p[1]),(p[2]-p[0])*w/1000,(p[3]-p[1])*h/1000);
+  else if(g==='Circular'){ctx.arc(X(p[0]),Y(p[1]),w*.3,0,7);ctx.moveTo(X(p[0])+w*.12,Y(p[1]));ctx.arc(X(p[0]),Y(p[1]),w*.12,0,7)}
+  ctx.stroke();ctx.restore();ctx.globalAlpha=a}
+function drawDet(i,x,y,w,h,a){const d=D.det[i],X=v=>x+v*w/1000,Y=v=>y+v*h/1000,lw=Math.max(1,Math.min(2,h/90));
+  if(layerOn.l&&h>=40){ctx.globalAlpha=a*.9;ctx.strokeStyle='#34c759';ctx.lineWidth=lw;ctx.beginPath();for(const l of d.l){ctx.moveTo(X(l[0]),Y(l[1]));ctx.lineTo(X(l[2]),Y(l[3]))}ctx.stroke()}
+  if(layerOn.t){ctx.fillStyle=ctx.strokeStyle='#fff';ctx.lineWidth=lw;for(const t of d.t){const bx=X(t[0]),by=Y(t[1]),bw=(t[2]-t[0])*w/1000,bh=(t[3]-t[1])*h/1000;
+    if(t[4]){ctx.globalAlpha=a*.85;ctx.fillRect(bx,by,bw,bh)}else if(h>=40){ctx.globalAlpha=a*.6;ctx.strokeRect(bx,by,bw,bh)}}}
+  if(layerOn.f){ctx.globalAlpha=a*.8;ctx.fillStyle='#f5d000';for(const f of d.f)ctx.fillRect(X(f[0]),Y(f[1]),(f[2]-f[0])*w/1000,(f[3]-f[1])*h/1000)}
+  if(layerOn.o&&h>=40){ctx.globalAlpha=a;ctx.strokeStyle='#2f8cff';ctx.lineWidth=lw;for(const o of d.o){ctx.strokeRect(X(o[0]),Y(o[1]),(o[2]-o[0])*w/1000,(o[3]-o[1])*h/1000);
+    if(h>=220){ctx.fillStyle='#2f8cff';ctx.font='11px "Helvetica Neue",Helvetica,Arial,sans-serif';ctx.fillText(o[4],X(o[0])+3,Y(o[1])+12)}}}
+  ctx.globalAlpha=a}
+function detLegend(){const el=document.getElementById('detLegend');el.innerHTML='';
+  document.querySelector('.detrow').style.visibility=structView()?'hidden':'';if(structView())return;
+  for(const[k,n,c]of LAYERS){const b=document.createElement('button');b.className=layerOn[k]?'':'off';b.innerHTML=`<i style="background:${c}"></i>${n}`;
+    b.onclick=()=>{layerOn[k]=!layerOn[k];detLegend();dirty=true};el.appendChild(b)}}
+function setDet(v){detOn=v;document.body.classList.toggle('det',v);document.getElementById('det').classList.toggle('on',v);detLegend();dirty=true}
 // ---------- 자리: 지금 자리(cx,cy)가 목표(gx,gy)로 부드럽게 ----------
 const cx=new Float32Array(N),cy=new Float32Array(N),gx=new Float32Array(N),gy=new Float32Array(N);
 let stW=0,stSrc='human',stReq=0;const steered={};
@@ -250,15 +345,17 @@ function resize(){dpr=devicePixelRatio||1;cv.width=innerWidth*dpr;cv.height=inne
 // ---------- 그리기 ----------
 function draw(){ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,innerWidth,innerHeight);
   const w=D.tw*s,h=D.th*s,col=D.schemes[scheme],nbs=sel!==null?new Set(D.maps[mapI].nb[sel]):null;
-  const useMid=h>=56,useBig=h>=150,settled=Math.abs(S-s)<.01*S;
+  const useMid=h>=56,useBig=h>=150,settled=Math.abs(S-s)<.01*S,sv=structView();
   const order=[];for(let i=0;i<N;i++)if(i!==hover)order.push(i);if(hover>=0)order.push(hover);
   for(const i of order){const x=cx[i]*s+tx,y=cy[i]*s+ty;if(x>innerWidth||y>innerHeight||x+w<0||y+h<0)continue;
     const c=catOf(i),f=D.items[i].f;
     let a=1;if(focusCat&&c!==focusCat)a=.1;if(nbs&&i!==sel&&!nbs.has(i))a=.1;ctx.globalAlpha=a;
     let src=null;if(useBig){if(settled)want(big,D.large,i);if(big[f]&&big[f].ok)src=big[f]}
     if(!src&&useMid){if(settled)want(mid,D.thumbs,i);if(mid[f]&&mid[f].ok)src=mid[f]}
-    if(src)ctx.drawImage(src,x,y,w,h);
-    else if(atlas.complete){const k=D.items[i].a,ac=D.atlas.cols;ctx.drawImage(atlas,(k%ac)*D.atlas.tw,Math.floor(k/ac)*D.atlas.th,D.atlas.tw,D.atlas.th,x,y,w,h)}
+    {if(detOn){ctx.fillStyle='#000';ctx.fillRect(x,y,w,h);ctx.globalAlpha=a*.28}
+      if(src)ctx.drawImage(src,x,y,w,h);
+      else if(atlas.complete){const k=D.items[i].a,ac=D.atlas.cols;ctx.drawImage(atlas,(k%ac)*D.atlas.tw,Math.floor(k/ac)*D.atlas.th,D.atlas.tw,D.atlas.th,x,y,w,h)}
+      if(sv)drawStruct(i,x,y,w,h,a);else if(detOn)drawDet(i,x,y,w,h,a)}
     if(colorOn&&col[c]){ctx.strokeStyle=col[c];ctx.lineWidth=Math.max(1,Math.min(2.5,h/22));ctx.strokeRect(x+.5,y+.5,w-1,h-1)}
     if(i===sel||(nbs&&nbs.has(i))){ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.strokeRect(x-2,y-2,w+4,h+4)}
     const edited=(E.labels[scheme]||{})[f]||(E.moves[moveKey()]||{})[f];
@@ -272,8 +369,11 @@ function tick(){let moving=false;
 // ---------- 맞히기: 위에 그려진 것부터 ----------
 function hit(px,py){const w=D.tw*s,h=D.th*s;if(hover>=0){const x=cx[hover]*s+tx,y=cy[hover]*s+ty;if(px>=x&&px<=x+w&&py>=y&&py<=y+h)return hover}
   for(let i=N-1;i>=0;i--){const x=cx[i]*s+tx,y=cy[i]*s+ty;if(px>=x&&px<=x+w&&py>=y&&py<=y+h)return i}return -1}
+function detTip(i){if(structView()){const m=D.det[i].s;return m&&m.sc.length?`<em style="margin:6px 0 0">${m.sc.map(v=>v[0]+' '+v[1]).join(' · ')}${m.n?'<br>Seen: '+m.n:''}</em>`:''}
+  const d=D.det[i],used=d.t.filter(t=>t[4]).length,names=[...new Set(d.o.map(o=>o[4]))];
+  return `<em style="margin:6px 0 0">Text ${used}${d.t.length>used?' + '+(d.t.length-used)+' frame':''} · Faces ${d.f.length} · Lines ${d.l.length}${names.length?'<br>'+names.join(', '):''}</em>`}
 function showTip(i,e){if(i<0){tip.style.opacity=0;return}const it=D.items[i],c=catOf(i),o=(E.labels[scheme]||{})[it.f];
-  tip.innerHTML=`<b>${it.t}</b><em>${it.y||''}${it.d?' · '+it.d:''}<br>${c||'—'}${o?' (edited, model: '+it.k[scheme]+')':''}${scheme==='People'&&it.h&&it.h!==c?' · my label '+it.h:''}</em>${it.l[scheme]}`;
+  tip.innerHTML=`<b>${it.t}</b><em>${it.y||''}${it.d?' · '+it.d:''}<br>${c||'—'}${o?' (edited, model: '+it.k[scheme]+')':''}${scheme==='People'&&it.h&&it.h!==c?' · my label '+it.h:''}</em>${it.l[scheme]}${detOn?detTip(i):''}`;
   tip.style.opacity=1;const r=tip.getBoundingClientRect();tip.style.left=Math.min(e.clientX+16,innerWidth-r.width-12)+'px';tip.style.top=Math.min(e.clientY+16,innerHeight-r.height-12)+'px'}
 // ---------- 입력 ----------
 const isMouseWheel=e=>e.deltaMode!==0||(e.deltaX===0&&Number.isInteger(e.deltaY)&&Math.abs(e.deltaY)>=50);
@@ -315,8 +415,8 @@ function segment(el,labels,onIdx,cur,seps=[]){el.innerHTML='<span class="pill"><
   const b=document.createElement('button');b.textContent=l;b.onclick=()=>{onIdx(k);mark(el,k)};el.appendChild(b)});requestAnimationFrame(()=>mark(el,cur))}
 function mark(el,k){const bs=[...el.querySelectorAll('button')];bs.forEach((b,j)=>b.classList.toggle('on',j===k));const b=bs[k],p=el.querySelector('.pill');
   if(b){p.style.width=b.offsetWidth+'px';p.style.transform=`translateX(${b.offsetLeft}px)`}}
-const gstart=D.maps.findIndex(m=>m.group==='image');
-segment(document.getElementById('maps'),D.maps.map(m=>m.name),k=>{mapI=k;sel=null;if(colorOn)setScheme(D.maps[k].scheme);if(stW>0)steer();targets();updateFoot();updateCount();fit()},mapI,gstart>0?[gstart]:[]);
+const gstart=D.maps.map((m,k)=>k&&m.group!==D.maps[k-1].group?k:0).filter(Boolean);
+segment(document.getElementById('maps'),D.maps.map(m=>m.name),k=>{mapI=k;sel=null;if(detOn)detLegend();if(colorOn)setScheme(D.maps[k].scheme);if(stW>0)steer();targets();updateFoot();updateCount();fit()},mapI,gstart);
 const SCH=[...Object.keys(D.schemes),'None'];
 // Colored by 의 None = 색 테두리 없이 커버만(범례·다이얼·범주 고치기 숨김). 다시 고르면 그 범주로
 function setScheme(n){colorOn=n!=='None';document.getElementById('legend').style.display=document.getElementById('steer').style.display=colorOn?'':'none';
@@ -342,6 +442,8 @@ function legend(){const el=document.getElementById('legend'),cnt={};for(let i=0;
 function updateFoot(){const m=D.maps[mapI];document.getElementById('title').textContent=m.name;document.getElementById('desc').textContent=m.desc+(exact?'':' · grid')}
 function updateCount(){const nl=Object.values(E.labels).reduce((a,o)=>a+Object.keys(o).length,0),nm=Object.values(E.moves).reduce((a,o)=>a+Object.keys(o).length,0);
   document.getElementById('count').textContent=`${N} covers`+(nl||nm?` · ${nl} relabeled · ${nm} moved`:'')}
+document.getElementById('det').onclick=()=>setDet(!detOn);
+addEventListener('keydown',e=>{if(e.code==='Space'&&!e.metaKey&&!e.ctrlKey&&e.target.tagName!=='INPUT'){e.preventDefault();setDet(!detOn)}});
 document.getElementById('grid').onclick=e=>{exact=!exact;e.target.classList.toggle('on',!exact);targets();updateFoot()};
 document.getElementById('edit').onclick=e=>{edit=!edit;e.target.classList.toggle('on',edit);legend()};
 document.getElementById('export').onclick=()=>{const b=new Blob([JSON.stringify({exported:new Date().toISOString(),...E},null,1)],{type:'application/json'});
