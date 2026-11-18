@@ -939,7 +939,7 @@ const trClr = v => LANG === 'ko' ? (CLR_KO[v] || v) : v;
 })();
 
 // 버전: 화면·동작이 바뀌면 올린다. 데이터 날짜는 build_web.py 가 META.built 에 적는다
-const VERSION = '1.16.1';
+const VERSION = '1.16.2';
 document.getElementById('ver').textContent = `v${VERSION}`;
 document.getElementById('ver').title = M.built ? `data ${M.built}` : '';
 const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -2134,8 +2134,26 @@ function pinchBy(factor, cx, cy) {
   pinchAcc += Math.log(factor);
   if (Math.abs(pinchAcc) > .18) { zoomStep(pinchAcc > 0 ? 1 : -1, cx, cy); pinchAcc = 0; pinchLock = true; }
 }
-// 마우스 휠인지 트랙패드인지: 휠은 줄 단위(deltaMode 1)이거나, 가로 없이 큰 정수 칸(보통 100·120)으로 온다
-const isMouseWheel = e => e.deltaMode !== 0 || (e.deltaX === 0 && Number.isInteger(e.deltaY) && Math.abs(e.deltaY) >= 50);
+/* 마우스 휠인지 트랙패드인지. 마우스 휠은 줌만, 트랙패드 두 손가락은 이동.
+   - 줄 단위(deltaMode 1, Firefox 마우스) = 휠
+   - 가로 성분이 있으면 트랙패드
+   - Chrome·Safari 의 wheelDeltaY: 트랙패드는 정확히 -3 × deltaY, 마우스 휠은 그렇지 않다(120 단위. macOS 가속 휠은 deltaY 가 4.0002 같은 작은 소수라 크기로는 못 가른다)
+   - wheelDeltaY 가 없으면 예전 기준(가로 없이 큰 정수 칸)
+   제스처 하나(180ms 넘게 끊기기 전까지)는 첫 판정을 유지한다. 도중에 가로가 오면 트랙패드로 바뀌기만 한다 */
+let wheelKind = null, wheelKindT = 0;
+function isMouseWheel(e) {
+  const now = performance.now();
+  if (now - wheelKindT > 180) wheelKind = null;
+  wheelKindT = now;
+  if (e.deltaX !== 0 && e.deltaMode === 0) wheelKind = 'pad';
+  if (!wheelKind) {
+    const wd = e.wheelDeltaY;
+    wheelKind = e.deltaMode !== 0 ? 'mouse'
+      : wd ? (Math.abs(wd + 3 * e.deltaY) > 1 ? 'mouse' : 'pad')
+      : (Number.isInteger(e.deltaY) && Math.abs(e.deltaY) >= 50 ? 'mouse' : 'pad');
+  }
+  return wheelKind === 'mouse';
+}
 let wheelLock = 0;
 cv.addEventListener('wheel', e => {
   if (cur !== null) return;
