@@ -226,8 +226,11 @@
   #toast svg.fill { fill: currentColor; }
   #toast button { height: 28px; padding: 0 12px; border: 0; border-radius: 999px; background: #1f1f1f; color: var(--fg); font: inherit; cursor: pointer; }
   #toast button:hover { background: #2a2a2a; }
-  #toast:not(.act) { padding-right: 16px; }
-  #toast:not(.act) button { display: none; }
+  #toast { padding-right: 4px; }
+  #toast:not(.act) .tview, #toast:not(.undo) .tundo { display: none; }
+  #toast .tx { width: 32px; height: 32px; padding: 0; display: grid; place-items: center; background: transparent; color: var(--dim); margin-left: -4px; }
+  #toast .tx:hover { background: #1f1f1f; color: var(--fg); }
+  #toast .tx svg { width: 13px; height: 13px; stroke-width: 1.4; }
   /* My Collection 이 비었을 때 */
   #mineEmpty { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
     color: var(--fg); font-size: var(--t4); pointer-events: none; opacity: 0; transform: translateY(8px); transition: opacity .4s var(--out), transform .5s var(--out); }
@@ -386,6 +389,11 @@
   #signin .later svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.4; }
   .acctmenu .axlist { left: auto; right: 0; min-width: 240px; transform-origin: calc(100% - 18px) 0; }
   .axlist .note { padding: 8px 14px 6px; font-size: var(--t2); line-height: 1.4; color: #777; white-space: normal; }
+  .axlist .qs { display: flex; justify-content: space-between; gap: 8px; padding: 4px 6px 6px; }
+  .axlist .qseg { display: flex; gap: 2px; padding: 2px; border-radius: 999px; background: #1a1a1a; }
+  .axlist .qseg button { height: 26px; min-width: 32px; padding: 0 9px; justify-content: center; gap: 0; font-size: var(--t2); }
+  .axlist .qseg button svg.li { width: 14px; height: 14px; }
+  .axlist .qseg button.on, .axlist .qseg button.on:hover { background: var(--fg); color: #000; }
   .axlist .soon { margin-left: auto; font-size: var(--t1); color: #555; }
 
   .info .t { font-size: var(--t5); line-height: 1.12; color: var(--fg); margin-bottom: 10px; }
@@ -464,6 +472,10 @@
   #zoom button:hover { background: #222; color: var(--fg); }
   body.tri-open #zoom { opacity: 0; pointer-events: none; }
   #stage { overflow: hidden; }
+  /* 글자 선택(하이라이트)·길게 누르기 메뉴 금지. 입력칸만 예외 */
+  html, body { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
+  input, textarea, [contenteditable] { -webkit-user-select: text; user-select: text; -webkit-touch-callout: default; }
+  img { -webkit-user-drag: none; }
   html, body { touch-action: pan-x pan-y; overscroll-behavior: none; }   /* 가장자리 밀기로 뒤로 가기·당겨서 새로고침 금지 */   /* 폰: 페이지 핀치·두 번 탭 확대 금지 */
   #hires { position: absolute; inset: 0; pointer-events: none; }
   /* 터치: 화면 정가운데 점. 점이 닿은 커버·클러스터에 호버 효과(확대했을 때만) */
@@ -792,7 +804,7 @@
   <button data-st="watching" role="menuitemradio"><svg class="si" viewBox="0 0 24 24" aria-hidden="true"></svg>Watching</button>
   <button data-st="watched" role="menuitemradio"><svg class="si" viewBox="0 0 24 24" aria-hidden="true"></svg>Watched</button>
 </div></div>
-<div id="toast" role="status" aria-live="polite"><svg viewBox="0 0 24 24" aria-hidden="true"></svg><span></span><button type="button">View</button></div>
+<div id="toast" role="status" aria-live="polite"><svg viewBox="0 0 24 24" aria-hidden="true"></svg><span></span><button type="button" class="tview">View</button><button type="button" class="tundo">Undo</button><button type="button" class="tx" aria-label="Dismiss"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
 <div id="lens"></div>
 <div id="flyer"></div>
 
@@ -874,6 +886,7 @@ const KO = {
   'Language': '언어', 'Cinematography': '촬영', 'Music': '음악', 'Written by': '각본', 'Show More': '더 보기', 'Show Less': '접기', '{0} min': '{0}분',
   '{0}s': '{0}년대', 'No results': '결과 없음', 'View': '보기', 'Privacy': '개인정보처리방침',
   'Unmarked': '표시 안 함', 'Want to watch': '보고 싶어요', 'Watching': '보는 중', 'Watched': '봤어요', 'Status: {0}': '상태: {0}', 'Watch status': '시청 상태',
+  'Undo': '실행 취소', 'Dismiss': '닫기', 'Undone': '되돌렸어요', 'Quick settings': '빠른 설정',
   'Nothing marked yet': '아직 표시한 영화가 없어요', 'Open a cover and set its status to see it here.': '커버를 열어 상태를 고르면 여기에 모여요.',
   'Status · {0} marked': '상태 · {0}편 표시', 'Status · kept on this device': '상태 · 이 기기에 저장', 'Status · {0} marked on this device': '상태 · 이 기기에 {0}편',
   'Keep your collection': '컬렉션을 간직하세요', 'Sign in to keep your marks on every device.': '로그인하면 어느 기기에서나 표시가 이어져요.',
@@ -926,7 +939,7 @@ const trClr = v => LANG === 'ko' ? (CLR_KO[v] || v) : v;
 })();
 
 // 버전: 화면·동작이 바뀌면 올린다. 데이터 날짜는 build_web.py 가 META.built 에 적는다
-const VERSION = '1.15.1';
+const VERSION = '1.16.0';
 document.getElementById('ver').textContent = `v${VERSION}`;
 document.getElementById('ver').title = M.built ? `data ${M.built}` : '';
 const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -992,13 +1005,21 @@ const STATUS_ICON = {   // 안쪽은 칠하지 않고 뚫는다(evenodd): 흰 �
 };
 const BOOKMARK = '<path d="M19 21 12 17 5 21V3h14z"/>';
 let toastT = 0;
-function toast(msg, { icon = '', fill = false, action = null } = {}) {
-  const el = document.getElementById('toast'), svg = el.querySelector('svg'), btn = el.querySelector('button');
+// 토스트는 10초 동안(가리키고 있는 동안은 멈춤). undo 가 있으면 '실행 취소', 늘 닫기(×)
+const TOAST_MS = 10000;
+function toast(msg, { icon = '', fill = false, action = null, undo = null } = {}) {
+  const el = document.getElementById('toast'), svg = el.querySelector(':scope > svg');
+  const view = el.querySelector('.tview'), und = el.querySelector('.tundo'), x = el.querySelector('.tx');
   svg.innerHTML = icon; svg.style.display = icon ? '' : 'none'; svg.classList.toggle('fill', fill);
-  el.querySelector('span').textContent = msg; btn.textContent = tr('View');
-  el.classList.toggle('act', !!action); btn.onclick = action ? () => { el.classList.remove('show'); action(); } : null;
+  el.querySelector('span').textContent = msg; view.textContent = tr('View'); und.textContent = tr('Undo'); x.setAttribute('aria-label', tr('Dismiss'));
+  const hide = () => { clearTimeout(toastT); el.classList.remove('show'); };
+  el.classList.toggle('act', !!action); view.onclick = action ? () => { hide(); action(); } : null;
+  el.classList.toggle('undo', !!undo); und.onclick = undo ? () => { hide(); undo(); } : null;
+  x.onclick = hide;
+  el.onmouseenter = () => clearTimeout(toastT);
+  el.onmouseleave = () => { clearTimeout(toastT); if (el.classList.contains('show')) toastT = setTimeout(hide, 4000); };
   el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
-  clearTimeout(toastT); toastT = setTimeout(() => el.classList.remove('show'), action ? 3200 : 2200);
+  clearTimeout(toastT); toastT = setTimeout(hide, TOAST_MS);
 }
 /* 로그인: Supabase Auth(Google·Apple), PKCE 를 직접 처리한다(라이브러리 없이 fetch). publishable 키는 공개용이고
    데이터는 saved 테이블의 RLS(자기 줄만)로 지킨다. 세션은 localStorage 'ccw.auth.v1'.
@@ -1507,14 +1528,22 @@ const G = (() => {
       // 타일 크기는 Spine 격자와 같게(줌 단계·호버 확대·고화질 덮개가 다른 축과 같은 비율로 동작). 저장한 순서(최근 것 먼저)로
       // 한 줄에 화면 폭만큼 채우고, 화면 가운데에 둔다
       // 상태 묶음을 위에서 아래로 쌓고, 묶음 위에 이름(작게). 묶음 사이는 한 줄의 .6 만큼 띄운다
-      const groups = mineGroups(), n = groups.reduce((a, [, g]) => a + g.length, 0), w = layout('spine').tw;
-      f = { w, h: w / ASPECT, g: w * GAP };
-      const cols = Math.max(1, Math.min(Math.max(1, ...groups.map(([, g]) => g.length)), Math.floor((Wc * .9 / 8 + f.g) / (f.w + f.g))));   // 한 줄 = 8배 줌 화면 폭에 들어가는 만큼
-      let y = f.h * .32;
+      // 표시 안 한 커버(Unmarked)까지 모두 넣는다: 전체 보기 화면에 다 들어가게, 타일은 Spine 격자 크기에서 필요한 만큼만 줄인다
+      const groups = mineGroups(), w0 = layout('spine').tw, Hm = Hc - 18;
+      let cols = 1, need = 0;
+      // 묶음 위 이름 자리는 타일이 작아도 글자가 들어가게(최소 20px)
+      const room = h => Math.max(h * .6, 20);
+      const height = (w, c) => { const h = w / ASPECT, g = w * GAP; let y = room(h); for (const [, ids] of groups) y += Math.ceil(ids.length / c) * (h + g) + room(h); return y; };
+      for (let s = 1; s > .2; s *= .97) {
+        const w = w0 * s; cols = Math.max(1, Math.floor((Wc * .96 + w * GAP) / (w + w * GAP)));
+        need = w; if (height(w, cols) <= Hm) break;
+      }
+      f = { w: need, h: need / ASPECT, g: need * GAP };
+      let y = room(f.h);
       for (const [k, g] of groups) {
-        lab.push([0, y - f.h * .1, STATUS[k], 'left']);
+        lab.push([0, y - Math.max(f.h * .1, 8), mineName(k), 'left']);
         g.forEach((i, m) => { px[i] = (m % cols) * (f.w + f.g); py[i] = y + Math.floor(m / cols) * (f.h + f.g); });
-        y += Math.ceil(g.length / cols) * (f.h + f.g) + f.h * .6;
+        y += Math.ceil(g.length / cols) * (f.h + f.g) + room(f.h);
       }
       const oy = oyBg = Math.max(0, (Hc - 18 - y) / 2);
       for (let i = 0; i < N; i++) if (py[i] === py[i]) py[i] += oy;
@@ -1609,8 +1638,9 @@ const G = (() => {
     if (ak === 'mine' && cur === null) {
       // My Collection 은 기본 8배. 모은 커버가 화면에 다 안 들어가면 들어가는 가장 큰 단계(4·2·1)로, 가운데에 맞춘다
       let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
-      for (let i = 0; i < N; i++) if (L.px[i] === L.px[i]) { x0 = Math.min(x0, L.px[i]); y0 = Math.min(y0, L.py[i]); x1 = Math.max(x1, L.px[i] + L.tw); y1 = Math.max(y1, L.py[i] + L.tw / ASPECT); }
-      for (const l of L.labels) y0 = Math.min(y0, l[1] - 4);
+      // 표시한 커버가 있으면 그 묶음들에 맞춰 확대, 없으면 전체 보기
+      for (let i = 0; i < N; i++) if (L.px[i] === L.px[i] && Saved.has(C[i].spine)) { x0 = Math.min(x0, L.px[i]); y0 = Math.min(y0, L.py[i]); x1 = Math.max(x1, L.px[i] + L.tw); y1 = Math.max(y1, L.py[i] + L.tw / ASPECT); }
+      if (x1 >= x0) y0 -= L.tw / ASPECT * .45;   // 묶음 이름 자리
       if (x1 < x0) setView(1, 0, 0, anim ? 420 : 0);
       else {
         const z = [8, 4, 2, 1].find(z => (x1 - x0) * z <= Wc * .9 && (y1 - y0) * z <= (Hc - 18) * .85) || 1;
@@ -2337,12 +2367,15 @@ function chunk(order) {
 RINGS.spine = chunk(bySpine); RINGS.year = chunk(byYear);
 /* My Collection: 저장한 순서(최근 것 먼저). 세 폭 보기에서 저장을 풀어도 그 커버는 닫을 때까지 순회에 남긴다 */
 const SPINE_I = new Map(C.map((c, i) => [c.spine, i]));
+const MINE_ORDER = [...STATUS_ORDER, 'none'];
+const mineName = k => k === 'none' ? tr('Unmarked') : STATUS[k];
 function mineGroups() {
   const all = Saved.list().map(sp => SPINE_I.get(sp)).filter(i => i !== undefined).reverse();
-  if (cur !== null && axis === 'mine' && !all.includes(cur) && RING_POS.mine?.has(cur)) all.push(cur);
-  const g = Object.fromEntries(STATUS_ORDER.map(k => [k, []]));
+  const g = Object.fromEntries(MINE_ORDER.map(k => [k, []]));
   for (const i of all) (g[Saved.status(C[i].spine)] || g.want).push(i);
-  return STATUS_ORDER.map(k => [k, g[k]]).filter(([, ids]) => ids.length);
+  const seen = new Set(all);
+  g.none = [...C.keys()].filter(i => !seen.has(i)).sort((a, b) => C[a].spine - C[b].spine);   // 표시 안 한 것 = Spine 순
+  return MINE_ORDER.map(k => [k, g[k]]).filter(([, ids]) => ids.length);
 }
 const mineOrder = () => mineGroups().flatMap(([, ids]) => ids);
 function syncMine() {
@@ -2450,7 +2483,7 @@ function rowName(k, r) {
     const v = R[r].map(([i]) => k === 'spine' ? C[i].spine : C[i].year), a = Math.min(...v), b = Math.max(...v);
     return k === 'spine' ? `#${a}–${b}` : a === b ? `${a}` : `${a}–${b}`;
   }
-  if (k === 'mine') return STATUS[R[r].status] || '';
+  if (k === 'mine') return mineName(R[r].status) || '';
   return M.rowNames?.[k]?.[r] || '';
 }
 function infoHTML(c) {
@@ -2667,15 +2700,25 @@ function stOpen(btn, i = cur, at = null) {
 }
 stList.addEventListener('click', e => {
   const b = e.target.closest('button[data-st]'); if (!b || stTarget < 0) return;
-  const i = stTarget, c = C[i], v = b.dataset.st || null;
-  if (v) Saved.setStatus(c.spine, v); else if (Saved.has(c.spine)) Saved.toggle(c.spine);   // Unmarked = 표시(저장)에서 뺀다
-  stOpen(null);
-  if (cur === i) { fillInfo(panels.querySelector('.info'), c); panels.querySelector('.info .stbtn')?.classList.add('pop'); }
-  else if (tip.classList.contains('show') && tip.dataset.i == i) retTip(i);   // 폰 미리보기 이름 상자의 아이콘도 바꾼다
-  toast(v ? tr('Status: {0}', STATUS[v]) : tr('Unmarked'), { icon: v ? STATUS_ICON[v] : UNMARKED, fill: true,
-    action: v && axis !== 'mine' ? () => { closeTri(); setAxis('mine'); } : null });
+  const i = stTarget; stOpen(null);
+  setMark(i, b.dataset.st || null);
 });
+// 상태를 바꾸고(Unmarked = 표시에서 뺀다) 보이는 아이콘을 고친 뒤 토스트. 토스트의 실행 취소 = 이전 상태로
+function setMark(i, v, undoable = true) {
+  const c = C[i], prev = Saved.has(c.spine) ? Saved.status(c.spine) : null;
+  if (v) Saved.setStatus(c.spine, v); else if (Saved.has(c.spine)) Saved.toggle(c.spine);
+  if (cur === i) { fillInfo(panels.querySelector('.info'), c); panels.querySelector('.info .stbtn')?.classList.add('pop'); }
+  else if (tip.classList.contains('show') && tip.dataset.i == i) {
+    if (tip.classList.contains('touch')) retTip(i); else { showTip(i); tip.querySelector('.stic')?.classList.add('pop'); }
+  }
+  toast(v ? tr('Status: {0}', STATUS[v]) : tr('Unmarked'), { icon: v ? STATUS_ICON[v] : UNMARKED, fill: true,
+    action: v && axis !== 'mine' ? () => { closeTri(); setAxis('mine'); } : null,
+    undo: undoable && prev !== v ? () => setMark(i, prev, false) : null });
+}
 document.addEventListener('pointerdown', e => { if (stMenu.classList.contains('open') && !stMenu.contains(e.target) && !e.target.closest('.info .stbtn, #tip .tipst')) stOpen(null); });
+// 브라우저 오른쪽 클릭 메뉴는 어디서나 막는다(입력칸만 예외). 격자 커버의 오른쪽 클릭은 아래에서 상태 순회로
+addEventListener('contextmenu', e => { if (!e.target.closest?.('input, textarea, [contenteditable]')) e.preventDefault(); });
+addEventListener('dragstart', e => { if (e.target.tagName === 'IMG' || e.target.tagName === 'A') e.preventDefault(); });
 // 데스크톱: 격자 커버에서 오른쪽 클릭 = 그 커버의 상태를 다음 것으로(왼쪽 클릭은 그대로 상세)
 cv.addEventListener('contextmenu', e => {
   if (cur !== null) return;
@@ -2684,9 +2727,7 @@ cv.addEventListener('contextmenu', e => {
   e.preventDefault();
   // 오른쪽 클릭할 때마다 Unmarked → Want to watch → Watching → Watched → Unmarked
   const c = C[i], cycle = ['', ...STATUS_ORDER], v = cycle[(cycle.indexOf(Saved.status(c.spine) || '') + 1) % cycle.length] || null;
-  if (v) Saved.setStatus(c.spine, v); else if (Saved.has(c.spine)) Saved.toggle(c.spine);
-  if (tip.classList.contains('show') && tip.dataset.i == i) { showTip(i); tip.querySelector('.stic')?.classList.add('pop'); }
-  toast(v ? tr('Status: {0}', STATUS[v]) : tr('Unmarked'), { icon: v ? STATUS_ICON[v] : UNMARKED, fill: true });
+  setMark(i, v);
 });
 panels.addEventListener('click', e => {
   const sb2 = e.target.closest('.info .stbtn');
@@ -2964,6 +3005,14 @@ var fmtMatch = null;
   const li = d => `<svg class="li" viewBox="0 0 24 24" aria-hidden="true">${d}</svg>`;   // Lucide(뾰족하게): settings, log-out, log-in
   const GEAR = li('<path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/>');
   const OUT = li('<path d="M9 21H4V3h5M16 17l5-5-5-5M21 12H9"/>'), IN = li('<path d="M15 3h5v18h-5M10 17l5-5-5-5M15 12H3"/>');
+  // 빠른 설정: 언어(EN · 한) · 화면(어둡게 · 밝게 · 시스템). 설정 창의 General 과 같은 값
+  const QI = { dark: li('<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z"/>'), light: li('<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>'),
+    system: li('<path d="M2 3h20v14H2zM8 21h8M12 17v4"/>') };
+  const quick = () => { const th = themeNow();
+    return `<div class="qs" role="group" aria-label="${tr('Quick settings')}">
+      <div class="qseg" data-q="lang">${[['en', 'EN', 'English'], ['ko', '한', '한국어']].map(([v, s, n]) => `<button type="button" data-v="${v}" class="${v === LANG ? 'on' : ''}" aria-pressed="${v === LANG}" aria-label="${n}" data-tip="${n}">${s}</button>`).join('')}</div>
+      <div class="qseg" data-q="theme">${['dark', 'light', 'system'].map(v => `<button type="button" data-v="${v}" class="${v === th ? 'on' : ''}" aria-pressed="${v === th}" aria-label="${tr(v[0].toUpperCase() + v.slice(1))}" data-tip="${tr(v[0].toUpperCase() + v.slice(1))}">${QI[v]}</button>`).join('')}</div>
+    </div>`; };
   const label = (b, name, on) => { b.disabled = !on; b.innerHTML = `${ICON[name]}<span>${tr('Continue with {0}', name)}</span>${on ? '' : `<span class="soon">${tr('Soon')}</span>`}`; };
   function render() {
     const u = Auth.user(), n = Saved.size();
@@ -2971,9 +3020,11 @@ var fmtMatch = null;
     btn.innerHTML = u ? `<span class="av">${avatarHTML(u)}</span>` : PERSON;
     list.innerHTML = u ? `<div class="who"><span class="av">${avatarHTML(u)}</span><div><b>${esc(u.name || u.email.split('@')[0])}</b><span>${esc(u.email)}</span></div></div>
          <div class="note">${tr('Status · {0} marked', n)}</div>
+         ${quick()}
          <button data-act="settings" role="menuitem">${GEAR}${tr('Settings')}</button>
          <button data-act="out" role="menuitem">${OUT}${tr('Sign out')}</button>`
       : `<button data-act="in" role="menuitem">${IN}${tr('Sign in')}</button>
+         ${quick()}
          <button data-act="settings" role="menuitem">${GEAR}${tr('Settings')}</button>
          <div class="note">${n ? tr('Status · {0} marked on this device', n) : tr('Status · kept on this device')}</div>`;   // 나중에 언어·화면 설정도 이 목록에. Privacy 는 아래 크레딧 줄에
     [...list.children].forEach((x, k, a) => { x.style.setProperty('--i', k); x.style.setProperty('--n', a.length); });
@@ -3048,6 +3099,12 @@ var fmtMatch = null;
 
   list.addEventListener('click', e => {
     const b = e.target.closest('button'); if (!b) return;
+    const q = b.closest('.qseg');
+    if (q) {   // 빠른 설정은 메뉴를 닫지 않는다(언어는 새로 불러옴)
+      if (q.dataset.q === 'lang') setLang(b.dataset.v);
+      else { setTheme(b.dataset.v); q.querySelectorAll('button').forEach(x => { const o = x === b; x.classList.toggle('on', o); x.setAttribute('aria-pressed', o); }); }
+      return;
+    }
     if (b.dataset.act === 'in') { acctOpen(false); signinOpen(true); return; }
     if (b.dataset.act === 'settings') { acctOpen(false); settingsOpen(true); return; }
     if (b.dataset.act === 'out') { acctOpen(false); Auth.signOut(); Saved.replace([]); toast(tr('Signed out. Your marks stay in your account.')); }
@@ -3071,17 +3128,8 @@ var fmtMatch = null;
     el.querySelectorAll('#segLang button').forEach(b => { const o = b.dataset.v === LANG; b.classList.toggle('on', o); b.setAttribute('aria-checked', o); });
     el.querySelectorAll('#segTheme button').forEach(b => { const o = b.dataset.v === th; b.classList.toggle('on', o); b.setAttribute('aria-checked', o); });
   };
-  el.querySelector('#segLang').addEventListener('click', async e => {
-    const b = e.target.closest('button[data-v]'); if (!b || b.dataset.v === LANG) return;
-    try { localStorage.setItem('ccw.lang', b.dataset.v); } catch {}
-    if (Auth.user()) await Auth.updateUser({ lang: b.dataset.v }).catch(() => {});   // 계정에도 남긴다
-    location.reload();   // 문구를 새 언어로 다시 그린다(축·상세 보기는 주소에 남아 그대로)
-  });
-  el.querySelector('#segTheme').addEventListener('click', e => {
-    const b = e.target.closest('button[data-v]'); if (!b) return;
-    try { localStorage.setItem('ccw.theme', b.dataset.v); } catch {}
-    applyTheme(); segs();
-  });
+  el.querySelector('#segLang').addEventListener('click', e => { const b = e.target.closest('button[data-v]'); if (b) setLang(b.dataset.v); });
+  el.querySelector('#segTheme').addEventListener('click', e => { const b = e.target.closest('button[data-v]'); if (b) { setTheme(b.dataset.v); segs(); } });
   function fill() {
     const u = Auth.user(); segs(); show(sec); if (!u) return;
     av.innerHTML = avatarHTML(u);
@@ -3102,8 +3150,8 @@ var fmtMatch = null;
   el.addEventListener('pointerdown', e => { if (e.target === el) settingsOpen(false); if (!wrap.contains(e.target)) avMenu(false); });
   edit.addEventListener('click', () => avMenu(!wrap.classList.contains('open')));
   av.addEventListener('click', () => avMenu(!wrap.classList.contains('open')));   // 그림을 눌러도 같은 메뉴
-  const save = async (data, msg) => {
-    try { await Auth.updateUser(data); if (msg) toast(msg); }
+  const save = async (data, msg, undo = null) => {
+    try { await Auth.updateUser(data); if (msg) toast(msg, { undo }); }
     catch (e) { console.warn(e); toast(tr('Couldn’t save. Please try again.')); fill(); }
   };
   const photoIn = document.getElementById('photoIn');
@@ -3111,20 +3159,24 @@ var fmtMatch = null;
     const b = e.target.closest('button[data-av]'); if (!b) return;
     avMenu(false);
     if (b.dataset.av === 'upload') { photoIn.value = ''; photoIn.click(); return; }
-    const seed = b.dataset.av === 'shuffle' ? Math.random().toString(36).slice(2, 10) : null, had = !!Auth.user()?.photo;
+    const seed = b.dataset.av === 'shuffle' ? Math.random().toString(36).slice(2, 10) : null, had = !!Auth.user()?.photo, prev = Auth.user()?.seed || null;
     av.innerHTML = avatarSVG(seed || Auth.user()?.id); av.classList.remove('pop'); void av.offsetWidth; av.classList.add('pop');
-    save({ avatar_seed: seed, ccw_photo: null });
+    // 사진을 지운 경우는 파일이 사라져 되돌릴 수 없다
+    save({ avatar_seed: seed, ccw_photo: null }, tr('Profile picture updated'), had ? null : () => save({ avatar_seed: prev }, tr('Undone')));
     if (had) Auth.removePhoto();
   });
   photoIn.addEventListener('change', () => {
     const f = photoIn.files?.[0]; if (!f) return;
     if (f.size > 10 * 1024 * 1024) { toast(tr('Please choose an image under 10 MB.')); return; }
     cropOpen(f, async blob => {
-      try { await Auth.uploadPhoto(blob); toast(tr('Profile picture updated')); av.classList.remove('pop'); void av.offsetWidth; av.classList.add('pop'); }
+      const had = !!Auth.user()?.photo;   // 사진을 사진으로 바꾼 경우는 덮어써서 되돌릴 수 없다
+      try { await Auth.uploadPhoto(blob); av.classList.remove('pop'); void av.offsetWidth; av.classList.add('pop');
+        toast(tr('Profile picture updated'), { undo: had ? null : async () => { await Auth.removePhoto(); save({ ccw_photo: null }, tr('Undone')); } }); }
       catch (e) { console.warn(e); toast(tr('Couldn’t upload the photo. Please try again.')); }
     });
   });
-  const saveName = () => { const v = nameEl.value.trim(); if (v !== (Auth.user()?.name || '')) save({ display_name: v || null }, tr('Name saved')); };
+  const saveName = () => { const v = nameEl.value.trim(), prev = Auth.user()?.name || ''; if (v !== prev) save({ display_name: v || null }, tr('Name saved'),
+    () => { nameEl.value = prev; save({ display_name: prev || null }, tr('Undone')); }); };
   nameEl.addEventListener('change', saveName);
   nameEl.addEventListener('keydown', e => { if (e.key === 'Enter') nameEl.blur(); });
   const del = el.querySelector('[data-act="delete"]'), delNote = document.getElementById('delNote');
@@ -3186,6 +3238,15 @@ const cropOpen = (() => {
     img.src = url;
   };
 })();
+/* 언어 바꾸기: 저장(로그인 중이면 계정에도) 후 새로 불러온다(축·상세 보기는 주소에 남아 그대로) */
+async function setLang(v) {
+  if (v === LANG) return;
+  try { localStorage.setItem('ccw.lang', v); } catch {}
+  if (Auth.user()) await Auth.updateUser({ lang: v }).catch(() => {});
+  location.reload();
+}
+function setTheme(v) { try { localStorage.setItem('ccw.theme', v); } catch {} applyTheme(); }
+function themeNow() { try { return localStorage.getItem('ccw.theme') || 'dark'; } catch { return 'dark'; } }
 /* 화면 모드: dark · light · system(운영체제 설정을 따라 바뀜) */
 function applyTheme() {
   let th = 'dark'; try { th = localStorage.getItem('ccw.theme') || 'dark'; } catch {}
