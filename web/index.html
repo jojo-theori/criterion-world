@@ -939,7 +939,7 @@ const trClr = v => LANG === 'ko' ? (CLR_KO[v] || v) : v;
 })();
 
 // 버전: 화면·동작이 바뀌면 올린다. 데이터 날짜는 build_web.py 가 META.built 에 적는다
-const VERSION = '1.16.2';
+const VERSION = '1.16.3';
 document.getElementById('ver').textContent = `v${VERSION}`;
 document.getElementById('ver').title = M.built ? `data ${M.built}` : '';
 const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -2137,23 +2137,39 @@ function pinchBy(factor, cx, cy) {
 /* 마우스 휠인지 트랙패드인지. 마우스 휠은 줌만, 트랙패드 두 손가락은 이동.
    - 줄 단위(deltaMode 1, Firefox 마우스) = 휠
    - 가로 성분이 있으면 트랙패드
-   - Chrome·Safari 의 wheelDeltaY: 트랙패드는 정확히 -3 × deltaY, 마우스 휠은 그렇지 않다(120 단위. macOS 가속 휠은 deltaY 가 4.0002 같은 작은 소수라 크기로는 못 가른다)
-   - wheelDeltaY 가 없으면 예전 기준(가로 없이 큰 정수 칸)
-   제스처 하나(180ms 넘게 끊기기 전까지)는 첫 판정을 유지한다. 도중에 가로가 오면 트랙패드로 바뀌기만 한다 */
+   - 가로 없이 큰 정수 칸(Windows·보통 100·120) = 휠
+   - macOS Chrome 휠은 4.000244140625 의 배수인 소수(가속하면 8.0005, 12.0007 …) = 휠
+   (wheelDeltaY 로 가르는 흔한 방법은 macOS 마우스에서 트랙패드와 같은 값이 와서 쓰지 않는다, v1.16.2)
+   제스처 하나(180ms 넘게 끊기기 전까지)는 첫 판정을 유지한다. 도중에 가로가 오면 트랙패드로 바뀌기만 한다
+   주소에 ?wheel 을 붙이면 왼쪽 아래에 최근 휠 이벤트 값과 판정을 보인다(진단용) */
+const MAC_TICK = 4.000244140625;
 let wheelKind = null, wheelKindT = 0;
 function isMouseWheel(e) {
-  const now = performance.now();
-  if (now - wheelKindT > 180) wheelKind = null;
+  const now = performance.now(), dt = now - wheelKindT;
+  if (dt > 180) wheelKind = null;
   wheelKindT = now;
   if (e.deltaX !== 0 && e.deltaMode === 0) wheelKind = 'pad';
   if (!wheelKind) {
-    const wd = e.wheelDeltaY;
+    const ay = Math.abs(e.deltaY), r = ay / MAC_TICK;
     wheelKind = e.deltaMode !== 0 ? 'mouse'
-      : wd ? (Math.abs(wd + 3 * e.deltaY) > 1 ? 'mouse' : 'pad')
-      : (Number.isInteger(e.deltaY) && Math.abs(e.deltaY) >= 50 ? 'mouse' : 'pad');
+      : e.deltaX !== 0 ? 'pad'
+      : Number.isInteger(e.deltaY) && ay >= 50 ? 'mouse'
+      : !Number.isInteger(e.deltaY) && r >= .999 && Math.abs(r - Math.round(r)) < .002 ? 'mouse'
+      : 'pad';
   }
+  wheelLog?.(e, dt);
   return wheelKind === 'mouse';
 }
+const wheelLog = /[?&]wheel\b/.test(location.search) ? (() => {
+  const box = document.createElement('pre'), rows = [];
+  box.style.cssText = 'position:fixed;left:8px;bottom:8px;z-index:99;margin:0;padding:6px 8px;background:#000c;color:#fff;font:11px/1.35 ui-monospace,monospace;pointer-events:none;white-space:pre';
+  document.body.appendChild(box);
+  return (e, dt) => {
+    rows.push(`${wheelKind.padEnd(5)} dx ${e.deltaX} dy ${e.deltaY} mode ${e.deltaMode} wd ${e.wheelDeltaY} gap ${Math.min(999, Math.round(dt))}ms`);
+    if (rows.length > 14) rows.shift();
+    box.textContent = rows.join('\n');
+  };
+})() : null;
 let wheelLock = 0;
 cv.addEventListener('wheel', e => {
   if (cur !== null) return;
