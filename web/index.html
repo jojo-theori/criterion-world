@@ -139,7 +139,7 @@
   #tip .stic svg { width: 100%; height: 100%; fill: currentColor; display: block; }
   #tip .stic.pop svg { animation: savepop .5s cubic-bezier(.34,1.56,.64,1); }
   #tip.touch .stic { display: none; }
-  #tip.touch { display: flex; align-items: center; gap: 10px; pointer-events: auto; }
+  #tip.touch { display: flex; align-items: center; gap: 10px; pointer-events: auto; cursor: pointer; -webkit-tap-highlight-color: transparent; }
   #tip.touch:not(.show) { pointer-events: none; }
   #tip.touch .tipst { display: grid; place-items: center; flex: none; width: 40px; height: 40px; margin: -6px -6px -6px 0; padding: 0; border: 0; border-radius: 50%;
     background: transparent; color: var(--dim); }
@@ -926,7 +926,7 @@ const trClr = v => LANG === 'ko' ? (CLR_KO[v] || v) : v;
 })();
 
 // 버전: 화면·동작이 바뀌면 올린다. 데이터 날짜는 build_web.py 가 META.built 에 적는다
-const VERSION = '1.15.0';
+const VERSION = '1.15.1';
 document.getElementById('ver').textContent = `v${VERSION}`;
 document.getElementById('ver').title = M.built ? `data ${M.built}` : '';
 const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -2020,7 +2020,16 @@ function reticleTick() {
   if (i >= 0) retT = setTimeout(() => retTip(i), 160);   // 움직임이 멈추면 이름
 }
 window.onViewChange = reticleTick;
-tip.addEventListener('click', e => { const b = e.target.closest('.tipst'); if (b && tip.dataset.i) stOpen(stMenu.classList.contains('open') ? null : b, +tip.dataset.i); });
+// 폰 이름 상자: 상태 버튼 = 상태 메뉴, 나머지 = 그 커버 열기
+tip.addEventListener('click', e => {
+  if (!tip.classList.contains('touch') || !tip.dataset.i) return;
+  const b = e.target.closest('.tipst'), i = +tip.dataset.i;
+  if (b) stOpen(stMenu.classList.contains('open') ? null : b, i);
+  else if (cur === null) { stOpen(null); openFromGrid(i); }
+});
+// 캔버스 밖(이름 상자·메뉴)을 눌러도 터치로 친다: iOS 가 탭 뒤에 흉내 내는 mousemove 가 터치 모드를 끄고 이름 상자를 숨기던 것
+addEventListener('pointerdown', e => { if (e.pointerType !== 'mouse') lastTouch = performance.now(); }, true);
+addEventListener('pointerup', e => { if (e.pointerType !== 'mouse') lastTouch = performance.now(); }, true);
 function retTip(i) {
   if (!touchMode || cur !== null || panning || i !== retI) return;
   const c = C[i], r = G.rect(i, false);
