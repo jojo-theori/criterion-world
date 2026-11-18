@@ -939,7 +939,7 @@ const trClr = v => LANG === 'ko' ? (CLR_KO[v] || v) : v;
 })();
 
 // 버전: 화면·동작이 바뀌면 올린다. 데이터 날짜는 build_web.py 가 META.built 에 적는다
-const VERSION = '1.16.0';
+const VERSION = '1.16.1';
 document.getElementById('ver').textContent = `v${VERSION}`;
 document.getElementById('ver').title = M.built ? `data ${M.built}` : '';
 const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -1274,6 +1274,7 @@ function syncAxisButtons() {
 }
 function setAxis(k) {
   if (!AXES[k] || k === axis) return;
+  clearTimeout(mineTimer); mineTimer = 0; mineStale = false;   // 기다리던 Status 재배치는 아래 syncMine 이 대신한다
   axis = k;
   syncAxisButtons();
   syncMine();
@@ -2397,7 +2398,16 @@ for (const k of KEYS) {
 const RING_POS = {};
 for (const k in RINGS) { const m = new Map(); RINGS[k].forEach((row, r) => row.forEach(([i], c) => m.set(i, [r, c]))); RING_POS[k] = m; }
 syncMine();
-Saved.on(() => { syncMine(); if (axis === 'mine') G.go('mine', cur === null); });
+/* Status 격자에서 상태를 바꾸면 바로 옮기지 않는다: 같은 커버를 여러 번 바꿀 수 있게
+   마지막 변경 뒤 MINE_SETTLE 동안 조용하면 그때 한 번에 새 자리로 날아간다 */
+const MINE_SETTLE = 1200;
+let mineTimer = 0, mineStale = false;   // mineStale = 순회는 새것인데 격자는 아직 옛 자리(세 폭 보기를 닫을 때 옮긴다)
+function mineFlush() { clearTimeout(mineTimer); mineTimer = 0; mineStale = false; syncMine(); if (axis === 'mine') G.go('mine', cur === null); }
+Saved.on(() => {
+  clearTimeout(mineTimer);
+  if (axis === 'mine' && cur === null) mineTimer = setTimeout(mineFlush, MINE_SETTLE);
+  else mineFlush();
+});
 // i 에서 (dr 줄, dc 칸). 다른 줄로 갈 때는 가로 위치(x)가 가장 가까운 칸을 기준으로 dc 만큼
 function nbr(i, k, dr, dc) {
   const R = RINGS[k], p = RING_POS[k]?.get(i);
@@ -2424,6 +2434,7 @@ const gc = col => narrow() ? { 1: 1, 2: 2, 4: 3 }[col] : col;
 let focusBack = null;
 function openTri(i, push = true, from = null) {
   const opening = cur === null;
+  if (opening && mineTimer) { clearTimeout(mineTimer); mineTimer = 0; syncMine(); mineStale = true; }   // 순회는 새 상태로
   if (opening) { focusBack = document.activeElement; setTimeout(() => tri.focus({ preventScroll: true }), 0); }
   if (push && cur !== null && cur !== i) hist.push(cur);
   cur = i;
@@ -2670,7 +2681,7 @@ function closeTri(fromPop = false) {
   tri.classList.remove('open');
   document.body.classList.remove('tri-open');
   cur = null; hist = [];
-  if (axis === 'mine' && !Saved.has(C[i].spine)) { syncMine(); G.go('mine', true); }   // 보는 동안 저장을 푼 커버는 닫을 때 빠진다
+  if (axis === 'mine' && (mineStale || !Saved.has(C[i].spine))) { mineStale = false; syncMine(); G.go('mine', true); }   // 보는 동안 저장을 푼 커버는 닫을 때 빠진다
   syncAxisButtons();
   if (!goBack) syncHash();
   if (focusBack && document.contains(focusBack)) focusBack.focus({ preventScroll: true }); else cv.focus({ preventScroll: true });
