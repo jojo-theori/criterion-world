@@ -939,7 +939,7 @@ const trClr = v => LANG === 'ko' ? (CLR_KO[v] || v) : v;
 })();
 
 // 버전: 화면·동작이 바뀌면 올린다. 데이터 날짜는 build_web.py 가 META.built 에 적는다
-const VERSION = '1.16.3';
+const VERSION = '1.16.4';
 document.getElementById('ver').textContent = `v${VERSION}`;
 document.getElementById('ver').title = M.built ? `data ${M.built}` : '';
 const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -2436,7 +2436,13 @@ syncMine();
    마지막 변경 뒤 MINE_SETTLE 동안 조용하면 그때 한 번에 새 자리로 날아간다 */
 const MINE_SETTLE = 1200;
 let mineTimer = 0, mineStale = false;   // mineStale = 순회는 새것인데 격자는 아직 옛 자리(세 폭 보기를 닫을 때 옮긴다)
-function mineFlush() { clearTimeout(mineTimer); mineTimer = 0; mineStale = false; syncMine(); if (axis === 'mine') G.go('mine', cur === null); }
+// 돌고 돌아 처음 상태로 돌아왔으면(예: Unmarked 를 네 번 눌러 다시 Unmarked) 배치가 같으니 움직이지 않는다(카메라도 그대로)
+const mineSig = () => (RINGS.mine || []).map(row => row.map(([i]) => i).join(',')).join('|');
+function mineFlush() {
+  clearTimeout(mineTimer); mineTimer = 0; mineStale = false;
+  const was = mineSig(); syncMine();
+  if (axis === 'mine' && mineSig() !== was) G.go('mine', cur === null);
+}
 Saved.on(() => {
   clearTimeout(mineTimer);
   if (axis === 'mine' && cur === null) mineTimer = setTimeout(mineFlush, MINE_SETTLE);
