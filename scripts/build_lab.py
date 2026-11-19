@@ -131,9 +131,10 @@ def model_cats(files: list[str]) -> dict[str, list]:
     pv2 = json.loads((A / "people_v2.json").read_text())
     mv2 = json.loads((A / "medium_v2.json").read_text())
     tropes = json.loads((A / "tropes.json").read_text())
+    sc = structure_scores()                           # 한 번만 읽는다(커버마다 읽으면 다이얼 한 번에 1,344번 파싱)
     return {"People": [pv2[n]["cat"] for n in files], "Medium": [mv2.get(n, "Other") for n in files],
             "Composition": [tropes.get(n, {}).get("composition") for n in files], "Type": [tropes.get(n, {}).get("type") for n in files],
-            "Structure": [structure_scores().get(n, {}).get("group") for n in files]}
+            "Structure": [sc.get(n, {}).get("group") for n in files]}
 
 
 def human_cats(files: list[str], scheme: str, lab: dict) -> list:

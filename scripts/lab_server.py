@@ -59,8 +59,11 @@ def steer(q: dict) -> dict:
     with STEER_LOCK:
         if key not in _STEER:
             p = B.EMB / spec[2]
+            sp = B.map_space(spec[2], files) if p.exists() else None
+            if sp is None:                            # 지도 파일이 없거나 빠진 커버가 있으면(build_lab 이 건너뛴 지도)
+                return {"error": "map not built for these covers, run build_lab.py"}
+            X, metric = sp
             cache = np.load(B.OUT / "umap_cache.npz", allow_pickle=True)
-            X, metric = B.map_space(spec[2], files)
             base = X if metric == "euclidean" else cache.get(f"{spec[2]}|{p.stat().st_mtime_ns}|{len(files)}")      # 자리가 정해진 지도는 그 자리가 기준
             if base is None:
                 return {"error": "run build_lab.py first"}
